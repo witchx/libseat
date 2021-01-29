@@ -1,10 +1,12 @@
 package com.libseat.api.entity;
 
-import com.swpu.libseat.dto.Seat;
+
+import com.libseat.api.dto.Seat;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Data
 @Table(name = "lib_room")
@@ -16,17 +18,21 @@ public class RoomEntity {
     @Column
     private String name;
     @Column
-    private Integer libraryId;
+    private Integer stadiumId;
     @Column
     private Integer line;
     @Column
     private Integer row;
     @Column
-    private String deleteFlag;
+    private Timestamp createTime;
+    @Column
+    private Timestamp modifyTime;
     @Transient
     private Seat[] seat;
     @Transient
     private Integer availableSeatCount;
     @Transient
     private Integer totalSeatCount;
+    @Transient
+    private String stadiumName;
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.SeatMapper">
+    <resultMap id="SeatEntityResult" type="SeatEntity">
+        <result property="id" column="id"/>
+        <result property="roomId" column="room_id"/>
+        <result property="row" column="row"/>
+        <result property="line" column="line"/>
+        <result property="orderId" column="order_id"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+    </resultMap>
+    <!--0代表此处为无座，1代表空座，2代表已被占用-->
+    <select id="getSeatList" resultMap="SeatEntityResult">
+        SELECT
+            ls.id,
+            ls.room_id,
+            ls.`row`,
+            ls.line,
+            MAX(lo.id) order_id,
+            lo.start_time,
+            lo.end_time,
+        CASE
+             WHEN lo.`status` IS NULL THEN ls.`status`
+             WHEN ls.`status` = 0 THEN 0
+             WHEN lo.`status` = 1 THEN 1
+             WHEN lo.`status` = 3 THEN 1
+             WHEN #{startTime} <![CDATA[ >= ]]> lo.end_time THEN 1
+             WHEN #{endTime} <![CDATA[ <= ]]> lo.start_time THEN 1
+			 ELSE 2
+        END AS `status`
+        FROM
+	        lib_seat ls
+        LEFT JOIN lib_order lo
+        ON ls.id = lo.seat_id
+        WHERE ls.room_id = #{roomId}
+        GROUP BY ls.id
+        ORDER BY ls.id
+    </select>
+</mapper>

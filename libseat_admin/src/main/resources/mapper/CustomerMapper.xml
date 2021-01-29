@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.CustomerMapper">
+
+    <select id="getCustomerList" resultType="CustomerEntity">
+        SELECT
+            id,
+            username,
+            icon,
+            sex,
+            status,
+            tel,
+            user_id,
+            delete_flag,
+            modify_time,
+            create_time
+        FROM
+            lib_customer
+        WHERE delete_flag = 0
+        <if test="username != null and username != ''">
+            AND username like concat('%',#{username},'%')
+        </if>
+        <if test="userId != null and userId != ''">
+            AND user_id = #{userId}
+        </if>
+        <if test="sex != null and sex != ''">
+            AND sex = #{sex}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY id
+    </select>
+
+    <insert id="insertCustomerBatch" parameterType="List" >
+        insert into lib_customer
+        (
+            username,
+            icon,
+            sex,
+            status,
+            password,
+            tel,
+            user_id,
+            delete_flag,
+            modify_time,
+            create_time
+        )
+        VALUES
+        <foreach collection="customerEntities" item="customerEntity" separator=",">
+        (
+            #{customerEntity.username},
+            #{customerEntity.icon},
+            #{customerEntity.sex},
+            #{customerEntity.status},
+            #{customerEntity.password},
+            #{customerEntity.tel}
+            #{customerEntity.user_id},
+            #{customerEntity.delete_flag},
+            #{customerEntity.modify_time},
+            #{customerEntity.create_time},
+        )
+        </foreach>
+    </insert>
+
+    <update id="deleteCustomerBatch" parameterType="List">
+        update lib_customer
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modify_time = case id" suffix="end,">
+                <foreach collection="customerEntities" item="customerEntity" index="index">
+                     when #{customerEntity.id} then #{customerEntity.modifyTime}
+                </foreach>
+            </trim>
+            <trim prefix="delete_flag = case id" suffix="end,">
+                <foreach collection="customerEntities" item="customerEntity" index="index">
+                     when #{customerEntity.id} then #{customerEntity.deleteFlag}
+                </foreach>
+            </trim>
+        </trim>
+        WHERE
+        <foreach collection="customerEntities" item="customerEntity" separator="or"  index="index" >
+            id = #{customerEntity.id}
+        </foreach>
+    </update>
+</mapper>

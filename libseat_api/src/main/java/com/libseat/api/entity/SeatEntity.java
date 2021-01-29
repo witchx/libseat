@@ -19,14 +19,8 @@ public class SeatEntity {
     private Integer row;
     @Column
     private Integer line;
-    /**
-     * 1：可用
-     * 0：无用
-     */
     @Column
-    private String status;
-    @Column
-    private String deleteFlag;
+    private Integer status;
     @Transient
     private Integer orderId;
     @Transient

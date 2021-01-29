@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.RoleMapper">
+
+    <select id="getRoleListBatch" resultType="RoleEntity">
+        SELECT
+            id,
+            `name`,
+            des,
+            modify_time,
+            create_time,
+            delete_flag
+        FROM
+            lib_role
+        WHERE id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

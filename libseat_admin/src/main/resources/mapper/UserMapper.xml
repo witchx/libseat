@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.UserMapper">
+
+    <select id="selectUser" resultType="UserEntity">
+        SELECT
+            id,
+            username,
+            company_name,
+            icon,
+            tel,
+            address,
+            email,
+            status,
+            modify_time,
+            create_time,
+            last_login_time,
+            delete_flag
+        FROM lib_user
+        WHERE delete_flag = 0
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="username != null and username != ''">
+            AND `username` like concat('%',#{username},'%')
+        </if>
+        <if test="companyName != null and companyName != ''">
+            AND company_name like concat('%',#{companyName},'%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="createTimeStart != null ">
+            AND create_time <![CDATA[ >= ]]> #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null ">
+            AND create_time <![CDATA[ <= ]]> #{createTimeEnd}
+        </if>
+        <if test="lastLoginTimeStart != null ">
+            AND last_login_time <![CDATA[ >= ]]> #{lastLoginTimeStart}
+        </if>
+        <if test="lastLoginTimeEnd != null ">
+            AND last_login_time <![CDATA[ <= ]]> #{lastLoginTimeEnd}
+        </if>
+        ORDER BY id
+    </select>
+</mapper>

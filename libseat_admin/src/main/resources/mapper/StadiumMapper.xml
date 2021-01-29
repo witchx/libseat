@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.StadiumMapper">
+
+    <select id="getStadiumList" resultType="StadiumEntity">
+        SELECT
+            ls.id,
+            ls.`name`,
+            ls.user_id,
+            ls.address,
+            ls.detail_address detailAddress,
+            ls.create_time,
+            ls.modify_time,
+            ls.hidden,
+            lu.company_name
+        FROM lib_stadium ls,
+        lib_user lu
+        WHERE ls.user_id = lu.id
+        <if test="name != null and name != ''">
+            AND ls.`name` like concat('%',#{name},'%')
+        </if>
+        <if test="companyName != null and companyName != ''">
+            AND lu.`company_name` like concat('%',#{companyName},'%')
+        </if>
+        <if test="userId != null and userId != 0">
+            AND ls.user_id = #{userId}
+        </if>
+        <if test="address != null and address != ''">
+            AND ls.address like concat(#{address},'%')
+        </if>
+        ORDER BY ls.id
+    </select>
+</mapper>

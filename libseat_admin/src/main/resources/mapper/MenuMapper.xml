@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.MenuMapper">
+
+    <update id="updateMenuBatch" parameterType="list">
+        update lib_menu
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modify_time = case id" suffix="end,">
+                <foreach collection="menuEntities" item="menuEntity" index="index">
+                    when #{menuEntity.id} then #{menuEntity.modifyTime}
+                </foreach>
+            </trim>
+            <trim prefix="access = case id" suffix="end,">
+                <foreach collection="menuEntities" item="menuEntity" index="index">
+                    when #{menuEntity.id} then #{menuEntity.access}
+                </foreach>
+            </trim>
+        </trim>
+        WHERE
+        <foreach collection="menuEntities" item="menuEntity" separator="or"  index="index">
+            id = #{menuEntity.id}
+        </foreach>
+    </update>
+</mapper>

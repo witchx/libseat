@@ -1,0 +1,72 @@
+[{
+    "title": "首页",
+    "name": "home",
+    "icon": "ios-home",
+    "path": "home"
+}, {
+    "title": "学校管理",
+    "icon": "ios-book",
+    "name": "school",
+    "children": [{
+        "title": "学校情况",
+        "icon": "md-time",
+        "name": "university",
+        "path": "university"
+    }, {
+        "title": "图书馆情况",
+        "icon": "ios-create",
+        "name": "library",
+        "path": "library"
+    }, {
+        "title": "座位情况",
+        "icon": "md-time",
+        "name": "situation",
+        "path": "situation"
+    }, {
+        "title": "编辑自习室",
+        "icon": "ios-create",
+        "name": "edit",
+        "path": "edit"
+    }, {
+        "title": "创建自习室",
+        "icon": "md-add-circle",
+        "name": "create",
+        "path": "create"
+    }]
+}, {
+    "title": "订单",
+    "icon": "ios-apps",
+    "name": "order",
+    "children": [{
+        "title": "订单列表",
+        "icon": "md-time",
+        "name": "list",
+        "path": "list"
+    }, {
+        "title": "订单设置",
+        "icon": "ios-create",
+        "name": "setting",
+        "path": "setting"
+    }]
+}, {
+    "title": "权限",
+    "icon": "md-lock",
+    "name": "admin",
+    "children": [{
+        "title": "管理员",
+        "icon": "md-time",
+        "name": "admin",
+        "path": "admin"
+    }, {
+        "title": "学生",
+        "icon": "ios-create",
+        "name": "student",
+        "path": "student"
+    }]
+}, {
+    "title": "个人信息",
+    "icon": "md-contact",
+    "name": "user",
+    "path": "user"
+}]
+

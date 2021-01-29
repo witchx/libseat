@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.OrderMapper">
+
+    <select id="getOrderList" resultType="OrderEntity">
+        SELECT
+            lo.id,
+            lo.seat_id,
+            lo.customer_id,
+            lo.progress,
+            lo.create_time,
+            lo.pay_time,
+            lo.sign_time,
+            lo.evaluate_time,
+            lo.start_time,
+            lo.end_time,
+            lo.`status`,
+            lo.`type`,
+            lo.delete_flag,
+            lo.`no`,
+            lo.user_id,
+            lo.product_id,
+            lo.price,
+            lu.company_name,
+            lc.username customer_name
+        FROM
+            lib_order lo,
+            lib_user lu,
+            lib_customer lc
+        WHERE lo.delete_flag = 0
+        AND lo.customer_id = lc.id
+        AND lo.user_id = lu.id
+        <if test="id != null">
+            AND lo.id = #{id}
+        </if>
+        <if test="no != null and no != ''">
+            AND lo.`no` like concat('%',#{no},'%')
+        </if>
+        <if test="company != null and company != ''">
+            AND lu.company_name like concat('%',#{company},'%')
+        </if>
+        <if test="customer != null and customer != ''">
+            AND lc.username like concat('%',#{customer},'%')
+        </if>
+        <if test="status != null">
+            AND lo.`status` = #{status}
+        </if>
+        <if test="type != null">
+            AND lo.`type` = #{type}
+        </if>
+        <if test="createStartTime != null ">
+            AND lo.create_time <![CDATA[ >= ]]> #{createStartTime}
+        </if>
+        <if test="createEndTime != null ">
+            AND lo.create_time <![CDATA[ <= ]]> #{createEndTime}
+        </if>
+        ORDER BY lo.id
+    </select>
+</mapper>

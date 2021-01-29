@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.RoomMapper">
+
+    <resultMap id="RoomEntityResult" type="RoomEntity">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="stadiumId" column="stadium_id"/>
+        <result property="availableSeatCount" column="available_seat_count"/>
+        <result property="totalSeatCount" column="total_seat_count"/>
+        <result property="modifyTime" column="modify_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="getRoomList" resultMap="RoomEntityResult">
+        SELECT
+        lr.id,
+        lr.`name`,
+        lr.stadium_id,
+        lr.modify_time,
+        lr.create_time,
+        oo.available_seat_count,
+        COUNT( ls.id ) total_seat_count,
+        lsta.`name` stadium_name
+        FROM
+        lib_room lr,
+        lib_seat ls,
+        lib_stadium lsta,
+        (
+        SELECT
+        ii.room_id,
+        COUNT( DISTINCT id ) available_seat_count
+        FROM
+        (
+            SELECT
+                ls.room_id room_id,
+                ls.id,
+            CASE
+                WHEN lo.`status` IS NULL THEN ls.`status`
+                WHEN ls.`status` = 0 THEN 0
+                WHEN lo.`status` = 1 THEN 1
+                WHEN lo.`status` = 3 THEN 1
+                WHEN now( ) <![CDATA[ >= ]]> lo.end_time THEN 1
+                WHEN now( ) <![CDATA[ <= ]]> lo.start_time THEN 1
+                ELSE 2
+                END AS `status`
+            FROM
+                lib_seat ls
+            LEFT JOIN lib_order lo ON ls.id = lo.seat_id
+        ) ii
+        WHERE ii.`status` = 1
+        GROUP BY ii.room_id
+        ) oo
+        WHERE
+        ls.room_id = lr.id
+        AND oo.room_id = lr.id
+        AND lr.id = ls.room_id
+        AND lsta.id = lr.stadium_id
+        AND ls.`status` = '1'
+        <if test="name != null and name != ''">
+            AND lr.`name` like concat('%',#{name},'%')
+        </if>
+        <if test="stadiumName != null and stadiumName != ''">
+            AND lsta.`name` like concat('%',#{stadiumName},'%')
+        </if>
+        <if test="stadiumId != null and stadiumId != 0">
+            AND lr.stadium_id = #{stadiumId}
+        </if>
+        GROUP BY ls.room_id
+    </select>
+
+    <select id="getRoomListByStadiumId" resultMap="RoomEntityResult">
+        SELECT
+            lr.id,
+            lr.`name`,
+            lr.stadium_id,
+            lr.modify_time,
+            lr.create_time,
+            oo.available_seat_count,
+            COUNT( ls.id ) total_seat_count
+        FROM
+            lib_room lr,
+            lib_seat ls,
+        (
+            SELECT
+                ii.room_id,
+                COUNT( DISTINCT id ) available_seat_count
+            FROM
+            (
+                SELECT
+                    ls.room_id room_id,
+                    ls.id,
+                CASE
+                    WHEN lo.`status` IS NULL THEN ls.`status`
+                    WHEN ls.`status` = 0 THEN 0
+                    WHEN lo.`status` = 1 THEN 1
+                    WHEN lo.`status` = 3 THEN 1
+                    WHEN now( ) <![CDATA[ >= ]]> lo.end_time THEN 1
+                    WHEN now( ) <![CDATA[ <= ]]> lo.start_time THEN 1
+                    ELSE 2
+                    END AS `status`
+                FROM
+                lib_seat ls
+                LEFT JOIN lib_order lo ON ls.id = lo.seat_id
+            ) ii
+            WHERE ii.`status` = 1
+            GROUP BY ii.room_id
+        ) oo
+        WHERE
+	        ls.room_id = lr.id
+        AND oo.room_id = lr.id
+	    AND lr.id = ls.room_id
+        AND ls.`status` = '1'
+        AND lr.stadium_id = #{stadiumId}
+        GROUP BY ls.room_id
+    </select>
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+
+<svg>
+<metadata>
+Created by webfont
+</metadata>
+<defs>
+
+<font id="Noto Sans S Chinese DemiLight" horiz-adv-x="1000" vert-adv-y="1000" >
+  <font-face
+    
+    font-family="Noto Sans S Chinese DemiLight"
+    
+    font-weight="350"
+    
+    font-stretch="normal"
+    
+    units-per-em="1000"
+    
+    panose-1="0 0 0 0 0 0 0 0 0 0"
+    
+    ascent="880"
+    
+    descent="-120"
+    
+    x-height="540"
+    
+    cap-height="732"
+    
+    bbox="-1000 -1048 2928 1808"
+    
+    underline-thickness="50"
+    
+    underline-position="-100"
+    
+    unicode-range="U+0001-2CE93"
+    
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="cid67" unicode="&#x62;" d="M314 56q35 0 65 15.5t51.5 44t34 70t12.5 92.5q0 46 -8.5 84t-26.5 65.5t-46.5 42.5t-68.5 15q-68 0 -151 -78v-292q37 -33 73.5 -46t64.5 -13zM326 -13q-38 0 -79 18t-77 51h-2l-9 -56h-64v796h81v-221l-4 -99q38 32 82.5 55t91.5 23q53 0 93.5 -19.5t67.5 -55.5t41 -87
+t14 -113q0 -69 -19.5 -123.5t-52 -92t-75 -57t-89.5 -19.5z"  horiz-adv-x="614"   />
+
+    
+    <glyph glyph-name="cid74" unicode="&#x69;" d="M136 656q-26 0 -42.5 15.5t-16.5 39.5q0 26 16.5 41t42.5 15q24 0 41.5 -15t17.5 -41q0 -24 -17.5 -39.5t-41.5 -15.5zM95 540h81v-540h-81v540z"  horiz-adv-x="269"   />
+
+    
+    <glyph glyph-name="cid77" unicode="&#x6c;" d="M183 -13q-47 0 -67.5 29t-20.5 83v697h81v-703q0 -20 7 -29t18 -9h7.5t11.5 2l12 -63q-10 -3 -21 -5t-28 -2z"  horiz-adv-x="279"   />
+
+    
+
+  </font>
+</defs></svg>
