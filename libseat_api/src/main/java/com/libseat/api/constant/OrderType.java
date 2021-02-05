@@ -1,10 +1,14 @@
 package com.libseat.api.constant;
 
 public enum OrderType {
-    /** 普通*/
-    GENERAL(0, "普通订单"),
-    /** vip*/
-    VIP_CARD(1, "VIP订单");
+    /** 座位*/
+    GENERAL(0, "座位"),
+    /** vip卡*/
+    VIP_CARD(1, "会员卡"),
+    /** 优惠劵*/
+    COUPON(2,"优惠劵"),
+    /** 商品*/
+    PRODUCT(3,"商品");
 
     private Integer id;
     private String des;

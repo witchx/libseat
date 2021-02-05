@@ -15,22 +15,24 @@
         <Row :gutter="16">
           <Col span="6">
             <FormItem label="输入搜索:" prop="no" aria-required="true">
-              <Input v-model="searchParams.no"  placeholder="商品货号"/>
+              <Input v-model="searchParams.no"  placeholder="会员卡货号" @on-search="fetchData" />
             </FormItem>
           </Col>
           <Col span="6">
-            <FormItem label="商品:" prop="id" aria-required="true">
-              <Input v-model="searchParams.name"  placeholder="商品名称"/>
-            </FormItem>
-          </Col>
-          <Col span="6">
-            <FormItem label="备注:" prop="id" aria-required="true">
-              <Input v-model="searchParams.des"  placeholder="商品备注"/>
+            <FormItem label="会员卡:" prop="id" aria-required="true">
+              <Input v-model="searchParams.name"  placeholder="会员卡名称" @on-search="fetchData" />
             </FormItem>
           </Col>
           <Col span="6">
             <FormItem label="公司:" prop="companyName" aria-required="true">
-              <Input v-model="searchParams.companyName"  placeholder="公司名称"/>
+              <Input v-model="searchParams.companyName"  placeholder="公司名称" @on-search="fetchData" />
+            </FormItem>
+          </Col>
+          <Col span="6">
+            <FormItem label="会员卡类型">
+              <Select v-model="searchParams.type" filterable placeholder="全部">
+                <Option v-for="(item, index) in vip_card_type" :value="item.value" :key="index">{{item.label}}</Option>
+              </Select>
             </FormItem>
           </Col>
         </Row>
@@ -38,15 +40,12 @@
     </Card>
     <Card style="margin-bottom: 10px">
       <Row>
-        <Col span="18">
-          <Icon size="18" type="md-list"></Icon>
+        <Col span="20">
+          <Icon size="20" type="md-list"></Icon>
           <label style="font-size: 15px;">&nbsp;数据列表</label>
         </Col>
-        <Col span="6">
-          <Button type="default" style="float: right;margin-right: 10px;" @click="modalNoShowCSV">上传CSV</Button>
-          <Button type="default" style="float: right;margin-right: 10px;" @click="modalNoShowEXCEL">上传EXCEL</Button>
-          <Button type="default" style="float: right;margin-right: 10px;" @click="modalNoShowPaste">粘贴表格数据</Button>
-          <Button type="default" style="float: right;margin-right: 10px;" @click="createShow">新建</Button>
+        <Col span="4">
+          <Button type="default" style="float: right;margin-right: 10px;" @click="openCreatePage('')">新建</Button>
         </Col>
       </Row>
     </Card>
@@ -62,100 +61,66 @@
       </Select>
       <Button style="margin: 10px 0;" type="primary" @click="batchConfirm">确定</Button>
       <Page style="margin-top: 20px;float: right;" :total="searchParams.total" :page-size="searchParams.pageSize" show-total show-elevator show-sizer @on-change="handlePage" @on-page-size-change='handlePageSize'/>
-      <upload-excel :create_modal_show_excel="create_modal_show_excel" @noshow="modalNoShowEXCEL" />
-      <upload-paste :create_modal_show_csv="create_modal_show_csv" @noshow="modalNoShowCSV" />
-      <upload-paste :create_modal_show_paste="create_modal_show_paste" @noshow="modalNoShowPaste" />
     </Card>
-    <Modal v-model="create_show.value" title="创建">
-      <Form ref="formCreate" :model="create_show" :label-width="100" :rules="rules">
+    <Modal v-model="detail_show.value" title="详情" footer-hide>
+      <Form ref="formData2" :model="detail_show" :label-width="100">
         <Row>
-          <FormItem label="公司:" prop="userId">
-            <Select  style="width:80%;" v-model="create_show.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" placeholder="请输入搜索用户名称">
-              <Option v-for="(option, index) in user_option" :value="option.value" :key="index">{{option.label}}</Option>
-            </Select>
+          <FormItem label="会员卡名称:" prop="name">
+            <Input v-model="detail_show.name" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="商品名称:" prop="name">
-            <Input v-model="create_show.name" style="width: 80%;"/>
+          <FormItem label="原价:" prop="originalPrice">
+            <Input v-model="detail_show.originalPrice" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="金额:" prop="price">
-            <Input v-model="create_show.price" type="number" style="width: 80%;"/>
+          <FormItem label="现价:" prop="price">
+            <Input v-model="detail_show.price" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
-        <Row>
-          <FormItem label="数量:" prop="num">
-            <Input v-model="create_show.num" type="number" style="width: 80%;"/>
+        <!--期限卡-->
+        <Row v-if="detail_show.type === 3">
+          <FormItem label="开始有效时间:" prop="startTime">
+            <Input v-model="detail_show.startTime" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
-        <Row>
-          <FormItem label="备注:" prop="des">
-            <Input v-model="create_show.des" style="width: 80%;"/>
+        <Row v-if="detail_show.type === 3">
+          <FormItem label="结束有效时间:" prop="endTime">
+            <Input v-model="detail_show.endTime" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
-      </Form>
-      <div slot="footer">
-        <Button @click="create_show.value = false">取消</Button>
-        <Button type="primary" @click="submitCreate">确定</Button>
-      </div>
-    </Modal>
-    <Modal v-model="edit_show.value" title="编辑">
-      <Form ref="formEdit" :model="edit_show" :label-width="100" :rules="rules">
-        <Row>
-          <FormItem label="公司:">
-            <Input v-model="edit_show.companyName" style="width: 80%;" readonly/>
+        <!--储值卡-->
+        <Row v-if="detail_show.type === 1">
+          <FormItem label="储值:" prop="money">
+            <Input v-model="detail_show.money" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
-        <Row>
-          <FormItem label="货号:">
-            <Input v-model="edit_show.no" style="width: 80%;" readonly/>
-          </FormItem>
-        </Row>
-        <Row>
-          <FormItem label="商品名称:" prop="name">
-            <Input v-model="edit_show.name" style="width: 80%;"/>
-          </FormItem>
-        </Row>
-        <Row>
-          <FormItem label="金额:" prop="price">
-            <Input v-model="edit_show.price" type="number" style="width: 80%;"/>
-          </FormItem>
-        </Row>
-        <Row>
-          <FormItem label="数量:" prop="num">
-            <Input v-model="create_show.num" type="number" style="width: 80%;"/>
+        <!--计次卡-->
+        <Row  v-if="detail_show.type === 2">
+          <FormItem label="次数" prop="times">
+            <Input v-model="detail_show.times" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
         <Row>
           <FormItem label="描述:" prop="des">
-            <Input v-model="edit_show.des" style="width: 80%;"/>
+            <Input v-model="detail_show.des" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
       </Form>
-      <div slot="footer">
-        <Button @click="edit_show.value = false">取消</Button>
-        <Button type="primary" @click="submitEdit">确定</Button>
-      </div>
     </Modal>
   </div>
 </template>
 <script>
   import Tables from '_c/tables'
-  import { getProduct, createProduct, updateProduct, deleteProduct,deleteProductBatch } from '@/api/product';
-  import uploadExcel from '@/components/uploadExcel';
-  import uploadCsv from '@/components/uploadCsv';
-  import uploadPaste from '@/components/uploadPaste';
-  import { getUser} from '@/api/user';
-  import {validateNumber} from '@/libs/validate';
-  import lodash from "lodash";
+  import { getVipCard,deleteVipCard ,deleteVipCardBatch} from '@/api/vipCard';
+  import {timestampFormat} from '@/libs/tools';
   const searchParams = {
     id: '',
     no: '',
     name: '',
+    type: '',
     companyName: '',
-    des: '',
     page: 1,
     pageSize: 10,
     total: 0
@@ -170,12 +135,28 @@
       value: "deleteBatch"
     }
   ]
+  const vip_card_type = [
+    {
+      value: 1,
+      label: '储值卡'
+    },
+    {
+      value: 2,
+      label: '计次卡'
+    },
+    {
+      value: 3,
+      label: '期限卡'
+    }
+  ]
+  const product = {
+    '1':'储值会员卡',
+    '2':'计次会员卡',
+    '3':'期限会员卡'
+  }
   export default {
     components: {
-      Tables,
-      uploadExcel,
-      uploadCsv,
-      uploadPaste
+      Tables
     },
     data() {
       return {
@@ -193,32 +174,48 @@
               key: 'id'
             },
             {
-              title: '货号',
-              key: 'no'
-            },
-            {
               title: '公司名称',
               key: 'companyName'
             },
             {
-              title: '商品名称',
+              title: '会员卡名称',
               key: 'name'
             },
             {
-              title: '价格',
-              key: 'price',
+              title: '价格/货号',
+              key: 'priceAndNo',
               width: 200,
               render:(h, params) => {
-                return h('div','￥'+params.row.price)
+                return h('div',[
+                  h('div','价格: ￥'+params.row.price),
+                  h('div','货号:'+params.row.no)
+                ])
               }
             },
             {
-              title: '数量',
-              key: 'num'
+              title: '类型',
+              key: 'kind',
+              render: (h, params) => {
+                return h('div', this.product[params.row.type])
+              }
             },
             {
-              title: '备注',
-              key: 'des'
+              title: '销量',
+              key: 'sales'
+            },
+            {
+              title: '创建时间',
+              key: 'createTime',
+              render: (h, params) => {
+                return h('div', timestampFormat(params.row.createTime,'year'));
+              }
+            },
+            {
+              title: '修改时间',
+              key: 'modifyTime',
+              render: (h, params) => {
+                return h('div', timestampFormat(params.row.modifyTime,'year'));
+              }
             },
             { title: '操作', key: 'action', width: 200, align: 'center', render: (h, params) => {
                 return h('div', [
@@ -232,10 +229,29 @@
                     },
                     on: {
                       click: () => {
-                        Object.keys(this.edit_show).forEach(key => {
-                          this.edit_show[key] = params.row[key];
+                        Object.keys(params.row).forEach(key => {
+                          if (key === 'status') {
+                            this.detail_show.statusArr = params.row[key].split(',').map(item => parseInt(item))
+                          } else {
+                            this.detail_show[key] = params.row[key]
+                          }
                         })
-                        this.edit_show.value = true;
+                        console.log(this.detail_show)
+                        this.detail_show.value = true;
+                      }
+                    }
+                  }, '查看'),
+                  h('Button', {
+                    props: {
+                      type: 'default',
+                      size: 'small'
+                    },
+                    style: {
+                      marginRight: '5px',
+                    },
+                    on: {
+                      click: () => {
+                        this.openCreatePage(params.row.id);
                       }
                     }
                   }, '编辑'),
@@ -249,7 +265,7 @@
                       },
                       on: {
                         'on-ok': async () => {
-                          await deleteProduct(params.row.id)
+                          await deleteVipCard(params.row.id)
                           this.$Message.success('删除成功！');
                           this.fetchData()
                         }
@@ -270,52 +286,25 @@
         data: [],
         loading: true,
         searchParams: searchParams,
+        vip_card_type: vip_card_type,
+        product: product,
         operates: operates,
         operateType: null,
         searchSelected: [],
         selected: [],
-        user_option: [],
-        user_loading: false,
-        create_modal_show_excel: false,
-        create_modal_show_paste: false,
-        create_modal_show_csv: false,
-        create_show: {
+        detail_show: {
           value: false,
           no: '',
           name: '',
+          type: '',
           userId: '',
-          companyName: '',
+          times: '',
+          startTime: '',
+          endTime: '',
+          money: '',
+          originalPrice: '',
           price: '',
-          des: '',
-          num: ''
-        },
-        edit_show: {
-          value: false,
-          id: '',
-          no: '',
-          name: '',
-          userId: '',
-          companyName: '',
-          price: '',
-          des: '',
-          num: ''
-        },
-        rules: {
-          name: [
-            {required: true, message: "必输项不能为空", trigger: 'blur'}
-          ],
-          userId: [
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
-          ],
-          price: [
-            { validator: validateNumber, trigger: 'blur'}
-          ],
-          num: [
-            { validator: validateNumber, trigger: 'blur'}
-          ],
-          des: [
-            {required: true, message: "必输项不能为空", trigger: 'blur'}
-          ]
+          des: ''
         }
       }
     },
@@ -329,11 +318,7 @@
           this.searchParams.id = this.$route.query.userId;
           this.$route.query.userId = '';
         }
-        if (this.searchSelected.length>0) {
-          this.searchParams.type = this.searchSelected[0];
-          this.searchParams.conType = this.searchSelected[1];
-        }
-        const res = await getProduct(this.searchParams)
+        const res = await getVipCard(this.searchParams)
         if (res.data.code === 200) {
           this.data = res.data.data.rows.map(item => {
             return {
@@ -349,51 +334,17 @@
           this.loading = false
         }, 300)
       },
-      createShow() {
-        this.createToEmpty();
-        this.create_show.value = true;
-      },
-      createToEmpty() {
-        Object.keys( this.create_show).forEach(key => {
-          this.create_show[key] = '';
-        });
-      },
-      submitCreate() {
-        this.$refs.formCreate.validate(async (valid) => {
-          if (valid) {
-            const res = await createProduct(this.create_show)
-            if (res.data.code === 200) {
-              this.$Message.success(res.data.msg);
-              this.create_show.value = false;
-              this.$emit('refresh');
-              this.fetchData();
-            }
-          } else {
-            this.$Message.warning("");
+      openCreatePage(vipCardId) {
+        const route = {
+          name: 'editVipCard',
+          query: {
+            vipCardId
+          },
+          meta: {
+            title: '编辑会员卡'
           }
-        })
-      },
-      submitEdit() {
-        this.$refs.formEdit.validate(async (valid) => {
-          if (valid) {
-            const res = await updateProduct(this.edit_show.id, this.edit_show)
-            if (res.data.code === 200) {
-              this.$Message.success(res.data.msg);
-              this.edit_show.value = false;
-              this.$emit('refresh');
-              this.fetchData();
-            }
-          }
-        })
-      },
-      modalNoShowCSV() {
-        this.create_modal_show_csv = !this.create_modal_show_csv
-      },
-      modalNoShowEXCEL() {
-        this.create_modal_show_excel = !this.create_modal_show_excel
-      },
-      modalNoShowPaste() {
-        this.create_modal_show_paste = !this.create_modal_show_paste
+        }
+        this.$router.push(route)
       },
       exportExcel () {
         this.$refs.tables.exportCsv({
@@ -415,7 +366,7 @@
           return;
         }
         if(this.selected==null||this.selected.length<1) {
-          this.$Message.warning("请选择要操作的商品");
+          this.$Message.warning("请选择要操作的会员卡");
           return;
         }
         switch (this.operateType) {
@@ -429,31 +380,10 @@
               okText: "确定",
               cancelText: "取消",
               onOk: async () => {
-                const res = await deleteProductBatch(JSON.stringify(this.selected));
+                const res = await deleteVipCardBatch(JSON.stringify(this.selected));
               }
             });
             break;
-        }
-      },
-      async searchUser(query) {
-        if (query) {
-          this.user_loading = true
-          const res = await getUser({companyName: query})
-          if ( res.data.code === 200 ) {
-            this.user_option = res.data.data.rows.map(item => {
-              return {
-                value: item.id,
-                label: item.companyName
-              }
-            })
-          } else {
-            this.user_option = [];
-          }
-          setTimeout(() => {
-            this.user_loading = false
-          }, 200)
-        } else {
-          this.user_option = [];
         }
       },
       handlePage(page) {
@@ -514,9 +444,6 @@
             }
           })
         })
-      },
-      debounce(fun, time) {
-        return lodash.debounce(fun, time)
       }
     }
   }

@@ -87,7 +87,7 @@ public class LoginController {
             user.put(Constant.LOGIN_NAME, decode.get(Constant.LOGIN_NAME));
             user.put(Constant.LOGIN_ACCESS, decode.get(Constant.LOGIN_ACCESS));
             user.put(Constant.LOGIN_AVATAR, decode.get(Constant.LOGIN_AVATAR));
-            user.put(Constant.MENU, menuService.getMenuList(true));
+            user.put(Constant.MENU, menuService.getMenuList(false));
             return CommonResult.success(user);
         }
     }

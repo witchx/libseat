@@ -1,4 +1,4 @@
-package com.libseat.api.dto;
+package com.libseat.api.model;
 
 import lombok.Data;
 

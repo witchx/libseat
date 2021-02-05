@@ -5,8 +5,10 @@ import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
+/**
+ * 商品
+ */
 @Data
 @Table(name = "lib_product")
 @Alias(value = "ProductEntity")
@@ -14,45 +16,25 @@ public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    /**
-     * 货号
-     */
-    private String no;
-    private String name;
-    private Integer type;
+    /** 用户id*/
+    @Column
     private Integer userId;
-    private Integer conType;
-    /**
-     * 可用次数
-     */
-    private Integer times;
-    /**
-     * 使用期限
-     */
-    private Timestamp startTime;
-    private Timestamp endTime;
-    /**
-     * 值多少钱
-     */
-    private BigDecimal money;
-    /**
-     * 原价
-     */
-    private BigDecimal originalPrice;
-    /**
-     * 具体购买的钱
-     */
-    private BigDecimal price;
-    private String status;
-    /**
-     * 具体描述
-     */
+    /** 货号*/
+    @Column
+    private String no;
+    /** 名称*/
+    @Column
+    private String name;
+    /** 描述*/
+    @Column
     private String des;
-    private Timestamp createTime;
-    private Long salesLimit;
-    private Timestamp modifyTime;
-    @Transient
-    private Long sales;
+    /** 数量*/
+    @Column
+    private Integer num;
+    /** 金额*/
+    @Column
+    private BigDecimal price;
+
     @Transient
     private String companyName;
 }

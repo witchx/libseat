@@ -1,6 +1,6 @@
 package com.libseat.admin.service;
 
-import com.libseat.api.dto.Seat;
+import com.libseat.api.model.Seat;
 import com.libseat.api.entity.SeatEntity;
 
 import java.util.Date;

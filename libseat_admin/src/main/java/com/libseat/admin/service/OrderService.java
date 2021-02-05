@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 public interface OrderService {
 
-    PageResult<OrderEntity> getOrderList(Integer id, String no, String company, String customer, Timestamp createStartTime, Timestamp createEndTime, Integer status, Integer type, Integer page, Integer pageSize);
+    PageResult<OrderEntity> getOrderList(Integer id, String no, String company, String customer, Timestamp createStartTime, Timestamp createEndTime, Integer type, Integer progress, Integer page, Integer pageSize);
 
     OrderEntity getOrder(OrderEntity orderEntity);
 

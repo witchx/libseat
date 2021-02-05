@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.VipCardMapper">
+
+    <select id="getVipCardList" resultType="VipCardEntity">
+        SELECT
+            lvc.id,
+            lvc.`no`,
+            lvc.`name`,
+            lvc.`type`,
+            lvc.user_id,
+            lvc.times,
+            lvc.start_time,
+            lvc.end_time,
+            lvc.money,
+            lvc.original_price,
+            lvc.price,
+            lvc.des,
+            lvc.create_time,
+            lvc.modify_time,
+            lu.company_name
+        FROM
+            lib_vip_card lvc,
+            lib_user lu
+        WHERE lvc.user_id = lu.id
+        <if test="id != null">
+            AND lvc.id = #{id}
+        </if>
+        <if test="no != null and no != ''">
+            AND lvc.`no` like concat('%',#{no},'%')
+        </if>
+        <if test="name != null and name != ''">
+            AND lvc.`name` like concat('%',#{name},'%')
+        </if>
+        <if test="type != null">
+            AND lvc.`type` = #{type}
+        </if>
+        <if test="companyName != null and companyName !=''">
+            AND lu.company_name like concat('%',#{companyName},'%')
+        </if>
+        ORDER BY lvc.id
+    </select>
+
+    <delete id="deleteVipCardBatch" parameterType="Integer">
+        DELETE FROM lib_vip_card
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

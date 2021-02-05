@@ -2,24 +2,20 @@ package com.libseat.admin.controller;
 
 import com.libseat.admin.annotations.TrimRequired;
 import com.libseat.admin.service.ProductService;
-import com.libseat.api.constant.ProductConType;
-import com.libseat.api.entity.CustomerEntity;
+import com.libseat.api.constant.VipCardType;
+import com.libseat.api.entity.CouponEntity;
 import com.libseat.api.entity.ProductEntity;
-import com.libseat.api.entity.StadiumEntity;
+import com.libseat.api.entity.VipCardEntity;
 import com.libseat.utils.code.CommonResult;
 import com.libseat.utils.code.ResultCode;
 import com.libseat.utils.page.PageResult;
 import com.libseat.utils.utils.CodeGenerateUtils;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author witch
@@ -42,12 +38,11 @@ public class ProductController {
     public CommonResult<PageResult<ProductEntity>> getProductList (@RequestParam(required = false) Integer id,
                                                                    @RequestParam(required = false) String no,
                                                                    @RequestParam(required = false) String name,
-                                                                   @RequestParam(required = false) Integer type,
+                                                                   @RequestParam(required = false) String des,
                                                                    @RequestParam(required = false) String companyName,
-                                                                   @RequestParam(required = false) Integer conType,
                                                                    @RequestParam(required = false, defaultValue = "1") Integer page,
                                                                    @RequestParam(required = false, defaultValue = "10") Integer pageSize){
-        PageResult<ProductEntity> productList = productService.getProductList(id, no, name, type, companyName, conType, page, pageSize);
+        PageResult<ProductEntity> productList = productService.getProductList(id, no, name, des, companyName, page, pageSize);
         if (productList == null || productList.getTotal() == 0) {
             return CommonResult.failed(ResultCode.EMPTY);
         } else {
@@ -59,9 +54,7 @@ public class ProductController {
     @ResponseBody
     public CommonResult<ResultCode> createProduct(@RequestBody List<ProductEntity> productEntities) {
         for (ProductEntity productEntity : productEntities) {
-            productEntity.setNo(codeGenerateUtils.generateProductCode(ProductConType.getById(productEntity.getConType()).getName()));
-            productEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
-            productEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            productEntity.setNo(codeGenerateUtils.generateProductCode(""));
         }
         Integer row = productService.insertProductBatch(productEntities);
         if (row != 0) {
@@ -73,9 +66,7 @@ public class ProductController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     public CommonResult<ResultCode> createProduct(@RequestBody ProductEntity productEntity) {
-        productEntity.setNo(codeGenerateUtils.generateProductCode(ProductConType.getById(productEntity.getConType()).getName()));
-        productEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        productEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+        productEntity.setNo(codeGenerateUtils.generateProductCode(""));
         Integer row = productService.insertProduct(productEntity);
         if (row != 0) {
             return CommonResult.success();
@@ -88,7 +79,6 @@ public class ProductController {
     public CommonResult<ResultCode> updateProduct(@PathVariable Integer id, @RequestBody ProductEntity productEntity) {
         if (productEntity != null) {
             productEntity.setId(id);
-            productEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
             if (productService.updateProduct(productEntity) != 0) {
                 return CommonResult.success();
             }
@@ -96,7 +86,7 @@ public class ProductController {
         return CommonResult.failed();
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
     @ResponseBody
     public CommonResult<ResultCode> deleteProductBatch(@RequestBody List<Integer> ids) {
         if (ids == null || ids.isEmpty()) {
@@ -104,5 +94,14 @@ public class ProductController {
         }
         productService.deleteProductBatch(ids);
         return CommonResult.success();
+    }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public CommonResult<ResultCode> deleteProduct (@PathVariable Integer id){
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(id);
+        productService.deleteProduct(productEntity);
+        return CommonResult.failed();
     }
 }

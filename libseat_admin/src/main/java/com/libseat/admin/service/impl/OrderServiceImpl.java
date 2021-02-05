@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.libseat.admin.mapper.OrderMapper;
 import com.libseat.admin.service.OrderService;
-import com.libseat.api.constant.OrderStatusType;
+import com.libseat.api.constant.OrderProgressType;
 import com.libseat.api.constant.OrderType;
 import com.libseat.api.entity.OrderEntity;
 import com.libseat.utils.page.PageResult;
@@ -22,11 +22,12 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public PageResult<OrderEntity> getOrderList(Integer id, String no, String company, String customer, Timestamp createStartTime, Timestamp createEndTime, Integer status, Integer type, Integer page, Integer pageSize) {
+    public PageResult<OrderEntity> getOrderList(Integer id, String no, String company, String customer, Timestamp createStartTime, Timestamp createEndTime, Integer type, Integer progress, Integer page, Integer pageSize) {
         PageHelper.startPage(page, pageSize);
-        List<OrderEntity> orderList = orderMapper.getOrderList(id, no, company, customer, createStartTime, createEndTime, status, type);
+        List<OrderEntity> orderList = orderMapper.getOrderList(id, no, company, customer, createStartTime, createEndTime, type, progress);
         orderList.forEach(orderEntity -> {
-            orderEntity.setOrderStatus(OrderStatusType.getById(orderEntity.getStatus()).getDes());
+            orderEntity.setOrderProgress(OrderProgressType.getById(orderEntity.getProgress()).getName());
+            orderEntity.setOrderType(OrderType.getById(orderEntity.getType()).getDes());
         });
         PageInfo pageInfo = new PageInfo(orderList);
         return new PageResult<>(pageInfo.getTotal(),pageInfo.getList());

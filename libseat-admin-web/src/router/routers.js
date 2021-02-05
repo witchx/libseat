@@ -622,13 +622,31 @@ export const asyncRouterMap = [
         component: () => import('@/view/pms/product')
       },
       {
-        path: 'editProduct',
-        name: 'editProduct',
+        path: 'coupon',
+        name: 'coupon',
+        meta: {
+          icon: 'md-list',
+          title: '优惠劵列表'
+        },
+        component: () => import('@/view/pms/coupon')
+      },
+      {
+        path: 'vipCard',
+        name: 'vipCard',
+        meta: {
+          icon: 'md-list',
+          title: '会员卡列表'
+        },
+        component: () => import('@/view/pms/vipCard')
+      },
+      {
+        path: 'editVipCard',
+        name: 'editVipCard',
         meta: {
           icon: 'md-settings',
-          title: '编辑商品'
+          title: '编辑会员卡'
         },
-        component: () => import('@/view/pms/editProduct')
+        component: () => import('@/view/pms/editVipCard')
       }
     ]
   },

@@ -296,11 +296,11 @@
         this.$router.push(route)
       },
       async openRoomDetail(id) {
-        this.create_modal_show = !this.create_modal_show
-        if (this.create_modal_show) {
+        if (!this.create_modal_show) {
           const res = await getSeat({roomId: id , startTime: Date.now(), endTime: Date.now()})
           this.seat = res.data.data
         }
+        this.create_modal_show = !this.create_modal_show
       }
     }
   }

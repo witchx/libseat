@@ -29,7 +29,9 @@
             </Row>
             <Row>
               <FormItem label="商品类型:" prop="type">
-                <Cascader style="width:50%;" :data="product_type" type="value" v-model="formData1.type" clearable></Cascader>
+                <Select v-model="formData1.type" filterable placeholder="请选择" style="width:50%;">
+                  <Option v-for="(item, index) in product_type" :value="item.value" :key="index">{{item.label}}</Option>
+                </Select>
               </FormItem>
             </Row>
             <Row style="text-align: center; margin-right: 165px;">
@@ -54,31 +56,25 @@
                 <Input v-model.number="formData2.price" placeholder="请输入现价" style="width:50%;" />
               </FormItem>
             </Row>
-            <!--限时--> <!--期限卡-->
-            <Row v-if="formData2.conType === 1 || formData2.conType === 5">
+            <!--期限卡-->
+            <Row v-if="formData2.type === 3">
               <FormItem label="开始有效时间:" prop="startTime">
                 <date-picker style="width:50%;" type="datetime" v-model="formData2.startTime" :value="formData2.startTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择开始时间"></date-picker>
               </FormItem>
             </Row>
-            <Row v-if="formData2.conType === 1 || formData2.conType === 5">
+            <Row v-if="formData2.type === 3">
               <FormItem label="结束有效时间:" prop="endTime">
                 <date-picker style="width:50%;" type="datetime"  v-model="formData2.endTime" :value="formData2.endTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择结束时间"></date-picker>
               </FormItem>
             </Row>
-            <!--限量-->
-            <Row  v-if="formData2.conType === 2">
-              <FormItem label="数量:" prop="salesLimit">
-                <Input v-model.number="formData2.salesLimit" placeholder="请输入数量" style="width:50%;" />
-              </FormItem>
-            </Row>
             <!--储值卡-->
-            <Row v-if="formData2.conType === 1 || formData2.conType === 2 || formData2.conType === 3">
+            <Row v-if="formData2.type === 1 ">
               <FormItem label="储值:" prop="money">
                 <Input v-model.number="formData2.money" placeholder="请输入储值" style="width:50%;" />
               </FormItem>
             </Row>
             <!--计次卡-->
-            <Row  v-if="formData2.conType === 4">
+            <Row  v-if="formData2.type === 2">
               <FormItem label="次数" prop="times">
                 <Input v-model.number="formData2.times" placeholder="请输入次数" style="width:50%;" />
               </FormItem>
@@ -86,13 +82,6 @@
             <Row>
               <FormItem label="描述:" prop="des">
                 <Input :rows="5" style="width:50%;" :autosize="{maxRows:5,minRows: 5}" v-model.trim="formData2.des" type="textarea"/>
-              </FormItem>
-            </Row>
-            <Row>
-              <FormItem label="标签:" prop="status">
-                <CheckboxGroup v-model="formData2.statusArr">
-                  <Checkbox v-for="option in product_status" :label="option.value">{{option.label}}</Checkbox>
-                </CheckboxGroup>
               </FormItem>
             </Row>
             <Row style="text-align: center; margin-right: 165px;">
@@ -106,57 +95,23 @@
   </div>
 </template>
 <script>
-  import {  getProduct, updateProduct, createProduct} from '@/api/product';
+  import {  getVipCard, updateVipCard, createVipCard} from '@/api/vipCard';
   import { getUser} from '@/api/user';
   import backBtnGroup from '../error-page/back-btn-group.vue'
   import {timestampFormat} from '@/libs/tools';
   import lodash from "lodash";
   const product_type = [
     {
-      label: '优惠劵',
       value: 1,
-      children: [
-        {
-          value: 1,
-          label: '限时'
-        },
-        {
-          value: 2,
-          label: '限量'
-        }
-      ]
+      label: '储值卡'
     },
     {
-      label: '会员卡',
       value: 2,
-      children: [
-        {
-          value: 3,
-          label: '储值卡'
-        },
-        {
-          value: 4,
-          label: '计次卡'
-        },
-        {
-          value: 5,
-          label: '期限卡'
-        }
-      ]
-    }
-  ]
-  const product_status = [
-    {
-      label: '上架',
-      value: 1
+      label: '计次卡'
     },
     {
-      label: '新品',
-      value: 2
-    },
-    {
-      label: '推荐',
-      value: 3
+      value: 3,
+      label: '期限卡'
     }
   ]
   export default {
@@ -170,12 +125,11 @@
         success: 0,
         status: 'wait',
         product_type: product_type,
-        product_status: product_status,
         user_loading: false,
         user_option: [],
         formData1: {
           userId: '',
-          type: [],
+          type: '',
           name: '',
         },
         formData2: {
@@ -184,21 +138,17 @@
           name: '',
           type: '',
           userId: '',
-          conType: '',
           times: '',
           startTime: '',
           endTime: '',
           money: '',
           originalPrice: '',
           price: '',
-          status: '',
-          statusArr: [],
-          des: '',
-          salesLimit: ''
+          des: ''
         },
         formRules1: {
           type: [
-            {required: true, trigger: 'change',type: 'array',message: '必选项不能为空'}
+            {required: true, trigger: 'change',type: 'number',message: '必选项不能为空'}
           ],
           userId: [
             {required: true, type: 'number', message: "必选项不能为空", trigger: 'change'}
@@ -234,9 +184,6 @@
           ],
           des:[
             {required: true, message: "必输项不能为空", trigger: 'blur'}
-          ],
-          salesLimit:[
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
           ]
         }
       }
@@ -247,23 +194,18 @@
     },
     methods: {
       async fetchData() {
-        if (typeof(this.$route.query.productId) !== "undefined" && this.$route.query.productId !== '') {
+        if (typeof(this.$route.query.vipCardId) !== "undefined" && this.$route.query.vipCardId !== '') {
           this.spinShow = true;
-          const res = await getProduct({id: this.$route.query.productId})
+          const res = await getVipCard({id: this.$route.query.vipCardId})
           if (res.data.code === 200) {
             Object.keys(res.data.data.rows[0]).forEach(key => {
               if (key === 'userId') {
                 this.formData1[key] = res.data.data.rows[0][key]
               }
               if (key === 'type') {
-                this.$set(this.formData1.type, 0, res.data.data.rows[0][key]);
+                this.formData1[key] = res.data.data.rows[0][key]
               }
-              if (key === 'conType') {
-                this.$set(this.formData1.type, 1, res.data.data.rows[0][key]);
-              }
-              if (key === 'status') {
-                this.formData2.statusArr = res.data.data.rows[0][key].split(',').map(item => parseInt(item))
-              } else if (key === 'startTime') {
+              if (key === 'startTime') {
                 this.formData2.startTime = timestampFormat(res.data.data.rows[0][key],'year')
               } else if (key === 'endTime') {
                 this.formData2.endTime = timestampFormat(res.data.data.rows[0][key],'year')
@@ -276,7 +218,7 @@
               this.formData1['name'] = res2.data.data.rows[0]['companyName']
             }
           }
-          this.$route.query.userId = ''
+          this.$route.query.vipCardId = ''
           setTimeout(() => {
             this.spinShow = false;
           }, 300)
@@ -316,8 +258,7 @@
             this.$refs['formData1'].validate(valid => {
               if (valid) {
                 this.current++;
-                this.formData2.type = this.formData1.type[0];
-                this.formData2.conType = this.formData1.type[1];
+                this.formData2.type = this.formData1.type;
                 this.formData2.userId = this.formData1.userId;
               }
             });
@@ -341,14 +282,13 @@
       },
       // 确认提交
       async handleSubmit() {
-        this.formData2.status = this.formData2.statusArr.toString();
         this.formData2.startTime = timestampFormat(this.formData2.startTime,'year');
         this.formData2.endTime = timestampFormat(this.formData2.endTime,'year')
         let res = '';
         if (this.formData2.id === '') {
-          res = await createProduct(this.formData2)
+          res = await createVipCard(this.formData2)
         } else {
-          res = await updateProduct(this.formData2.id,this.formData2)
+          res = await updateVipCard(this.formData2.id,this.formData2)
         }
         this.success = res.data.code;
         if (this.success !== 200) {
@@ -359,11 +299,9 @@
         Object.keys( this.formData1).forEach(key => {
           this.formData1[key] = '';
         });
-        this.formData1.type = [];
         Object.keys(this.formData2).forEach(key => {
           this.formData2[key] = '';
         });
-        this.formData2.statusArr = [];
       },
       changeStartTime(time) {
         this.formData2.startTime = time;

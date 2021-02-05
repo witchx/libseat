@@ -6,31 +6,25 @@
     <select id="getOrderList" resultType="OrderEntity">
         SELECT
             lo.id,
-            lo.seat_id,
-            lo.customer_id,
-            lo.progress,
+            lo.`no`,
             lo.create_time,
-            lo.pay_time,
-            lo.sign_time,
-            lo.evaluate_time,
-            lo.start_time,
-            lo.end_time,
-            lo.`status`,
+            lo.pay_id,
+            lo.user_id,
+            lo.customer_Id,
+            lo.price,
+            lo.progress,
             lo.`type`,
             lo.delete_flag,
-            lo.`no`,
-            lo.user_id,
-            lo.product_id,
-            lo.price,
             lu.company_name,
-            lc.username customer_name
+            lc.username customer_name,
+            lp.pay_time
         FROM
-            lib_order lo,
-            lib_user lu,
-            lib_customer lc
-        WHERE lo.delete_flag = 0
-        AND lo.customer_id = lc.id
-        AND lo.user_id = lu.id
+            lib_order lo
+            JOIN lib_user lu ON lo.user_id = lu.id
+            JOIN lib_customer lc ON lo.customer_id = lc.id
+            LEFT JOIN lib_pay lp ON lo.pay_id = lp.id
+        WHERE
+            lo.delete_flag = 0
         <if test="id != null">
             AND lo.id = #{id}
         </if>
@@ -43,11 +37,11 @@
         <if test="customer != null and customer != ''">
             AND lc.username like concat('%',#{customer},'%')
         </if>
-        <if test="status != null">
-            AND lo.`status` = #{status}
-        </if>
         <if test="type != null">
             AND lo.`type` = #{type}
+        </if>
+        <if test="progress != null">
+            AND lo.progress = #{progress}
         </if>
         <if test="createStartTime != null ">
             AND lo.create_time <![CDATA[ >= ]]> #{createStartTime}

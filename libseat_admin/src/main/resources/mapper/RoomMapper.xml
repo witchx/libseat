@@ -3,17 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.libseat.admin.mapper.RoomMapper">
 
-    <resultMap id="RoomEntityResult" type="RoomEntity">
-        <result property="id" column="id"/>
-        <result property="name" column="name"/>
-        <result property="stadiumId" column="stadium_id"/>
-        <result property="availableSeatCount" column="available_seat_count"/>
-        <result property="totalSeatCount" column="total_seat_count"/>
-        <result property="modifyTime" column="modify_time"/>
-        <result property="createTime" column="create_time"/>
-    </resultMap>
-
-    <select id="getRoomList" resultMap="RoomEntityResult">
+    <select id="getRoomList" resultType="RoomEntity">
         SELECT
         lr.id,
         lr.`name`,
@@ -37,17 +27,17 @@
                 ls.room_id room_id,
                 ls.id,
             CASE
-                WHEN lo.`status` IS NULL THEN ls.`status`
+                WHEN los.`status` IS NULL THEN ls.`status`
                 WHEN ls.`status` = 0 THEN 0
-                WHEN lo.`status` = 1 THEN 1
-                WHEN lo.`status` = 3 THEN 1
-                WHEN now( ) <![CDATA[ >= ]]> lo.end_time THEN 1
-                WHEN now( ) <![CDATA[ <= ]]> lo.start_time THEN 1
+                WHEN los.`status` = 1 THEN 1
+                WHEN los.`status` = 3 THEN 1
+                WHEN now( ) <![CDATA[ >= ]]> los.end_time THEN 1
+                WHEN now( ) <![CDATA[ <= ]]> los.start_time THEN 1
                 ELSE 2
                 END AS `status`
             FROM
                 lib_seat ls
-            LEFT JOIN lib_order lo ON ls.id = lo.seat_id
+            LEFT JOIN lib_order_seat los ON ls.id = los.seat_id
         ) ii
         WHERE ii.`status` = 1
         GROUP BY ii.room_id
@@ -70,7 +60,7 @@
         GROUP BY ls.room_id
     </select>
 
-    <select id="getRoomListByStadiumId" resultMap="RoomEntityResult">
+    <select id="getRoomListByStadiumId" resultType="RoomEntity">
         SELECT
             lr.id,
             lr.`name`,
@@ -92,17 +82,17 @@
                     ls.room_id room_id,
                     ls.id,
                 CASE
-                    WHEN lo.`status` IS NULL THEN ls.`status`
+                    WHEN los.`status` IS NULL THEN ls.`status`
                     WHEN ls.`status` = 0 THEN 0
-                    WHEN lo.`status` = 1 THEN 1
-                    WHEN lo.`status` = 3 THEN 1
-                    WHEN now( ) <![CDATA[ >= ]]> lo.end_time THEN 1
-                    WHEN now( ) <![CDATA[ <= ]]> lo.start_time THEN 1
+                    WHEN los.`status` = 1 THEN 1
+                    WHEN los.`status` = 3 THEN 1
+                    WHEN now( ) <![CDATA[ >= ]]> los.end_time THEN 1
+                    WHEN now( ) <![CDATA[ <= ]]> los.start_time THEN 1
                     ELSE 2
                     END AS `status`
                 FROM
                 lib_seat ls
-                LEFT JOIN lib_order lo ON ls.id = lo.seat_id
+                LEFT JOIN lib_order_seat los ON ls.id = los.seat_id
             ) ii
             WHERE ii.`status` = 1
             GROUP BY ii.room_id

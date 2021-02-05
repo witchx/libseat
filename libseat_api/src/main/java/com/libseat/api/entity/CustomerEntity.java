@@ -27,18 +27,10 @@ public class CustomerEntity {
     private String sex;
     @Column
     private String tel;
-    /**
-     * 1：普通
-     * 2：会员
-     */
-    @Column
-    private String status;
-    @Column
-    private Integer userId;
-    @Column
-    private String deleteFlag;
     @Column
     private Timestamp createTime;
     @Column
     private Timestamp modifyTime;
+    @Column
+    private String deleteFlag;
 }

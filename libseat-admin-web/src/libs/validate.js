@@ -14,6 +14,16 @@ export const validatePass = (rule, value, callback) => {
     callback()
   }
 };
+export const validateNumber = (rule, value, callback) => {
+  if (validateStr(value)) {
+    callback('必输项不能为空');
+  } else if (!Number.isInteger(+value)) {
+    callback(new Error('输入数字'));
+  } else {
+    callback();
+  }
+};
+
 /* 合法手机号*/
 export function validatePhone(rule, value,callback) {
   const reg =/^[1][3-9][0-9]{9}$/;
@@ -72,7 +82,7 @@ export function validateUpperCase(str) {
 }
 
 /* 大小写字母*/
-export function validatAlphabets(str) {
+export function validateAlphabets(str) {
   const reg = /^[A-Za-z]+$/
   return reg.test(str)
 }

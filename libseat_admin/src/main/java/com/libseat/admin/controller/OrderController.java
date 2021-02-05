@@ -28,16 +28,15 @@ public class OrderController {
                                                                @RequestParam(required = false) String no,
                                                                @RequestParam(required = false) String company,
                                                                @RequestParam(required = false) String customer,
-                                                               @RequestParam(required = false) String createStartTime,
-                                                               @RequestParam(required = false) String createEndTime,
-                                                               @RequestParam(required = false) Integer status,
+                                                               @RequestParam(required = false) String createTimeStart,
+                                                               @RequestParam(required = false) String createTimeEnd,
                                                                @RequestParam(required = false) Integer type,
+                                                               @RequestParam(required = false) Integer progress,
                                                                @RequestParam(required = false, defaultValue = "1") Integer page,
                                                                @RequestParam(required = false, defaultValue = "10") Integer pageSize){
         PageResult<OrderEntity> orderList = orderService.getOrderList(id, no, company, customer,
-                DateUtils.strToTimestamp(createStartTime,DateUtils.YYYY_MM_DD_HH_MM_SS),
-                DateUtils.strToTimestamp(createEndTime,DateUtils.YYYY_MM_DD_HH_MM_SS),
-                status, type, page, pageSize);
+                DateUtils.strToTimestamp(createTimeStart,DateUtils.YYYY_MM_DD_HH_MM_SS),
+                DateUtils.strToTimestamp(createTimeEnd,DateUtils.YYYY_MM_DD_HH_MM_SS), type, progress, page, pageSize);
         if (orderList == null || orderList.getTotal() == 0) {
             return CommonResult.failed(ResultCode.EMPTY);
         } else {

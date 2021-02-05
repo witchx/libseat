@@ -1,7 +1,7 @@
 package com.libseat.api.entity;
 
 
-import com.libseat.api.dto.Seat;
+import com.libseat.api.model.Seat;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 

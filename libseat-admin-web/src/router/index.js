@@ -4,7 +4,9 @@ import store from '../store'
 import iView from 'iview'
 import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
 import config from '@/config'
+
 const { homeName } = config
+const LOGIN_PAGE_NAME = 'login'
 
 const originalPush = Router.prototype.push
 Router.prototype.push = function push(location, onResolve, onReject) {
@@ -13,18 +15,20 @@ Router.prototype.push = function push(location, onResolve, onReject) {
 }
 
 Vue.use(Router)
+
 const createRouter = () =>  new Router({
   routes: store.state.router.constantRouters,
   mode: 'history'
 })
-const LOGIN_PAGE_NAME = 'login'
 
-const router = createRouter();
-
+//重置路由的方法:切换用户后，或者退出时清除动态加载的路由
 export function resetRouter() {
   const newRouter = createRouter();
   router.matcher = newRouter.matcher;
 }
+
+const router = createRouter();
+
 const turnTo = (to, access, next) => {
   if (canTurnTo(to.name, access, store.state.router.routers)) {// 有权限，可访问
     next()
@@ -49,25 +53,14 @@ router.beforeEach((to, from, next) => {
     next({
       name: homeName // 跳转到homeName页
     })
+  } else if ( to.name === 'error_404' && from.name === null) {
+    var routeTo404 = sessionStorage.getItem('routerTo')
+    buildRouter(false, routeTo404, next);
   } else {
-    if (store.state.user.hasGetInfo&&store.state.user.hasGenerateMenu) {
+    if (store.state.router.hasGetInfo&&store.state.router.hasGenerateMenu) {
       turnTo(to, store.state.user.access, next)
     } else {
-      store.dispatch('getUserInfo').then(user => {
-        let menu = user.menus;
-        // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-        store.dispatch('GenerateRoutes', {menu}).then(() => { // 生成可访问的路由表
-          resetRouter()
-          router.addRoutes(store.state.router.addRouters)
-          store.state.user.hasGenerateMenu = true
-          turnTo(to, user.access, next)
-        })
-      }).catch(() => {
-        setToken('')
-        next({
-          name: 'login'
-        })
-      })
+      buildRouter(true, null, next);
     }
   }
 })
@@ -76,6 +69,34 @@ router.afterEach(to => {
   setTitle(to, router.app)
   iView.LoadingBar.finish()
   window.scrollTo(0, 0)
+  sessionStorage.setItem('routerTo', to.path)
 })
+
+export function buildRouter(isReset,toPath,next) {
+  // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
+  store.dispatch('getUserInfo').then(user => {
+    let menu = user.menus;
+    store.dispatch('generateRoutes', {menu}).then(( dynamicRoutes) => {
+      if (isReset) {
+        // 重置路由表
+        resetRouter()
+      }
+      // 动态添加可访问路由表
+      router.addRoutes(dynamicRoutes)
+      store.commit('setHasGenerateMenu', true);
+      if (toPath ===  null) {
+        // hack方法 确保addRoutes已完成
+        next({ ...to, replace: true })
+      } else {
+        next({path: toPath})
+      }
+    })
+  }).catch(() => {
+    setToken('')
+    next({
+      name: 'login'
+    })
+  })
+}
 
 export default router

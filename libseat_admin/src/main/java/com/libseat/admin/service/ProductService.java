@@ -1,14 +1,15 @@
 package com.libseat.admin.service;
 
+import com.libseat.api.entity.CouponEntity;
 import com.libseat.api.entity.ProductEntity;
+import com.libseat.api.entity.VipCardEntity;
 import com.libseat.utils.page.PageResult;
 
 import java.util.List;
 
 public interface ProductService {
-    PageResult<ProductEntity> getProductList(Integer id, String no, String name, Integer type, String companyName, Integer conType, Integer page, Integer pageSize);
 
-    Integer insertProductBatch(List<ProductEntity> productEntities);
+    PageResult<ProductEntity> getProductList(Integer id, String no, String name, String des, String companyName, Integer page, Integer pageSize);
 
     Integer insertProduct(ProductEntity productEntity);
 
@@ -16,5 +17,7 @@ public interface ProductService {
 
     void deleteProductBatch(List<Integer> ids);
 
-    Integer deleteProduct(ProductEntity productEntity);
+    Integer insertProductBatch(List<ProductEntity> productEntities);
+
+    void deleteProduct(ProductEntity productEntity);
 }

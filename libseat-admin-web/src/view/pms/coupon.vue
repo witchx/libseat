@@ -15,22 +15,24 @@
         <Row :gutter="16">
           <Col span="6">
             <FormItem label="输入搜索:" prop="no" aria-required="true">
-              <Input v-model="searchParams.no"  placeholder="商品货号"/>
+              <Input v-model="searchParams.no"  placeholder="优惠劵货号" @on-search="fetchData" />
             </FormItem>
           </Col>
           <Col span="6">
-            <FormItem label="商品:" prop="id" aria-required="true">
-              <Input v-model="searchParams.name"  placeholder="商品名称"/>
-            </FormItem>
-          </Col>
-          <Col span="6">
-            <FormItem label="备注:" prop="id" aria-required="true">
-              <Input v-model="searchParams.des"  placeholder="商品备注"/>
+            <FormItem label="优惠劵:" prop="id" aria-required="true">
+              <Input v-model="searchParams.name"  placeholder="优惠劵名称" @on-search="fetchData" />
             </FormItem>
           </Col>
           <Col span="6">
             <FormItem label="公司:" prop="companyName" aria-required="true">
-              <Input v-model="searchParams.companyName"  placeholder="公司名称"/>
+              <Input v-model="searchParams.companyName"  placeholder="公司名称" @on-search="fetchData" />
+            </FormItem>
+          </Col>
+          <Col span="6">
+            <FormItem label="优惠劵类型">
+              <Select v-model="searchParams.type" filterable placeholder="全部">
+                <Option v-for="(item, index) in coupon_type" :value="item.value" :key="index">{{item.label}}</Option>
+              </Select>
             </FormItem>
           </Col>
         </Row>
@@ -43,28 +45,17 @@
           <label style="font-size: 15px;">&nbsp;数据列表</label>
         </Col>
         <Col span="6">
-          <Button type="default" style="float: right;margin-right: 10px;" @click="modalNoShowCSV">上传CSV</Button>
-          <Button type="default" style="float: right;margin-right: 10px;" @click="modalNoShowEXCEL">上传EXCEL</Button>
-          <Button type="default" style="float: right;margin-right: 10px;" @click="modalNoShowPaste">粘贴表格数据</Button>
           <Button type="default" style="float: right;margin-right: 10px;" @click="createShow">新建</Button>
         </Col>
       </Row>
     </Card>
     <Card>
-      <tables ref="tables" @on-select-all-cancel="handleCancelSelectAll"
-              @on-select-all="handleSelectAll"
-              @on-select="handleSelect"
-              @on-select-cancel="handleCancel"
-              :loading="loading" :columns="columns" v-model="data"/>
-
+      <tables ref="tables" @on-select-all-cancel="handleCancelSelectAll" @on-select-all="handleSelectAll" @on-select="handleSelect" @on-select-cancel="handleCancel" :loading="loading" :columns="columns" v-model="data"/>
       <Select v-model="operateType" filterable placeholder="批量操作" style="width: 130px;margin-right: 15px">
         <Option v-for="(operate, index) in operates" :value="operate.value" :key="index">{{operate.label}}</Option>
       </Select>
       <Button style="margin: 10px 0;" type="primary" @click="batchConfirm">确定</Button>
       <Page style="margin-top: 20px;float: right;" :total="searchParams.total" :page-size="searchParams.pageSize" show-total show-elevator show-sizer @on-change="handlePage" @on-page-size-change='handlePageSize'/>
-      <upload-excel :create_modal_show_excel="create_modal_show_excel" @noshow="modalNoShowEXCEL" />
-      <upload-paste :create_modal_show_csv="create_modal_show_csv" @noshow="modalNoShowCSV" />
-      <upload-paste :create_modal_show_paste="create_modal_show_paste" @noshow="modalNoShowPaste" />
     </Card>
     <Modal v-model="create_show.value" title="创建">
       <Form ref="formCreate" :model="create_show" :label-width="100" :rules="rules">
@@ -76,7 +67,14 @@
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="商品名称:" prop="name">
+          <FormItem label="优惠劵类型" prop="type">
+            <Select style="width:80%;" v-model="create_show.type" filterable placeholder="请选择">
+              <Option v-for="(item, index) in coupon_type" :value="item.value" :key="index">{{item.label}}</Option>
+            </Select>
+          </FormItem>
+        </Row>
+        <Row>
+          <FormItem label="优惠劵名称:" prop="name">
             <Input v-model="create_show.name" style="width: 80%;"/>
           </FormItem>
         </Row>
@@ -86,13 +84,23 @@
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="数量:" prop="num">
-            <Input v-model="create_show.num" type="number" style="width: 80%;"/>
+          <FormItem label="描述:" prop="des">
+            <Input v-model="create_show.des" style="width: 80%;"/>
           </FormItem>
         </Row>
-        <Row>
-          <FormItem label="备注:" prop="des">
-            <Input v-model="create_show.des" style="width: 80%;"/>
+        <Row v-if="create_show.type === 1">
+          <FormItem label="开始时间:" prop="startTime">
+            <date-picker style="width:80%;" type="datetime" v-model="create_show.startTime" :value="create_show.startTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择开始时间"></date-picker>
+          </FormItem>
+        </Row>
+        <Row v-if="create_show.type === 1">
+          <FormItem label="结束时间:" prop="endTime">
+            <date-picker style="width:80%;" type="datetime" v-model="create_show.endTime" :value="create_show.endTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择结束时间"></date-picker>
+          </FormItem>
+        </Row>
+        <Row v-if="create_show.type === 2">
+          <FormItem label="数量:" prop="maxNum">
+            <Input v-model="create_show.maxNum" style="width: 80%;" type="number"/>
           </FormItem>
         </Row>
       </Form>
@@ -114,7 +122,12 @@
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="商品名称:" prop="name">
+          <FormItem label="优惠劵类型">
+            <span>{{coupon[edit_show.type]}}</span>
+          </FormItem>
+        </Row>
+        <Row>
+          <FormItem label="优惠劵名称:" prop="name">
             <Input v-model="edit_show.name" style="width: 80%;"/>
           </FormItem>
         </Row>
@@ -124,13 +137,23 @@
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="数量:" prop="num">
-            <Input v-model="create_show.num" type="number" style="width: 80%;"/>
-          </FormItem>
-        </Row>
-        <Row>
           <FormItem label="描述:" prop="des">
             <Input v-model="edit_show.des" style="width: 80%;"/>
+          </FormItem>
+        </Row>
+        <Row v-if="edit_show.type === 1">
+          <FormItem label="开始时间:" prop="startTime">
+            <date-picker style="width:80%;" type="datetime" v-model="edit_show.startTime" :value="edit_show.startTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择开始时间"></date-picker>
+          </FormItem>
+        </Row>
+        <Row v-if="edit_show.type === 1">
+          <FormItem label="结束时间:" prop="endTime">
+            <date-picker style="width:80%;" type="datetime" v-model="edit_show.endTime" :value="edit_show.endTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择结束时间"></date-picker>
+          </FormItem>
+        </Row>
+        <Row  v-if="edit_show.type === 2">
+          <FormItem label="数量:" prop="maxNum">
+            <Input v-model="edit_show.maxNum" style="width: 80%;" type="number"/>
           </FormItem>
         </Row>
       </Form>
@@ -143,19 +166,17 @@
 </template>
 <script>
   import Tables from '_c/tables'
-  import { getProduct, createProduct, updateProduct, deleteProduct,deleteProductBatch } from '@/api/product';
-  import uploadExcel from '@/components/uploadExcel';
-  import uploadCsv from '@/components/uploadCsv';
-  import uploadPaste from '@/components/uploadPaste';
+  import { getCoupon,deleteCoupon, createCoupon, updateCoupon,deleteCouponBatch } from '@/api/coupon';
   import { getUser} from '@/api/user';
+  import {timestampFormat} from '@/libs/tools';
   import {validateNumber} from '@/libs/validate';
   import lodash from "lodash";
   const searchParams = {
     id: '',
     no: '',
     name: '',
+    type: '',
     companyName: '',
-    des: '',
     page: 1,
     pageSize: 10,
     total: 0
@@ -170,12 +191,23 @@
       value: "deleteBatch"
     }
   ]
+  const coupon_type = [
+    {
+      value: 1,
+      label: '限时'
+    },
+    {
+      value: 2,
+      label: '限量'
+    }
+  ]
+  const coupon = {
+    '1':'限时优惠劵',
+    '2':'限量优惠劵'
+  }
   export default {
     components: {
-      Tables,
-      uploadExcel,
-      uploadCsv,
-      uploadPaste
+      Tables
     },
     data() {
       return {
@@ -193,32 +225,46 @@
               key: 'id'
             },
             {
-              title: '货号',
-              key: 'no'
-            },
-            {
               title: '公司名称',
               key: 'companyName'
             },
             {
-              title: '商品名称',
+              title: '优惠劵名称',
               key: 'name'
             },
             {
-              title: '价格',
-              key: 'price',
+              title: '价格/货号',
+              key: 'priceAndNo',
               width: 200,
               render:(h, params) => {
-                return h('div','￥'+params.row.price)
+                return h('div',[
+                  h('div','价格: ￥'+params.row.price),
+                  h('div','货号:'+params.row.no)
+                ])
               }
             },
             {
-              title: '数量',
-              key: 'num'
+              title: '类型',
+              key: 'kind',
+              render: (h, params) => {
+                return h('div', this.coupon[params.row.type])
+              }
             },
             {
-              title: '备注',
-              key: 'des'
+              title: '限量',
+              key: 'maxNum'
+            },
+            {
+              title: '时间',
+              key: 'time',
+              render: (h, params) => {
+                if (!!params.row.startTime) {
+                  return h('div',[
+                    h('div','开始时间:'+timestampFormat(params.row.startTime,'year')),
+                    h('div','结束时间:'+timestampFormat(params.row.endTime,'year'))
+                  ])
+                }
+              }
             },
             { title: '操作', key: 'action', width: 200, align: 'center', render: (h, params) => {
                 return h('div', [
@@ -249,7 +295,7 @@
                       },
                       on: {
                         'on-ok': async () => {
-                          await deleteProduct(params.row.id)
+                          await deleteCoupon(params.row.id)
                           this.$Message.success('删除成功！');
                           this.fetchData()
                         }
@@ -270,35 +316,38 @@
         data: [],
         loading: true,
         searchParams: searchParams,
+        coupon_type: coupon_type,
+        coupon: coupon,
         operates: operates,
         operateType: null,
         searchSelected: [],
         selected: [],
         user_option: [],
         user_loading: false,
-        create_modal_show_excel: false,
-        create_modal_show_paste: false,
-        create_modal_show_csv: false,
         create_show: {
           value: false,
-          no: '',
           name: '',
+          type: '',
           userId: '',
-          companyName: '',
+          startTime: '',
+          endTime: '',
           price: '',
           des: '',
-          num: ''
+          maxNum: ''
         },
         edit_show: {
           value: false,
           id: '',
           no: '',
           name: '',
+          type: '',
           userId: '',
           companyName: '',
+          startTime: '',
+          endTime: '',
           price: '',
           des: '',
-          num: ''
+          maxNum: ''
         },
         rules: {
           name: [
@@ -307,14 +356,23 @@
           userId: [
             {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
           ],
-          price: [
+          startTime: [
+            {required: true, trigger: 'change', type: 'date', message: "必输项不能为空"}
+          ],
+          endTime: [
+            {required: true, trigger: 'change', type: 'date', message: "必输项不能为空"}
+          ],
+          maxNum: [
             { validator: validateNumber, trigger: 'blur'}
           ],
-          num: [
+          price: [
             { validator: validateNumber, trigger: 'blur'}
           ],
           des: [
             {required: true, message: "必输项不能为空", trigger: 'blur'}
+          ],
+          type: [
+            {required: true, trigger: 'change', type: 'number', message: '必选项不能为空'}
           ]
         }
       }
@@ -333,7 +391,7 @@
           this.searchParams.type = this.searchSelected[0];
           this.searchParams.conType = this.searchSelected[1];
         }
-        const res = await getProduct(this.searchParams)
+        const res = await getCoupon(this.searchParams)
         if (res.data.code === 200) {
           this.data = res.data.data.rows.map(item => {
             return {
@@ -353,15 +411,14 @@
         this.createToEmpty();
         this.create_show.value = true;
       },
-      createToEmpty() {
-        Object.keys( this.create_show).forEach(key => {
-          this.create_show[key] = '';
-        });
-      },
       submitCreate() {
         this.$refs.formCreate.validate(async (valid) => {
           if (valid) {
-            const res = await createProduct(this.create_show)
+            if (this.create_show.type === 1) {
+              this.create_show.startTime = timestampFormat(this.create_show.startTime,'year');
+              this.create_show.endTime = timestampFormat(this.create_show.endTime,'year')
+            }
+            const res = await createCoupon(this.create_show)
             if (res.data.code === 200) {
               this.$Message.success(res.data.msg);
               this.create_show.value = false;
@@ -376,7 +433,11 @@
       submitEdit() {
         this.$refs.formEdit.validate(async (valid) => {
           if (valid) {
-            const res = await updateProduct(this.edit_show.id, this.edit_show)
+            if (this.edit_show.type === 1) {
+              this.edit_show.startTime = timestampFormat(this.edit_show.startTime,'year');
+              this.edit_show.endTime = timestampFormat(this.edit_show.endTime,'year')
+            }
+            const res = await updateCoupon(this.edit_show.id, this.edit_show)
             if (res.data.code === 200) {
               this.$Message.success(res.data.msg);
               this.edit_show.value = false;
@@ -385,55 +446,6 @@
             }
           }
         })
-      },
-      modalNoShowCSV() {
-        this.create_modal_show_csv = !this.create_modal_show_csv
-      },
-      modalNoShowEXCEL() {
-        this.create_modal_show_excel = !this.create_modal_show_excel
-      },
-      modalNoShowPaste() {
-        this.create_modal_show_paste = !this.create_modal_show_paste
-      },
-      exportExcel () {
-        this.$refs.tables.exportCsv({
-          filename: `product-table-${(new Date()).valueOf()}.csv`,
-          columns: this.columns.filter((col, index) => index > 0),
-          data: this.data.filter((item, index) => {
-            for (let i = 0; i < this.selected.length; i++) {
-              if (item.id === this.selected[i]) {
-                return true
-              }
-            }
-            return false
-          })
-        })
-      },
-      batchConfirm() {
-        if (this.operateType == null) {
-          this.$Message.warning("请选择操作类型");
-          return;
-        }
-        if(this.selected==null||this.selected.length<1) {
-          this.$Message.warning("请选择要操作的商品");
-          return;
-        }
-        switch (this.operateType) {
-          case this.operates[0].value:
-            this.exportExcel();
-            break;
-          case this.operates[1].value:
-            this.$Modal.confirm({
-              title: "删除提示",
-              content: "是否要进行删除操作?",
-              okText: "确定",
-              cancelText: "取消",
-              onOk: async () => {
-                const res = await deleteProductBatch(JSON.stringify(this.selected));
-              }
-            });
-            break;
-        }
       },
       async searchUser(query) {
         if (query) {
@@ -456,6 +468,46 @@
           this.user_option = [];
         }
       },
+      exportExcel () {
+        this.$refs.tables.exportCsv({
+          filename: `product-table-${(new Date()).valueOf()}.csv`,
+          columns: this.columns.filter((col, index) => index > 0),
+          data: this.data.filter((item, index) => {
+            for (let i = 0; i < this.selected.length; i++) {
+              if (item.id === this.selected[i]) {
+                return true
+              }
+            }
+            return false
+          })
+        })
+      },
+      batchConfirm() {
+        if (this.operateType == null) {
+          this.$Message.warning("请选择操作类型");
+          return;
+        }
+        if(this.selected==null||this.selected.length<1) {
+          this.$Message.warning("请选择要操作的优惠劵");
+          return;
+        }
+        switch (this.operateType) {
+          case this.operates[0].value:
+            this.exportExcel();
+            break;
+          case this.operates[1].value:
+            this.$Modal.confirm({
+              title: "删除提示",
+              content: "是否要进行删除操作?",
+              okText: "确定",
+              cancelText: "取消",
+              onOk: async () => {
+                const res = await deleteCouponBatch(JSON.stringify(this.selected));
+              }
+            });
+            break;
+        }
+      },
       handlePage(page) {
         this.searchParams.page = page;
         let start = (page-1)*this.searchParams.pageSize;
@@ -466,6 +518,11 @@
       handlePageSize(value) {
         this.searchParams.pageSize = value
         this.fetchData()
+      },
+      createToEmpty() {
+        Object.keys( this.create_show).forEach(key => {
+          this.create_show[key] = '';
+        });
       },
       paramToEmpty() {
         Object.keys(this.searchParams).forEach(key => {

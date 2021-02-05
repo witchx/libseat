@@ -3,8 +3,8 @@ package com.libseat.admin.service.impl;
 
 import com.libseat.admin.mapper.SeatMapper;
 import com.libseat.admin.service.SeatService;
-import com.libseat.api.dto.Row;
-import com.libseat.api.dto.Seat;
+import com.libseat.api.model.Row;
+import com.libseat.api.model.Seat;
 import com.libseat.api.entity.SeatEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

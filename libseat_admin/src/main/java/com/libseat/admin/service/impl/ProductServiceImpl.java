@@ -18,9 +18,9 @@ public class ProductServiceImpl implements ProductService {
     private ProductMapper productMapper;
 
     @Override
-    public PageResult<ProductEntity> getProductList(Integer id, String no, String name, Integer type, String companyName, Integer conType, Integer page, Integer pageSize) {
+    public PageResult<ProductEntity> getProductList(Integer id, String no, String name, String des, String companyName, Integer page, Integer pageSize) {
         PageHelper.startPage(page, pageSize);
-        List<ProductEntity> productList = productMapper.getProductList(id, no, name, type, companyName, conType);
+        List<ProductEntity> productList = productMapper.getProductList(id, no, name, des, companyName);
         PageInfo pageInfo = new PageInfo(productList);
         return new PageResult<>(pageInfo.getTotal(),pageInfo.getList());
     }
@@ -28,6 +28,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Integer insertProductBatch(List<ProductEntity> productEntities) {
         return productMapper.insertList(productEntities);
+    }
+
+    @Override
+    public void deleteProduct(ProductEntity productEntity) {
+        productMapper.deleteByPrimaryKey(productEntity);
     }
 
     @Override
@@ -45,8 +50,4 @@ public class ProductServiceImpl implements ProductService {
         productMapper.deleteProductBatch(ids);
     }
 
-    @Override
-    public Integer deleteProduct(ProductEntity productEntity) {
-        return productMapper.deleteByPrimaryKey(productEntity);
-    }
 }

@@ -1,6 +1,6 @@
 import { asyncRouterMap, constantRouterMap } from '../../router/routers';
-//判断是否有权限访问该菜单
-function hasPermission(menus, route) {
+//添加路由信息
+function addInfo(menus, route) {
   if (route.name) {
     let currMenu = getMenu(route.name, menus);
     if (currMenu!=null) {
@@ -12,7 +12,7 @@ function hasPermission(menus, route) {
         route.meta.icon = currMenu.icon;
       }
       if(currMenu.hidden!=null){
-        route.hideInMenu = (currMenu.hidden !== 0);
+        route.meta.hideInMenu = (currMenu.hidden !== 0);
       }
       if (currMenu.sort != null && currMenu.sort !== '') {
         route.sort = currMenu.sort;
@@ -73,25 +73,33 @@ const router = {
   state: {
     routers: [],
     constantRouters: constantRouterMap,
-    addRouters: []
+    addRouters: [],
+    hasGetInfo: false,
+    hasGenerateMenu: false
   },
   mutations: {
-    SET_ROUTERS: (state, routers) => {
+    setRouters: (state, routers) => {
       state.addRouters = routers;
       state.routers = routers.concat(constantRouterMap);
-    }
+    },
+    setHasGetInfo (state, status) {
+      state.hasGetInfo = status
+    },
+    setHasGenerateMenu (state, status) {
+      state.hasGenerateMenu = status
+    },
   },
   actions: {
-    GenerateRoutes({ commit }, data) {
+    generateRoutes({ commit }, data) {
       return new Promise(resolve => {
         const menus  = data.menu;
-        const accessedRouters = asyncRouterMap.filter(v => {
+        const dynamicRoutes = asyncRouterMap.filter(v => {
           //admin帐号直接返回所有菜单
           // if(username==='admin') return true;
-          if (hasPermission(menus, v)) {
+          if (addInfo(menus, v)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(child => {
-                if (hasPermission(menus, child)) {
+                if (addInfo(menus, child)) {
                   return child
                 }
                 return false;
@@ -104,9 +112,9 @@ const router = {
           return false;
         });
         //对菜单进行排序
-        sortRouters(accessedRouters);
-        commit('SET_ROUTERS', accessedRouters);
-        resolve();
+        sortRouters(dynamicRoutes);
+        commit('setRouters', dynamicRoutes);
+        resolve(dynamicRoutes);
       })
     }
   }

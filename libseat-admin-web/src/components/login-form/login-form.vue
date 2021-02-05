@@ -25,7 +25,7 @@ import md5 from 'js-md5';
 export default {
   name: 'LoginForm',
   props: {
-    userNameRules: {
+    usernameRules: {
       type: Array,
       default: () => {
         return [
@@ -55,7 +55,7 @@ export default {
   computed: {
     rules () {
       return {
-        username: this.userNameRules,
+        username: this.usernameRules,
         password: this.passwordRules
       }
     }

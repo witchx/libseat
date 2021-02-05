@@ -18,6 +18,6 @@ public interface OrderMapper extends MyBaseMapper<OrderEntity> {
                                    @Param("customer") String customer,
                                    @Param("createStartTime") Timestamp createStartTime,
                                    @Param("createEndTime") Timestamp createEndTime,
-                                   @Param("status") Integer status,
-                                   @Param("type") Integer type);
+                                   @Param("type") Integer type,
+                                   @Param("progress") Integer progress);
 }

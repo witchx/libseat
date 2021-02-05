@@ -16,7 +16,7 @@ export default {
   /**
    * @description api请求基础路径
    */
-  baseUrl: {
+  publicPath: {
     dev: 'http://localhost:8882',
     pro: 'https://produce.com'
   },

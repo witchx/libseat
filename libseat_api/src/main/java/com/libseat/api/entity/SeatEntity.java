@@ -7,8 +7,8 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Data
-@Alias(value = "SeatEntity")
 @Table(name = "lib_seat")
+@Alias(value = "SeatEntity")
 public class SeatEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,3 +28,4 @@ public class SeatEntity {
     @Transient
     private Timestamp endTime;
 }
+

@@ -30,18 +30,16 @@
               </Select>
             </FormItem>
           </Col>
+        </Row>
+        <Row :gutter="16">
           <Col span="8">
             <FormItem label="创建时间:" aria-required="true">
-              <date-picker ref="formDate1" style="float: left" type="datetime" format="yyyy-MM-dd HH:mm:ss" @on-change="createTimeStart" placeholder="请选择开始时间"></date-picker>
-              <div style="float: left">&nbsp;&nbsp;至&nbsp;&nbsp; </div>
-              <date-picker ref="formDate2" style="float: left" type="datetime" format="yyyy-MM-dd HH:mm:ss" @on-change="createTimeEnd" placeholder="请选择结束时间"></date-picker>
+              <DatePicker style="width: 80%;" ref="formDate1"  @on-change="handleChange1" format="yyyy-MM-dd HH:mm:ss" separator="  至  " type="datetimerange" placeholder="请选择时间"></DatePicker>
             </FormItem>
           </Col>
           <Col span="8">
             <FormItem label="最近登录时间:" aria-required="true">
-              <date-picker ref="formDate3" style="float: left" type="datetime" format="yyyy-MM-dd HH:mm:ss" @on-change="lastLoginTimeStart" placeholder="请选择开始时间"></date-picker>
-              <div style="float: left">&nbsp;&nbsp;至&nbsp;&nbsp; </div>
-              <date-picker ref="formDate4" style="float: left" type="datetime" format="yyyy-MM-dd HH:mm:ss" @on-change="lastLoginTimeEnd" placeholder="请选择结束时间"></date-picker>
+              <DatePicker style="width: 80%;" ref="formDate2"  @on-change="handleChange2" format="yyyy-MM-dd HH:mm:ss" separator="  至  " type="datetimerange" placeholder="请选择时间"></DatePicker>
             </FormItem>
           </Col>
         </Row>
@@ -638,8 +636,6 @@
       paramToEmpty() {
         this.$refs.formDate1.handleClear();
         this.$refs.formDate2.handleClear();
-        this.$refs.formDate3.handleClear();
-        this.$refs.formDate4.handleClear();
         this.searchParams.status = '';
         this.searchParams.username = '';
         this.searchParams.createTime_start = '';
@@ -680,18 +676,14 @@
         }
         this.$router.push(route)
       },
-      createTimeStart(time) {
-        this.searchParams.createTimeStart = time;
+      handleChange1(date) {
+        this.searchParams.createStartTime = date[0];
+        this.searchParams.createEndTime = date[1];
       },
-      createTimeEnd(time) {
-        this.searchParams.createTimeEnd = time;
-      },
-      lastLoginTimeStart(time) {
-        this.searchParams.lastLoginTimeStart = time;
-      },
-      lastLoginTimeEnd(time) {
-        this.searchParams.lastLoginTimeEnd = time;
-      },
+      handleChange2(date) {
+        this.searchParams.lastLoginTimeStart = date[0];
+        this.searchParams.lastLoginTimeEnd = date[1];
+      }
     }
   }
 </script>

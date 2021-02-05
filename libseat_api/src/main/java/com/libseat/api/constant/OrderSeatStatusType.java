@@ -4,7 +4,7 @@ package com.libseat.api.constant;
  * 订单座位状态类型
  * @author witch
  */
-public enum OrderStatusType {
+public enum OrderSeatStatusType {
     /** 已预定*/
     ORDERED(0, "已预定"),
     /** 已取消*/
@@ -16,14 +16,14 @@ public enum OrderStatusType {
 
     private Integer id;
     private String des;
-    OrderStatusType(Integer id, String des) {
+    OrderSeatStatusType(Integer id, String des) {
         this.id = id;
         this.des = des;
     }
-    public static OrderStatusType getById(int id) {
-        for (OrderStatusType orderStatusType : OrderStatusType.values()) {
-            if (orderStatusType.id == id) {
-                return orderStatusType;
+    public static OrderSeatStatusType getById(int id) {
+        for (OrderSeatStatusType orderSeatStatusType : OrderSeatStatusType.values()) {
+            if (orderSeatStatusType.id == id) {
+                return orderSeatStatusType;
             }
         }
         return null;

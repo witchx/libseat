@@ -29,9 +29,9 @@
               </FormItem>
             </Col>
             <Col span="6">
-              <FormItem label="订单状态">
-                <Select v-model="searchParams.status" filterable placeholder="全部">
-                  <Option v-for="(option, index) in status_option" :value="option.value" :key="index">{{option.label}}</Option>
+              <FormItem label="订单进度">
+                <Select v-model="searchParams.progress" filterable placeholder="全部">
+                  <Option v-for="(option, index) in progress_option" :value="option.value" :key="index">{{option.label}}</Option>
                 </Select>
               </FormItem>
             </Col>
@@ -43,10 +43,8 @@
               </FormItem>
             </Col>
             <Col span="8">
-              <FormItem label="创建时间:" aria-required="true">
-                <date-picker ref="formDate1" style="float: left" type="datetime" format="yyyy-MM-dd HH:mm:ss" @on-change="createTimeStart" placeholder="请选择开始时间"></date-picker>
-                <div style="float: left">&nbsp;&nbsp;至&nbsp;&nbsp; </div>
-                <date-picker ref="formDate2" style="float: left" type="datetime" format="yyyy-MM-dd HH:mm:ss" @on-change="createTimeEnd" placeholder="请选择结束时间"></date-picker>
+              <FormItem label="提交时间:" aria-required="true">
+                <DatePicker style="width: 80%;" ref="formDate"  @on-change="handleChange" format="yyyy-MM-dd HH:mm:ss" separator="  至  " type="datetimerange" placeholder="请选择时间"></DatePicker>
               </FormItem>
             </Col>
           </Row>
@@ -79,18 +77,18 @@
     customer: '',
     createStartTime: '',
     createEndTime: '',
-    status: '',
+    progress: '',
     page: 1,
     pageSize: 10,
     total: 0
   }
-  const status_option = [
+  const progress_option = [
     {
-      label: "已预订",
+      label: "已提交",
       value: 0
     },
     {
-      label: "已取消",
+      label: "已支付",
       value: 1
     },
     {
@@ -101,15 +99,27 @@
       label: "已关闭",
       value: 3
     },
+    {
+      label: "已评价",
+      value: 4
+    }
   ]
   const type_option = [
     {
-      label: "普通订单",
+      label: "座位",
       value: 0
     },
     {
-      label: "VIP订单",
+      label: "会员卡",
       value: 1
+    },
+    {
+      label: "优惠劵",
+      value: 2
+    },
+    {
+      label: "商品",
+      value: 3
     },
   ]
   export default {
@@ -122,6 +132,7 @@
         columns: [
           {title: 'ID', key: 'id', width: 80, sortable: true},
           {title: '订单编号', key: 'no'},
+          {title: '订单类型', key: 'orderType'},
           {title: '提交时间', key: 'createTime',
             render: (h, params) => {
               return h('div', timestampFormat(params.row.createTime, 'year'));
@@ -134,11 +145,11 @@
               return h('div', '￥'+ params.row.price);
             }
           },
-          {title: '订单状态', key: 'orderStatus'},
+          {title: '订单进度', key: 'orderProgress'},
           {
             title: '操作', width: 200, key: 'action', align: 'center',
             render: (h, params) => {
-              if (params.row.status === 3) {
+              if (params.row.status === 4) {
                 return h('div', [
                   h('Button', {
                     props: {
@@ -150,7 +161,7 @@
                     },
                     on: {
                       click: () => {
-                        this.showDetail(params.row)
+                        this.showDetail(params.row.id)
                       }
                     }
                   }, '查看'),
@@ -178,7 +189,7 @@
                       }
                     }, '删除')])
                 ]);
-              } else if (params.row.status === 1 || params.row.status === 2) {
+              } else if (params.row.status === 2) {
                 return h('div', [
                   h('Button', {
                     props: {
@@ -190,7 +201,7 @@
                     },
                     on: {
                       click: () => {
-                        this.showDetail(params.row)
+                        this.showDetail(params.row.id)
                       }
                     }
                   }, '查看'),
@@ -227,7 +238,7 @@
                     },
                     on: {
                       click: () => {
-                        this.showDetail(params.row)
+                        this.showDetail(params.row.id)
                       }
                     }
                   }, '查看')
@@ -239,7 +250,7 @@
         searchParams: searchParams,
         data: [],
         loading: true,
-        status_option: status_option,
+        progress_option: progress_option,
         type_option: type_option
       }
     },
@@ -271,11 +282,11 @@
           this.loading = false
         }, 300)
       },
-      showDetail(o) {
+      showDetail(orderId) {
         const route = {
           name: 'orderDetail',
           query: {
-            orderId:o.id
+            orderId
           },
           meta: {
             title: '商品详情'
@@ -289,20 +300,13 @@
         await this.fetchData()
       },
       paramToEmpty() {
-        this.$refs.formDate1.handleClear();
-        this.$refs.formDate2.handleClear();
+        this.$refs.formDate.handleClear();
         Object.keys(this.searchParams).forEach(key => {
           this.searchParams[key] = '';
         })
         this.searchParams.page = 1;
         this.searchParams.pageSize = 10;
         this.searchParams.total = 0;
-      },
-      createTimeStart(time) {
-        this.searchParams.createStartTime = time;
-      },
-      createTimeEnd(time) {
-        this.searchParams.createEndTime = time;
       },
       handlePage(page) {
         this.searchParams.page = page
@@ -311,6 +315,10 @@
       handlePageSize(value) {
         this.searchParams.pageSize = value
         this.fetchData()
+      },
+      handleChange(date) {
+        this.searchParams.createTimeStart = date[0];
+        this.searchParams.createTimeEnd = date[1];
       },
     }
   }

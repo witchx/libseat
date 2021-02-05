@@ -5,7 +5,7 @@ import {
   removeReaded,
   restoreTrash,
   getUnreadCount
-} from '@/api/user'
+} from '@/api/userTest'
 import {
   login,
   logout,
@@ -15,11 +15,12 @@ import { setToken, getToken } from '@/libs/util'
 
 export default {
   state: {
-    userName: '',
+    username: '',
     userId: '',
     avatarImgPath: '',
     token: getToken(),
     access: '',
+    menus: [],
     hasGetInfo: false,
     hasGenerateMenu: false,
     unreadCount: 0,
@@ -35,8 +36,11 @@ export default {
     setUserId (state, id) {
       state.userId = id
     },
-    setUserName (state, name) {
-      state.userName = name
+    setUsername (state, name) {
+      state.username = name
+    },
+    setMessageCount (state, count) {
+      state.unreadCount = count
     },
     setAccess (state, access) {
       state.access = access
@@ -45,14 +49,8 @@ export default {
       state.token = token
       setToken(token)
     },
-    setHasGetInfo (state, status) {
-      state.hasGetInfo = status
-    },
-    setHasGenerateMenu (state, status) {
-      state.hasGenerateMenu = status
-    },
-    setMessageCount (state, count) {
-      state.unreadCount = count
+    setMenus (state, menus) {
+      state.menus = menus
     },
     setMessageUnreadList (state, list) {
       state.messageUnreadList = list
@@ -129,6 +127,7 @@ export default {
             commit('username', data.username)
             commit('setUserId', data.userId)
             commit('setAccess', data.access)
+            commit('setMenus', data.menus)
             commit('setHasGetInfo', true)
             resolve(data)
           }).catch(err => {

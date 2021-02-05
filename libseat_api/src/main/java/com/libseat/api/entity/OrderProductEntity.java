@@ -8,21 +8,18 @@ import java.sql.Timestamp;
 
 
 /**
- * 会员卡订单
+ * 商品订单
  */
 @Data
-@Table(name = "lib_order_vip")
-@Alias(value = "OrderVipEntity")
-public class OrderVipEntity {
+@Table(name = "lib_order_product")
+@Alias(value = "OrderProductEntity")
+public class OrderProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    /** vip卡id*/
+    /** 商品id*/
     @Column
-    private Integer vipCardId;
-    /** 创建时间*/
-    @Column
-    private Timestamp createTime;
+    private Integer productId;
     /** 订单id*/
     @Column
     private String orderId;

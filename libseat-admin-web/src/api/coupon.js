@@ -1,37 +1,29 @@
 import axios from '@/libs/api.request'
 
-const domain = '/api/product';
+const domain = '/api/coupon';
 
-export function getProduct(params) {
+export function getCoupon(params) {
   return axios.request({
     url: domain + '/list',
     method: 'get',
     params: params
   })
 }
-export function updateProduct(id,data) {
+export function updateCoupon(id,data) {
   return axios.request({
     url: domain + '/update/' + id,
     method: 'put',
     data: data
   })
 }
-export function createProduct(data) {
+export function createCoupon(data) {
   return axios.request({
     url: domain + '/create',
     method: 'post',
     data: data
   })
 }
-export function createProductBatch(data) {
-  return axios.request({
-    url: domain + '/createBatch',
-    headers: { 'content-type': 'application/json;charset=utf-8' },
-    method: 'post',
-    data: data
-  })
-}
-export function deleteProductBatch (data) {
+export function deleteCouponBatch (data) {
   return axios.request({
     url: domain + '/deleteBatch',
     headers: { 'content-type': 'application/json;charset=utf-8' },
@@ -39,7 +31,7 @@ export function deleteProductBatch (data) {
     data: data
   })
 }
-export function deleteProduct (id) {
+export function deleteCoupon (id) {
   return axios.request({
     url: domain + '/delete/' + id,
     method: 'delete'

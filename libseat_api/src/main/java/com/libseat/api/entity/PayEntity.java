@@ -1,6 +1,5 @@
 package com.libseat.api.entity;
 
-
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
@@ -8,18 +7,22 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Data
-@Table(name = "lib_order_detail")
-@Alias(value = "OrderDtailEntity")
-public class OrderDtailEntity {
+@Table(name = "lib_pay")
+@Alias(value = "PayEntity")
+public class PayEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column
-    private Integer seatId;
+    private Integer userId;
     @Column
-    private Timestamp startTime;
+    private Integer customerId;
     @Column
-    private Timestamp endTime;
+    private String no;
     @Column
-    private
+    private Timestamp createTime;
+    @Column
+    private Timestamp payTime;
+    @Transient
+    private String companyName;
 }

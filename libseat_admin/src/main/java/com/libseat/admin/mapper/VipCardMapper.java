@@ -10,13 +10,12 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface ProductMapper extends MyBaseMapper<ProductEntity> {
-
-    List<ProductEntity> getProductList(@Param("id") Integer id,
+public interface VipCardMapper extends MyBaseMapper<VipCardEntity> {
+    List<VipCardEntity> getVipCardList(@Param("id") Integer id,
                                        @Param("no") String no,
                                        @Param("name") String name,
-                                       @Param("des") String des,
+                                       @Param("type") Integer type,
                                        @Param("companyName") String companyName);
 
-    void deleteProductBatch(@Param("ids") List<Integer> ids);
+    void deleteVipCardBatch(@Param("ids") List<Integer> ids);
 }
