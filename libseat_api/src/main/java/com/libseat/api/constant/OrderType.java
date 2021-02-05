@@ -2,7 +2,7 @@ package com.libseat.api.constant;
 
 public enum OrderType {
     /** 座位*/
-    GENERAL(0, "座位"),
+    SEAT(0, "座位"),
     /** vip卡*/
     VIP_CARD(1, "会员卡"),
     /** 优惠劵*/

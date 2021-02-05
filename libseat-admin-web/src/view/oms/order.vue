@@ -161,7 +161,7 @@
                     },
                     on: {
                       click: () => {
-                        this.showDetail(params.row.id)
+                        this.showDetail(params.row.id,params.row.type)
                       }
                     }
                   }, '查看'),
@@ -201,7 +201,7 @@
                     },
                     on: {
                       click: () => {
-                        this.showDetail(params.row.id)
+                        this.showDetail(params.row.id,params.row.type)
                       }
                     }
                   }, '查看'),
@@ -238,7 +238,7 @@
                     },
                     on: {
                       click: () => {
-                        this.showDetail(params.row.id)
+                        this.showDetail(params.row.id,params.row.type)
                       }
                     }
                   }, '查看')
@@ -282,11 +282,12 @@
           this.loading = false
         }, 300)
       },
-      showDetail(orderId) {
+      showDetail(orderId,type) {
         const route = {
           name: 'orderDetail',
           query: {
-            orderId
+            orderId,
+            type
           },
           meta: {
             title: '商品详情'

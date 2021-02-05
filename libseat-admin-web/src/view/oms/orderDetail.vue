@@ -3,9 +3,9 @@
     <Card style="width:800px;float: right;margin-right: 25%;">
       <Spin size="large" fix v-if="loading"></Spin>
       <div style="margin-left: 165px;margin-top: 30px">
-        <Steps :current="data.order.progress" style="margin-bottom: 50px;">
-          <Step class="blue" title="提交订单" :content="data.order.createTime"></Step>
-          <Step class="blue" title="支付订单" :content="data.order.payTime"></Step>
+        <Steps :current="data.progress" style="margin-bottom: 50px;">
+          <Step class="blue" title="提交订单" :content="data.createTime"></Step>
+          <Step class="blue" title="支付订单" :content="data.payTime"></Step>
           <Step class="blue" title="确认签到" :content="data.order.signTime"></Step>
           <Step class="blue" title="完成评价" :content="data.order.evaluateTime"></Step>
         </Steps>
@@ -47,7 +47,7 @@
   </div>
 </template>
 <script>
-  import { getOrder, updateOrder, deleteOrder } from '@/api/order';
+  import { getOrder, getOrderDetail, updateOrder, deleteOrder } from '@/api/order';
   import { timestampFormat} from '@/libs/tools';
   export default {
     components: {
@@ -131,9 +131,10 @@
       async fetchData() {
         if (typeof(this.$route.query.orderId) !== "undefined" && this.$route.query.orderId !== '') {
           this.loading = true
-          const res = await getOrder({id: this.$route.query.orderId})
+          const res = await getOrderDetail({id: this.$route.query.orderId, type: this.$route.query.type})
           if (res.data.code === 200) {
             this.data = res.data.data.rows[0]
+            console.log(this.data)
           } else {
             this.data = '';
             this.$Message.warning(res.data.msg);

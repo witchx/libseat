@@ -9,6 +9,13 @@ export function getOrder(params) {
     params:params
   })
 }
+export function getOrderDetail(params) {
+  return axios.request({
+    url:domain,
+    method:'get',
+    params:params
+  })
+}
 export function updateOrder(data) {
   return axios.request({
     url:domain,
