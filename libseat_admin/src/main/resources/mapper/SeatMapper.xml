@@ -24,7 +24,7 @@
 	        lib_seat ls
         LEFT JOIN lib_order_seat los
         ON ls.id = los.seat_id
-        JOIN lib_order lo
+        LEFT JOIN lib_order lo
         on los.order_id = lo.id
         WHERE ls.room_id = #{roomId}
         GROUP BY ls.id

@@ -30,8 +30,8 @@
                 WHEN lo.`status` IS NULL THEN ls.`status`
                 WHEN ls.`status` = 0 THEN 0
                 WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
-                WHEN #{startTime} <![CDATA[ >= ]]> los.end_time THEN 1
-                WHEN #{endTime} <![CDATA[ <= ]]> los.start_time THEN 1
+                WHEN now() <![CDATA[ >= ]]> los.end_time THEN 1
+                WHEN now() <![CDATA[ <= ]]> los.start_time THEN 1
                 ELSE 2
                 END AS `status`
             FROM
@@ -87,8 +87,8 @@
                     WHEN lo.`status` IS NULL THEN ls.`status`
                     WHEN ls.`status` = 0 THEN 0
                     WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
-                    WHEN #{startTime} <![CDATA[ >= ]]> los.end_time THEN 1
-                    WHEN #{endTime} <![CDATA[ <= ]]> los.start_time THEN 1
+                    WHEN now() <![CDATA[ >= ]]> los.end_time THEN 1
+                    WHEN now() <![CDATA[ <= ]]> los.start_time THEN 1
                     ELSE 2
                     END AS `status`
                 FROM
