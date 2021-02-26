@@ -6,11 +6,13 @@ import com.libseat.api.entity.AdminEntity;
 import com.libseat.utils.code.CommonResult;
 import com.libseat.utils.code.ResultCode;
 import com.libseat.utils.page.PageResult;
+import com.libseat.utils.utils.UsernameGenerateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * @author witch
@@ -25,13 +27,15 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    private final Object lock = new Object();
+
     @TrimRequired
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public CommonResult<PageResult<AdminEntity>> getAdminList (@RequestParam(required = false) String name,
+    public CommonResult<PageResult<AdminEntity>> getAdminList (@RequestParam(required = false) String username,
                                                                @RequestParam(required = false, defaultValue = "1") Integer page,
                                                                @RequestParam(required = false, defaultValue = "10") Integer pageSize){
-        PageResult<AdminEntity> manangerUserEntities = adminService.getAdminList(name, page, pageSize);
+        PageResult<AdminEntity> manangerUserEntities = adminService.getAdminList(username, page, pageSize);
         if (manangerUserEntities == null || manangerUserEntities.getTotal() == 0) {
             return CommonResult.failed(ResultCode.EMPTY);
         } else {
@@ -57,10 +61,10 @@ public class AdminController {
     @ResponseBody
     public CommonResult<ResultCode> createAdmin (@RequestBody AdminEntity adminEntity){
         if (adminEntity != null) {
-            AdminEntity admin = adminService.getAdmin(adminEntity);
-            if (admin != null && admin.getDeleteFlag().equals("0")) {
-                return CommonResult.failed("已存在同名用户！");
-            } else {
+            synchronized (lock) {
+                List<String> allUsername = adminService.getAllUsername();
+                String username = UsernameGenerateUtils.getUsername(4, 6, allUsername);
+                adminEntity.setUsername(username);
                 adminEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
                 adminEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
                 if (adminService.createAdmin(adminEntity) != 0) {

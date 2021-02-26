@@ -16,6 +16,8 @@ public class CustomerEntity {
     @Column
     private String icon;
     @Column
+    private String nickname;
+    @Column
     private String username;
     @Column
     private String password;
@@ -28,9 +30,13 @@ public class CustomerEntity {
     @Column
     private String tel;
     @Column
+    private String mail;
+    @Column
     private Timestamp createTime;
     @Column
     private Timestamp modifyTime;
+    @Column
+    private Timestamp lastLoginTime;
     @Column
     private String deleteFlag;
 }

@@ -2,15 +2,17 @@ package com.libseat.api.constant;
 
 public enum  OperationType {
     /** 管理员*/
-    ADMIN(1),
+    ADMIN(1,"管理员"),
     /** 用户*/
-    USER(2),
+    USER(2,"用户"),
     /** 顾客*/
-    CUSTOMER(3);
+    CUSTOMER(3,"顾客");
 
     private Integer id;
-    OperationType(Integer id) {
+    private String des;
+    OperationType(Integer id, String des) {
         this.id = id;
+        this.des = des;
     }
     public static OperationType getById(int id) {
         for (OperationType operationType : OperationType.values()) {
@@ -19,5 +21,11 @@ public enum  OperationType {
             }
         }
         return null;
+    }
+    public String getDes() {
+        return this.des;
+    }
+    public Integer getId() {
+        return this.id;
     }
 }

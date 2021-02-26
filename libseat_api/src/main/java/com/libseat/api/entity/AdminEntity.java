@@ -5,6 +5,7 @@ import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @Table(name = "lib_admin")
@@ -13,6 +14,8 @@ public class AdminEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column
+    private String nickname;
     @Column
     private String username;
     @Column
@@ -25,6 +28,8 @@ public class AdminEntity {
     private Timestamp createTime;
     @Column
     private Timestamp modifyTime;
+    @Column
+    private Timestamp lastLoginTime;
     @Column
     private String deleteFlag;
     @Transient

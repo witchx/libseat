@@ -2,13 +2,11 @@ package com.libseat.api.constant;
 
 public enum OrderProgressType {
     /** 提交*/
-    SUBMIT(0, "已提交"),
+    SUBMIT(1, "已提交"),
     /** 支付*/
-    PAY(1, "已支付"),
+    PAY(2, "已支付"),
     /** 签到*/
-    SIGN(2, "已签到"),
-    /** 关闭*/
-    CLOSE(3, "已关闭"),
+    SIGN(3, "已消费"),
     /** 评价*/
     EVALUATE(4, "已评价");
 

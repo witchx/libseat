@@ -42,4 +42,11 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.updateByPrimaryKeySelective(customerEntity);
     }
 
+    @Override
+    public CustomerEntity getCustomerById(Integer customerId) {
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setId(customerId);
+        return customerMapper.selectByPrimaryKey(customerEntity);
+    }
+
 }

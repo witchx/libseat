@@ -26,6 +26,8 @@ public class Constant {
 
     public static final String LOGIN_AVATAR = "avatar";
 
+    public static final String LOGIN_NICKNAME = "nickname";
+
     public static final String MENU = "menus";
 
     public static final String STUDENT_ID = "id";
@@ -37,4 +39,6 @@ public class Constant {
     public static final String STUDENT_UNIVERSITY_ID = "universityId";
 
     public static final String STUDENT_UNIVERSITY_NAME = "universityName";
+
+    public static final String OPEN_DAY = "";
 }

@@ -11,5 +11,5 @@ import java.util.List;
 @Mapper
 @Component
 public interface AdminMapper extends MyBaseMapper<AdminEntity> {
-    List<AdminEntity> getAdminList(@Param("name") String name);
+    List<AdminEntity> getAdminList(@Param("username") String username);
 }

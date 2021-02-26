@@ -17,4 +17,6 @@ public interface VipCardService {
     void deleteVipCardBatch(List<Integer> ids);
 
     void deleteVipCard(VipCardEntity vipCardEntity);
+
+    VipCardEntity getVipCardById(Integer id);
 }

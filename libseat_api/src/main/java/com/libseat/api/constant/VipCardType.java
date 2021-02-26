@@ -8,16 +8,18 @@ package com.libseat.api.constant;
 
 public enum VipCardType {
     /** 储值卡*/
-    VALUE_CARD(1, "czk"),
+    VALUE_CARD(1, "czk", "储值卡"),
     /** 计次卡*/
-    WOULD_CARD(2, "jck"),
+    WOULD_CARD(2, "jck", "计次卡"),
     /** 期限卡*/
-    TIME_CARD(3, "qxk");
+    TIME_CARD(3, "qxk", "期限卡");
     private Integer id;
     private String name;
-    VipCardType(Integer id, String name) {
+    private String des;
+    VipCardType(Integer id, String name, String des) {
         this.id = id;
         this.name = name;
+        this.des = des;
     }
     public static VipCardType getById(int id) {
         for (VipCardType vipCardType : VipCardType.values()) {
@@ -29,5 +31,8 @@ public enum VipCardType {
     }
     public String getName(){
         return this.name;
+    }
+    public String getDes(){
+        return this.des;
     }
 }

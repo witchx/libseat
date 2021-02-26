@@ -11,10 +11,18 @@
             lo.pay_id,
             lo.user_id,
             lo.customer_Id,
+            lo.stadium_id,
+            lo.vip_card_id,
+            lo.coupon_id,
+            lcou.price coupon,
+            lo.discount,
             lo.price,
             lo.progress,
             lo.`type`,
             lo.delete_flag,
+            lo.`status`,
+            lo.sign_time,
+            lo.evaluate_time,
             lu.company_name,
             lc.username customer_name,
             lp.pay_time
@@ -22,6 +30,7 @@
             lib_order lo
             JOIN lib_user lu ON lo.user_id = lu.id
             JOIN lib_customer lc ON lo.customer_id = lc.id
+            LEFT JOIN lib_coupon lcou ON lo.coupon_id = lcou.id
             LEFT JOIN lib_pay lp ON lo.pay_id = lp.id
         WHERE
             lo.delete_flag = 0
@@ -48,6 +57,9 @@
         </if>
         <if test="createEndTime != null ">
             AND lo.create_time <![CDATA[ <= ]]> #{createEndTime}
+        </if>
+        <if test="status != null ">
+            AND lo.`status` = #{status}
         </if>
         ORDER BY lo.id
     </select>

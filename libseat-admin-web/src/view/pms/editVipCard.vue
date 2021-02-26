@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Card style="width:800px;float: right;margin-right: 25%;">
+    <Card style="margin: 0% 15%;">
       <Spin size="large" fix v-if="spinShow"></Spin>
       <div v-if="success === 200">
         <div class="success">
@@ -8,16 +8,16 @@
         </div>
         <back-btn-group class="back-btn-group"></back-btn-group>
       </div>
-      <div v-else style="margin-left: 165px;margin-top: 30px">
-        <Steps :current="current" style="margin-bottom: 50px;">
+      <div v-else>
+        <Steps :current="current" style="margin: 3% 0% 8% 16%;">
           <Step class="blue" title="商品类型" content="选择商品类型"></Step>
           <Step class="blue" title="商品信息" content="填写商品信息"></Step>
         </Steps>
-        <div v-show="current===0">
+        <div v-show="current===0" style="margin: 0% 15%;">
           <Form ref="formData1" :model="formData1" :rules="formRules1" :label-width="100">
             <Row v-if="formData2.id === ''">
               <FormItem label="公司:" prop="userId">
-                <Select  style="width:50%;" v-model="formData1.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" placeholder="请输入搜索用户名称">
+                <Select v-model="formData1.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" placeholder="请输入搜索用户名称">
                   <Option v-for="(option, index) in user_option" :value="option.value" :key="index">{{option.label}}</Option>
                 </Select>
               </FormItem>
@@ -29,62 +29,62 @@
             </Row>
             <Row>
               <FormItem label="商品类型:" prop="type">
-                <Select v-model="formData1.type" filterable placeholder="请选择" style="width:50%;">
+                <Select v-model="formData1.type" filterable placeholder="请选择">
                   <Option v-for="(item, index) in product_type" :value="item.value" :key="index">{{item.label}}</Option>
                 </Select>
               </FormItem>
             </Row>
-            <Row style="text-align: center; margin-right: 165px;">
+            <Row style="text-align: center">
               <Button type="primary" @click="next()">下一步</Button>
             </Row>
           </Form>
         </div>
-        <div v-show="current===1">
+        <div v-show="current===1"  style="margin: 0% 15%;">
           <Form ref="formData2" :model="formData2"  :rules="formRules2" :label-width="100">
             <Row>
               <FormItem label="商品名称:" prop="name">
-                <Input v-model.trim="formData2.name" placeholder="请输入商品名称" style="width:50%;" />
+                <Input v-model.trim="formData2.name" placeholder="请输入商品名称"/>
               </FormItem>
             </Row>
             <Row>
               <FormItem label="原价:" prop="originalPrice">
-                <Input v-model.number="formData2.originalPrice" placeholder="请输入原价" style="width:50%;" />
+                <Input v-model.number="formData2.originalPrice" placeholder="请输入原价"/>
               </FormItem>
             </Row>
             <Row>
               <FormItem label="现价:" prop="price">
-                <Input v-model.number="formData2.price" placeholder="请输入现价" style="width:50%;" />
+                <Input v-model.number="formData2.price" placeholder="请输入现价"/>
               </FormItem>
             </Row>
             <!--期限卡-->
             <Row v-if="formData2.type === 3">
               <FormItem label="开始有效时间:" prop="startTime">
-                <date-picker style="width:50%;" type="datetime" v-model="formData2.startTime" :value="formData2.startTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择开始时间"></date-picker>
+                <date-picker style="width: 100%" type="datetime" v-model="formData2.startTime" :value="formData2.startTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择开始时间"></date-picker>
               </FormItem>
             </Row>
             <Row v-if="formData2.type === 3">
               <FormItem label="结束有效时间:" prop="endTime">
-                <date-picker style="width:50%;" type="datetime"  v-model="formData2.endTime" :value="formData2.endTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择结束时间"></date-picker>
+                <date-picker style="width: 100%" type="datetime"  v-model="formData2.endTime" :value="formData2.endTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择结束时间"></date-picker>
               </FormItem>
             </Row>
             <!--储值卡-->
             <Row v-if="formData2.type === 1 ">
               <FormItem label="储值:" prop="money">
-                <Input v-model.number="formData2.money" placeholder="请输入储值" style="width:50%;" />
+                <Input v-model.number="formData2.money" placeholder="请输入储值"/>
               </FormItem>
             </Row>
             <!--计次卡-->
             <Row  v-if="formData2.type === 2">
               <FormItem label="次数" prop="times">
-                <Input v-model.number="formData2.times" placeholder="请输入次数" style="width:50%;" />
+                <Input v-model.number="formData2.times" placeholder="请输入次数"/>
               </FormItem>
             </Row>
             <Row>
               <FormItem label="描述:" prop="des">
-                <Input :rows="5" style="width:50%;" :autosize="{maxRows:5,minRows: 5}" v-model.trim="formData2.des" type="textarea"/>
+                <Input :rows="5" :autosize="{maxRows:5,minRows: 5}" v-model.trim="formData2.des" type="textarea"/>
               </FormItem>
             </Row>
-            <Row style="text-align: center; margin-right: 165px;">
+            <Row style="text-align: center;">
               <Button @click="prev" style="margin-right: 30px;">上一步</Button>
               <Button type="primary" @click="next()">确认提交</Button>
             </Row>

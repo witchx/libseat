@@ -270,8 +270,27 @@ public class DateUtils {
         c.add(Calendar.DATE, -1);
         return c.getTime();
     }
- 
- 
+
+    /**
+     * 获取今天的开始时间
+     * @param time
+     * @return
+     */
+    public static long getDayStartTime(long time) {
+        return time / DAY * DAY;
+    }
+
+    /**
+     * 获取当天已经过了多长时间。
+     *
+     * @param time
+     * @return
+     */
+    public static long getDayGoneTime(long time) {
+        return time - getDayStartTime(time);
+    }
+
+
     public static void main(String[] args) {
  
  

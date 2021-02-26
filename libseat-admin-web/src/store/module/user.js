@@ -16,6 +16,7 @@ import { setToken, getToken } from '@/libs/util'
 export default {
   state: {
     username: '',
+    nickname: '',
     userId: '',
     avatarImgPath: '',
     token: getToken(),
@@ -38,6 +39,9 @@ export default {
     },
     setUsername (state, name) {
       state.username = name
+    },
+    setNickname(state, name) {
+      state.nickname = name
     },
     setMessageCount (state, count) {
       state.unreadCount = count
@@ -124,7 +128,8 @@ export default {
             }
             const data = res.data
             commit('setAvatar', data.avatar)
-            commit('username', data.username)
+            commit('setUsername', data.username)
+            commit('setNickname', data.nickname)
             commit('setUserId', data.userId)
             commit('setAccess', data.access)
             commit('setMenus', data.menus)

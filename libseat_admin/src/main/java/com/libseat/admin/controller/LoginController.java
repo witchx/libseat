@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,10 @@ public class LoginController {
             //登录成功
             //用jwt制作token
             String loginId = adminEntityFlag.getId().toString();
+            AdminEntity admin = new AdminEntity();
+            //更新最近登录的时间
+            admin.setLastLoginTime(new Timestamp(System.currentTimeMillis()));
+            adminService.updateAdmin(adminEntity);
             try {
                 token = jwtToken(adminEntityFlag, request);
             } catch (Exception e) {
@@ -87,6 +92,7 @@ public class LoginController {
             user.put(Constant.LOGIN_NAME, decode.get(Constant.LOGIN_NAME));
             user.put(Constant.LOGIN_ACCESS, decode.get(Constant.LOGIN_ACCESS));
             user.put(Constant.LOGIN_AVATAR, decode.get(Constant.LOGIN_AVATAR));
+            user.put(Constant.LOGIN_NICKNAME, decode.get(Constant.LOGIN_NICKNAME));
             user.put(Constant.MENU, menuService.getMenuList(false));
             return CommonResult.success(user);
         }
@@ -116,6 +122,7 @@ public class LoginController {
         String[] access = arrayList.stream().map(integer -> integer.toString()).toArray(String[]::new);
         loginMap.put( Constant.LOGIN_ACCESS, access);
         loginMap.put( Constant.LOGIN_AVATAR, adminEntity.getIcon());
+        loginMap.put( Constant.LOGIN_NICKNAME, adminEntity.getNickname());
         String ip = CookieUtil.getIp(request);
         if (StringUtils.isBlank(ip)) {
             //没有通过反向代理
@@ -128,7 +135,7 @@ public class LoginController {
         //需要按照设计的算法对参数进行加密后生成token
         String token = JwtUtil.encode("libseat", loginMap, ip);
         //将token存入redis
-        //1.避免了单点问题
+        //1.可单点登陆
         //2.毫秒级别相应
         //3.支持设置过期时间
         adminService.addAdminToken(token, adminEntity.getId().toString());

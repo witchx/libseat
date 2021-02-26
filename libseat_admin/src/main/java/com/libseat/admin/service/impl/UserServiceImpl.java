@@ -16,6 +16,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -52,5 +53,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity getUserById(UserEntity userEntity ) {
         return userMapper.selectByPrimaryKey(userEntity);
+    }
+
+    @Override
+    public List<String> getAllUsername() {
+        Example example = new Example(UserEntity.class);
+        example.selectProperties("username");
+        List<String> allUsername = userMapper.selectByExample(example).stream().map(userEntity -> userEntity.getUsername()).collect(Collectors.toList());
+        return allUsername;
     }
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.math.BigDecimal;
 
 
 /**
@@ -22,8 +22,13 @@ public class OrderProductEntity {
     private Integer productId;
     /** 订单id*/
     @Column
-    private String orderId;
+    private Integer orderId;
+    /** 数量*/
+    @Column
+    private Integer num;
     /** 删除标志*/
     @Column
     private Integer deleteFlag;
+    @Transient
+    private ProductEntity product;
 }

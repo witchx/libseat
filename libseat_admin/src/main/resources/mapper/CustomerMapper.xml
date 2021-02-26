@@ -7,14 +7,17 @@
         SELECT
             id,
             username,
+            nickname,
             icon,
             sex,
             status,
             tel,
+            mail,
             user_id,
             delete_flag,
             modify_time,
-            create_time
+            create_time,
+            last_login_time
         FROM
             lib_customer
         WHERE delete_flag = 0
@@ -37,29 +40,35 @@
         insert into lib_customer
         (
             username,
+            nickname,
             icon,
             sex,
             status,
             password,
             tel,
+            mail,
             user_id,
             delete_flag,
             modify_time,
-            create_time
+            create_time,
+            last_login_time
         )
         VALUES
         <foreach collection="customerEntities" item="customerEntity" separator=",">
         (
             #{customerEntity.username},
+            #{customerEntity.nickname},
             #{customerEntity.icon},
             #{customerEntity.sex},
             #{customerEntity.status},
             #{customerEntity.password},
-            #{customerEntity.tel}
+            #{customerEntity.tel},
+            #{customerEntity.mail},
             #{customerEntity.user_id},
             #{customerEntity.delete_flag},
             #{customerEntity.modify_time},
             #{customerEntity.create_time},
+            #{customerEntity.last_login_time}
         )
         </foreach>
     </insert>

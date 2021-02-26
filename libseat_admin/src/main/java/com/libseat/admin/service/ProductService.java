@@ -20,4 +20,8 @@ public interface ProductService {
     Integer insertProductBatch(List<ProductEntity> productEntities);
 
     void deleteProduct(ProductEntity productEntity);
+
+    ProductEntity getProductById(Integer productId);
+
+    List<ProductEntity> getProductByIdBatch(List<Integer> collect);
 }

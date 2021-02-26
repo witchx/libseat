@@ -4,10 +4,12 @@ package com.libseat.admin.service;
 import com.libseat.api.entity.AdminEntity;
 import com.libseat.utils.page.PageResult;
 
+import java.util.List;
+
 public interface AdminService {
     AdminEntity login(AdminEntity adminEntity);
 
-    PageResult<AdminEntity> getAdminList(String name, Integer page, Integer pageSize);
+    PageResult<AdminEntity> getAdminList(String username, Integer page, Integer pageSize);
 
     AdminEntity getAdmin(AdminEntity adminEntity);
 
@@ -22,4 +24,6 @@ public interface AdminService {
     void logout(String loginId) throws Exception;
 
     void deleteAdmin(AdminEntity adminEntity);
+
+    List<String> getAllUsername();
 }

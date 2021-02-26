@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Data
 @Table(name = "lib_order_vip")
 @Alias(value = "OrderVipEntity")
-public class OrderVipEntity {
+public class OrderVipEntity extends Order{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -25,8 +25,10 @@ public class OrderVipEntity {
     private Timestamp createTime;
     /** 订单id*/
     @Column
-    private String orderId;
+    private Integer orderId;
     /** 删除标志*/
     @Column
     private Integer deleteFlag;
+    @Transient
+    private VipCardEntity vipCard;
 }

@@ -2,6 +2,8 @@ package com.libseat.admin.service;
 
 import com.libseat.api.entity.OrderProductEntity;
 
+import java.util.List;
+
 public interface OrderProductService {
-    OrderProductEntity getOrderById(Integer id);
+    List<OrderProductEntity> getOrderByOrderId(Integer orderId);
 }

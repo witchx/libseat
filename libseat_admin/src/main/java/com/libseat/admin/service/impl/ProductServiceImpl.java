@@ -36,6 +36,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductEntity getProductById(Integer productId) {
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(productId);
+        return productMapper.selectByPrimaryKey(productEntity);
+    }
+
+    @Override
+    public List<ProductEntity> getProductByIdBatch(List<Integer> collect) {
+        return null;
+    }
+
+    @Override
     public Integer insertProduct(ProductEntity productEntity) {
         return productMapper.insert(productEntity);
     }

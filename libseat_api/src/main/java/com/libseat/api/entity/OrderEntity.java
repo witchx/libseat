@@ -20,9 +20,6 @@ public class OrderEntity {
     /** 订单号*/
     @Column
     private String no;
-    /** 创建时间*/
-    @Column
-    private Timestamp createTime;
     /** 支付id*/
     @Column
     private Integer payId;
@@ -32,12 +29,26 @@ public class OrderEntity {
     /** 顾客id*/
     @Column
     private Integer customerId;
+    /** 场馆id*/
+    @Column
+    private Integer stadiumId;
     /** 订单金额*/
     @Column
     private BigDecimal price;
+    /** 使用vip卡*/
+    @Column
+    private Integer vipCardId;
+    /** 使用优惠劵*/
+    @Column
+    private Integer couponId;
+    /** 折扣金额*/
+    @Column
+    private BigDecimal discount;
     /** 订单进度*/
     @Column
     private Integer progress;
+    @Column
+    private Integer status;
     /** 订单类型 座位 vip 商品*/
     @Column
     private Integer type;
@@ -55,8 +66,21 @@ public class OrderEntity {
     private String orderProgress;
     @Transient
     private String orderType;
+    /** 创建时间*/
+    @Column
+    private Timestamp createTime;
+    /** 签到时间*/
+    @Column
+    private Timestamp signTime;
+    /** 评价时间*/
+    @Column
+    private Timestamp evaluateTime;
     /** 支付时间*/
     @Transient
     private Timestamp payTime;
+    @Transient
+    private BigDecimal coupon = new BigDecimal("0.00");
+    @Transient
+    private String orderStatus;
 
 }

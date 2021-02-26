@@ -14,4 +14,6 @@ public interface CustomerService {
     void deleteCustomerBatch(List<CustomerEntity> CustomerEntities);
 
     Integer updateCustomer(CustomerEntity customerEntity);
+
+    CustomerEntity getCustomerById(Integer customerId);
 }

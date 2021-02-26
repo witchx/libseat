@@ -10,13 +10,12 @@
             ls.`row`,
             ls.line,
             MAX(los.order_id) order_id,
-            los.start_time,
-            los.end_time,
+            MAX(los.start_time) start_time,
+            MAX(los.end_time) end_time,
         CASE
-             WHEN los.`status` IS NULL THEN ls.`status`
+             WHEN lo.`status` IS NULL THEN ls.`status`
              WHEN ls.`status` = 0 THEN 0
-             WHEN los.`status` = 1 THEN 1
-             WHEN los.`status` = 3 THEN 1
+             WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
              WHEN #{startTime} <![CDATA[ >= ]]> los.end_time THEN 1
              WHEN #{endTime} <![CDATA[ <= ]]> los.start_time THEN 1
 			 ELSE 2
@@ -25,6 +24,8 @@
 	        lib_seat ls
         LEFT JOIN lib_order_seat los
         ON ls.id = los.seat_id
+        JOIN lib_order lo
+        on los.order_id = lo.id
         WHERE ls.room_id = #{roomId}
         GROUP BY ls.id
         ORDER BY ls.id

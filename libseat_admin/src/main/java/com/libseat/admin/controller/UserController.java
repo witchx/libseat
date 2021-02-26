@@ -9,6 +9,7 @@ import com.libseat.utils.code.CommonResult;
 import com.libseat.utils.code.ResultCode;
 import com.libseat.utils.page.PageResult;
 import com.libseat.utils.utils.DateUtils;
+import com.libseat.utils.utils.UsernameGenerateUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin
@@ -27,6 +29,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    private final Object lock = new Object();
 
     @TrimRequired
     @RequestMapping(value = "/list",method = RequestMethod.GET)
@@ -111,16 +115,22 @@ public class UserController {
     @ResponseBody
     public CommonResult<ResultCode> createUser ( @RequestBody UserEntity userEntity){
         if (userEntity != null) {
-            userEntity.setDeleteFlag(DeleteFlagType.EXIST.getId());
-            String password = userEntity.getPassword();
-            if (StringUtils.isNotBlank(password)) {
-                userEntity.setPassword(DigestUtils.md5Hex(password));
+            synchronized (lock) {
+                List<String> allUsername = userService.getAllUsername();
+                String username = UsernameGenerateUtils.getUsername(4, 6, allUsername);
+                userEntity.setUsername(username);
+                userEntity.setDeleteFlag(DeleteFlagType.EXIST.getId());
+                String password = userEntity.getPassword();
+                if (StringUtils.isNotBlank(password)) {
+                    userEntity.setPassword(DigestUtils.md5Hex(password));
+                }
+                userEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+                userEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+                if (userService.insertUser(userEntity) != 0) {
+                    return CommonResult.success();
+                }
             }
-            userEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
-            userEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
-            if (userService.insertUser(userEntity) != 0) {
-                return CommonResult.success();
-            }
+
         }
         return CommonResult.failed();
     }

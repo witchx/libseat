@@ -125,7 +125,7 @@
         </Row>
         <Row>
           <FormItem label="数量:" prop="num">
-            <Input v-model="create_show.num" type="number" style="width: 80%;"/>
+            <Input v-model="edit_show.num" type="number" style="width: 80%;"/>
           </FormItem>
         </Row>
         <Row>

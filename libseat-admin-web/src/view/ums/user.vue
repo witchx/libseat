@@ -71,8 +71,8 @@
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="用户名称:" prop="username" aria-required="true">
-            <Input style="width: 80%" v-model="show_create.username"/>
+          <FormItem label="用户名称:" prop="nickname" aria-required="true">
+            <Input style="width: 80%" v-model="show_create.nickname"/>
           </FormItem>
         </Row>
         <Row>
@@ -128,8 +128,8 @@
           </FormItem>
         </Row>
         <Row>
-          <FormItem label="用户名称:" prop="username" aria-required="true">
-            <Input style="width: 80%" v-model="show_edit.username"/>
+          <FormItem label="用户名称:" prop="nickname" aria-required="true">
+            <Input style="width: 80%" v-model="show_edit.nickname"/>
           </FormItem>
         </Row>
         <Row>
@@ -323,7 +323,8 @@
               });
             }
           },
-          { title: '用户名称', key: 'username'},
+          { title: '用户账号', key: 'username'},
+          { title: '用户名称', key: 'nickname'},
           { title: '公司名称', key: 'companyName'},
           { title: '电话号码', key: 'tel'},
           { title: '邮箱', key: 'email'},
@@ -408,7 +409,7 @@
                     click: () => {
                       this.show_edit.value = true;
                       this.show_edit.id= params.row.id;
-                      this.show_edit.username= params.row.username;
+                      this.show_edit.nickname= params.row.nickname;
                       this.show_edit.companyName= params.row.companyName;
                       this.show_edit.icon = params.row.icon;
                       this.show_edit.tel = params.row.tel;
@@ -454,7 +455,7 @@
         show_edit: {
           id: '',
           value: false,
-          username: '',
+          nickname: '',
           companyName: '',
           icon: '',
           tel: '',
@@ -464,7 +465,7 @@
         },
         show_create: {
           value: false,
-          username: '',
+          nickname: '',
           companyName: '',
           icon: '',
           tel: '',
@@ -500,7 +501,7 @@
           companyName: [
             {required: true, message: "必输项不能为空", trigger: 'blur'}
           ],
-          username: [
+          nickname: [
             {required: true, message: "必输项不能为空", trigger: 'blur'},
             {required: true, trigger: 'blur', validator: validateUsername}
           ],

@@ -27,17 +27,19 @@
                 ls.room_id room_id,
                 ls.id,
             CASE
-                WHEN los.`status` IS NULL THEN ls.`status`
+                WHEN lo.`status` IS NULL THEN ls.`status`
                 WHEN ls.`status` = 0 THEN 0
-                WHEN los.`status` = 1 THEN 1
-                WHEN los.`status` = 3 THEN 1
-                WHEN now( ) <![CDATA[ >= ]]> los.end_time THEN 1
-                WHEN now( ) <![CDATA[ <= ]]> los.start_time THEN 1
+                WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
+                WHEN #{startTime} <![CDATA[ >= ]]> los.end_time THEN 1
+                WHEN #{endTime} <![CDATA[ <= ]]> los.start_time THEN 1
                 ELSE 2
                 END AS `status`
             FROM
                 lib_seat ls
-            LEFT JOIN lib_order_seat los ON ls.id = los.seat_id
+            LEFT JOIN lib_order_seat los
+            ON ls.id = los.seat_id
+            LEFT JOIN lib_order lo
+            on los.order_id = lo.id
         ) ii
         WHERE ii.`status` = 1
         GROUP BY ii.room_id
@@ -82,17 +84,19 @@
                     ls.room_id room_id,
                     ls.id,
                 CASE
-                    WHEN los.`status` IS NULL THEN ls.`status`
+                    WHEN lo.`status` IS NULL THEN ls.`status`
                     WHEN ls.`status` = 0 THEN 0
-                    WHEN los.`status` = 1 THEN 1
-                    WHEN los.`status` = 3 THEN 1
-                    WHEN now( ) <![CDATA[ >= ]]> los.end_time THEN 1
-                    WHEN now( ) <![CDATA[ <= ]]> los.start_time THEN 1
+                    WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
+                    WHEN #{startTime} <![CDATA[ >= ]]> los.end_time THEN 1
+                    WHEN #{endTime} <![CDATA[ <= ]]> los.start_time THEN 1
                     ELSE 2
                     END AS `status`
                 FROM
                 lib_seat ls
-                LEFT JOIN lib_order_seat los ON ls.id = los.seat_id
+                LEFT JOIN lib_order_seat los
+                ON ls.id = los.seat_id
+                LEFT JOIN lib_order lo
+                on los.order_id = lo.id
             ) ii
             WHERE ii.`status` = 1
             GROUP BY ii.room_id

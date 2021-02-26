@@ -50,5 +50,12 @@ public class VipCardServiceImpl implements VipCardService {
         vipCardMapper.deleteByPrimaryKey(vipCardEntity);
     }
 
+    @Override
+    public VipCardEntity getVipCardById(Integer id) {
+        VipCardEntity vipCardEntity = new VipCardEntity();
+        vipCardEntity.setId(id);
+        return vipCardMapper.selectByPrimaryKey(vipCardEntity);
+    }
+
 
 }

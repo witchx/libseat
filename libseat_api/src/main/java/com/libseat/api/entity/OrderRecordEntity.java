@@ -22,9 +22,15 @@ public class OrderRecordEntity {
     @Column
     private Integer orderId;
     @Column
+    private Integer orderStatusType;
+    @Column
     private Integer payId;
     @Column
     private String des;
     @Column
     private Timestamp createTime;
+    @Transient
+    private String orderStatus;
+    @Transient
+    private String operation;
 }

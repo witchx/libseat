@@ -426,7 +426,7 @@
               this.fetchData();
             }
           } else {
-            this.$Message.warning("");
+            this.$Message.warning(res.data.msg);
           }
         })
       },

@@ -29,6 +29,13 @@
               </FormItem>
             </Col>
             <Col span="6">
+              <FormItem label="订单状态">
+                <Select v-model="searchParams.status" filterable placeholder="全部">
+                  <Option v-for="(option, index) in status_option" :value="option.value" :key="index">{{option.label}}</Option>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col span="6">
               <FormItem label="订单进度">
                 <Select v-model="searchParams.progress" filterable placeholder="全部">
                   <Option v-for="(option, index) in progress_option" :value="option.value" :key="index">{{option.label}}</Option>
@@ -78,6 +85,7 @@
     createStartTime: '',
     createEndTime: '',
     progress: '',
+    status: '',
     page: 1,
     pageSize: 10,
     total: 0
@@ -85,23 +93,45 @@
   const progress_option = [
     {
       label: "已提交",
-      value: 0
-    },
-    {
-      label: "已支付",
       value: 1
     },
     {
-      label: "已签到",
+      label: "已支付",
       value: 2
     },
     {
-      label: "已关闭",
+      label: "已消费",
       value: 3
     },
     {
       label: "已评价",
       value: 4
+    }
+  ]
+  const status_option = [
+    {
+      label: "待支付",
+        value: 1
+    },
+    {
+      label: "待消费",
+        value: 2
+    },
+    {
+      label: "待评价",
+        value: 3
+    },
+    {
+      label: "已取消",
+        value: 4
+    },
+    {
+      label: "已关闭",
+      value: 5
+    },
+    {
+      label: "已完成",
+      value: 6
     }
   ]
   const type_option = [
@@ -146,10 +176,11 @@
             }
           },
           {title: '订单进度', key: 'orderProgress'},
+          {title: '订单状态', key: 'orderStatus'},
           {
             title: '操作', width: 200, key: 'action', align: 'center',
             render: (h, params) => {
-              if (params.row.status === 4) {
+              if (params.row.status === 4 || params.row.status === 5) {
                 return h('div', [
                   h('Button', {
                     props: {
@@ -189,7 +220,7 @@
                       }
                     }, '删除')])
                 ]);
-              } else if (params.row.status === 2) {
+              } else if ((params.row.status === 6) || (params.row.status === 1)) {
                 return h('div', [
                   h('Button', {
                     props: {
@@ -251,7 +282,8 @@
         data: [],
         loading: true,
         progress_option: progress_option,
-        type_option: type_option
+        type_option: type_option,
+        status_option: status_option
       }
     },
     created() {

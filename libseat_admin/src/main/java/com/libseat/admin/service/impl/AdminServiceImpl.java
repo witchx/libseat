@@ -19,6 +19,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -71,16 +72,9 @@ public class AdminServiceImpl implements AdminService {
         return adminEntity1;
     }
     @Override
-    public PageResult<AdminEntity> getAdminList(String name, Integer page, Integer pageSize) {
+    public PageResult<AdminEntity> getAdminList(String username, Integer page, Integer pageSize) {
         PageHelper.startPage(page, pageSize);
-        Example example = new Example(AdminEntity.class);
-        example.selectProperties("id","icon","role","username","createTime","modifyTime","deleteFlag");
-        Example.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(name)) {
-            criteria.andLike("username", "%" + name + "%");
-        }
-        example.setOrderByClause("id");
-        List<AdminEntity> adminEntities = adminMapper.selectByExample(example);
+        List<AdminEntity> adminEntities = adminMapper.getAdminList(username);
         adminEntities.forEach(adminEntity -> {
             ArrayList<Integer> arrayList = JSON.parseObject(adminEntity.getRole(), ArrayList.class);
             if (!arrayList.isEmpty()) {
@@ -100,6 +94,8 @@ public class AdminServiceImpl implements AdminService {
     public AdminEntity getAdmin(AdminEntity adminEntity) {
         return adminMapper.selectOne(adminEntity);
     }
+
+
 
     @Override
     public Integer updateAdmin(AdminEntity adminEntity) {
@@ -173,5 +169,13 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteAdmin(AdminEntity adminEntity) {
         adminMapper.deleteByPrimaryKey(adminEntity);
+    }
+
+    @Override
+    public List<String> getAllUsername() {
+        Example example = new Example(AdminEntity.class);
+        example.selectProperties("username");
+        List<String> allUsername = adminMapper.selectByExample(example).stream().map(adminEntity -> adminEntity.getUsername()).collect(Collectors.toList());
+        return allUsername;
     }
 }

@@ -14,8 +14,8 @@
         </Row>
         <Row :gutter="16">
           <Col span="6">
-            <FormItem label="管理员名称:" prop="name" aria-required="true">
-              <Input v-model="searchParams.name"  placeholder="请输入关键字" @on-search="fetchData" />
+            <FormItem label="管理员名称:" prop="username" aria-required="true">
+              <Input v-model="searchParams.username"  placeholder="请输入关键字" @on-search="fetchData" />
             </FormItem>
           </Col>
         </Row>
@@ -40,8 +40,8 @@
     <Modal v-model="show_create.value" title="创建管理员">
         <Form ref="formCreate" :model="show_create" :rules="rule"  :label-width="100">
           <Row>
-            <FormItem label="管理员名:"  prop="username"  aria-required="true">
-              <Input style="width: 80%" v-model="show_create.username"/>
+            <FormItem label="管理员名:"  prop="nickname"  aria-required="true">
+              <Input style="width: 80%" v-model="show_create.nickname"/>
             </FormItem>
           </Row>
           <Row>
@@ -75,7 +75,7 @@
   import {validateUsername, validatePass} from '@/libs/validate';
   import md5 from "js-md5";
   const searchParams = {
-    name: '',
+    username: '',
     page: 1,
     pageSize: 10,
     total: 0
@@ -112,23 +112,27 @@
               }
             },
             {
-              title: '登录名',
-              key: 'username',
+              title: '账号',
+              key: 'username'
+            },
+            {
+              title: '昵称',
+              key: 'nickname',
               render: (h, params) => {
                 if (params.row.edit) {
-                  this.edit.username = params.row.username
+                  this.edit.nickname = params.row.nickname
                   return h('div', [
                     h('Input', {
                       props: {
-                        placeholder: '请输入登录名',
+                        placeholder: '请输入昵称',
                         style: {
                           width: '150px'
                         },
-                        value: params.row.username
+                        value: params.row.nickname
                       },
                       on: {
                         'on-change': (e) => {
-                          this.edit.username = e.target.value
+                          this.edit.nickname = e.target.value
 
                         }
                       }
@@ -137,7 +141,7 @@
                 } else {
                   if (this.user.access[0] === '1') {
                     return h('div', [
-                      params.row.username,
+                      params.row.nickname,
                       h('Icon', {
                         props: {
                           type: 'ios-create-outline',
@@ -158,7 +162,7 @@
                       })
                     ])
                   } else {
-                    return h('div', params.row.username);
+                    return h('div', params.row.nickname);
                   }
                 }
               }
@@ -190,8 +194,8 @@
                       },
                       on: {
                         click: async () => {
-                          if (this.edit.username) {
-                            const res = await updateAdmin(params.row.id, {username: this.edit.username})
+                          if (this.edit.nickname) {
+                            const res = await updateAdmin(params.row.id, {nickname: this.edit.nickname})
                             if (res.data.code === 200) {
                               this.$Message.success('编辑成功！');
                               this.fetchData()
@@ -209,7 +213,7 @@
               }
             },
             {
-              title: '名称',
+              title: '角色名称',
               key: 'roleName'
             },
             {
@@ -222,6 +226,12 @@
               title: '修改时间', key: 'modifyTime',
               render: (h, params) => {
                 return h('div', timestampFormat(params.row.modifyTime, 'year'));
+              }
+            },
+            {
+              title: '最近登录时间', key: 'lastLoginTime',
+              render: (h, params) => {
+                return h('div', timestampFormat(params.row.lastLoginTime, 'year'));
               }
             },
             {
@@ -310,11 +320,11 @@
         loading: true,
         searchParams: searchParams,
         edit: {
-          name: ''
+          nickname: ''
         },
         show_create: {
           value: false,
-          username: '',
+          nickname: '',
           password: ''
         },
         user: this.$store.state.user,
@@ -323,7 +333,7 @@
         role_option: [],
         id: '',
         rule: {
-          username: [
+          nickname: [
             { validator: validateUsername, trigger: 'blur' },
           ],
           password: [
@@ -403,7 +413,7 @@
         this.fetchData()
       },
       paramToEmpty() {
-        this.searchParams.name = '';
+        this.searchParams.username = '';
       },
       createToEmpty() {
         this.show_create.username = '';

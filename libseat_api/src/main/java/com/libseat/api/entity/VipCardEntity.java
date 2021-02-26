@@ -57,4 +57,6 @@ public class VipCardEntity {
     private Long sales;
     @Transient
     private String companyName;
+    @Transient
+    private String vipCardType;
 }

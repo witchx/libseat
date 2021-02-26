@@ -4,6 +4,7 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Data
 @Table(name = "lib_order_setting")
@@ -12,25 +13,18 @@ public class OrderSettingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    /**
-     * 订单逻辑删除时间 天
-     */
     @Column
-    private Integer logicalDeleteTime;
-    /**
-     * 订单物理删除时间 天
-     */
+    private String prefixDes;
     @Column
-    private Integer physicalDeleteTime;
-    /**
-     * 默认好评时间
-     */
+    private String suffixDes;
     @Column
-    private Integer evaluateTime;
-    /**
-     * 订单关闭时间 天 ：在order endTime之后的时间
-     */
+    private Integer time;
     @Column
-    private Integer turnOffTime;
-
+    private Boolean onOff;
+    @Column
+    private Timestamp modifyTime;
+    @Column
+    private Integer unit;
+    @Transient
+    private String unitName;
 }

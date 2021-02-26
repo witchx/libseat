@@ -1,7 +1,6 @@
 package com.libseat.admin.service.impl;
 
 import com.libseat.admin.mapper.OrderSeatMapper;
-import com.libseat.admin.service.OrderProductService;
 import com.libseat.admin.service.OrderSeatService;
 import com.libseat.api.entity.OrderSeatEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +13,10 @@ public class OrderSeatServiceImpl implements OrderSeatService {
     private OrderSeatMapper orderSeatMapper;
 
     @Override
-    public OrderSeatEntity getOrderById(Integer id) {
+    public OrderSeatEntity getOrderByOrderId(Integer orderId) {
         OrderSeatEntity orderSeatEntity = new OrderSeatEntity();
-        orderSeatEntity.setId(id);
-        return orderSeatMapper.selectByPrimaryKey(orderSeatEntity);
+        orderSeatEntity.setOrderId(orderId);
+        OrderSeatEntity orderSeat = orderSeatMapper.selectOne(orderSeatEntity);
+        return orderSeat;
     }
 }
