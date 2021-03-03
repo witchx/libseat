@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface OrderProductService {
     List<OrderProductEntity> getOrderByOrderId(Integer orderId);
+
+    Integer updateOrderById(OrderProductEntity orderProductEntity);
 }

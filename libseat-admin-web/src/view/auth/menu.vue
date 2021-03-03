@@ -33,7 +33,7 @@
           <Button type="error" size="small" @click="deleteMenu(scope)">删除</Button>
         </template>
       </tree-table>
-      <Page style="margin-top: 20px;float: right;" :total="searchParams.total" :page-size="searchParams.pageSize" show-total show-elevator show-sizer @on-change="handlePage" @on-page-size-change='handlePageSize'/>
+      <Page style="margin-top: 20px;float: right;" :total="searchParams.total" :page-size="searchParams.pageSize" show-total/>
     </Card>
     <Modal v-model="show.value" :title="model_title==='1'?'编辑':'创建'">
       <Form ref="form" :model="show" :rules="formRules" :label-width="100">
@@ -79,13 +79,6 @@
         <Button v-if="model_title==='2'" type="primary" @click="submitCreate">确定</Button>
       </div>
     </Modal>
-    <Modal v-model="show_delete.value" title="删除提示">
-      <p> 确定删除？ </p>
-      <div slot="footer">
-        <Button @click="show_delete.value = false">取消</Button>
-        <Button type="primary" @click="submitDelete">确定</Button>
-      </div>
-    </Modal>
   </div>
 </template>
 
@@ -124,10 +117,6 @@
           sort: 0,
           hidden: 0,
           parentId: ''
-        },
-        show_delete: {
-          value: false,
-          id: ''
         },
         model_title: '',
         hidden: '',
@@ -227,17 +216,21 @@
         }
       },
       deleteMenu(scope) {
-        this.show_delete.value = !this.show_delete.value;
-        this.show_delete.id = scope.row.id;
-      },
-      async submitDelete() {
-        const res = await deleteMenu(this.show_delete.id)
-        if (res.data.code === 200) {
-          this.$Message.success('删除成功！');
-          this.show_delete.value = false;
-          this.$emit('refresh');
-          this.fetchData();
-        }
+        this.$Modal.confirm({
+          title: "删除提示",
+          content: "是否要进行删除操作?",
+          okText: "确定",
+          cancelText: "取消",
+          onOk: async () => {
+            const res = await deleteMenu(scope.row.id)
+            if (res.data.code === 200) {
+              this.$Message.success('删除成功！');
+              await this.fetchData();
+            } else {
+              this.$Message.error(res.data.msg);
+            }
+          }
+        });
       },
       async submitEdit() {
         this.$refs.form.validate(async (valid) => {

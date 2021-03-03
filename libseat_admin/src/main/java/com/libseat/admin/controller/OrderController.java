@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -29,14 +30,6 @@ public class OrderController {
     private OrderService orderService;
     @Autowired
     private OrderSettingService orderSettingService;
-    @Autowired
-    private OrderVipService orderVipService;
-    @Autowired
-    private OrderSeatService orderSeatService;
-    @Autowired
-    private OrderRecordService orderRecordService;
-    @Autowired
-    private OrderProductService orderProductService;
     @Autowired
     private CustomerService customerService;
     @Autowired
@@ -72,20 +65,17 @@ public class OrderController {
     @RequestMapping(value = "/detail",method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<Object> getOrderDetail (@RequestParam Integer id, @RequestParam Integer type){
-        OrderType orderType = OrderType.getById(type);
         Order order = null;
         OrderEntity orderEntity = orderService.getOrderById(id);
-        if (orderType != null) {
-            switch (orderType) {
-                case SEAT:
-                    order = orderSeatService.getOrderByOrderId(id);
-                    break;
-                case VIP_CARD:
-                    order = orderVipService.getOrderByOrderId(id);
-                    break;
-                default:
-                    break;
-            }
+        switch (Objects.requireNonNull(OrderType.getById(type))) {
+            case SEAT:
+                order = orderService.getOrderSeatByOrderId(id);
+                break;
+            case VIP_CARD:
+                order = orderService.getOrderVipByOrderId(id);
+                break;
+            default:
+                break;
         }
         if (orderEntity != null) {
             if (order == null) {
@@ -112,7 +102,7 @@ public class OrderController {
     @RequestMapping(value = "/product",method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<List<OrderProductEntity>> getOrderProduct (@RequestParam Integer id){
-        List<OrderProductEntity> orderByOrderId = orderProductService.getOrderByOrderId(id);
+        List<OrderProductEntity> orderByOrderId = orderService.getOrderProductByOrderId(id);
         return CommonResult.success(orderByOrderId);
     }
 
@@ -123,7 +113,7 @@ public class OrderController {
         //设置操作记录信息
         OrderRecordEntity orderRecordEntity = new OrderRecordEntity();
         orderRecordEntity.setOrderId(id);
-        List<OrderRecordEntity> orderRecords = orderRecordService.getOrderRecord(orderRecordEntity);
+        List<OrderRecordEntity> orderRecords = orderService.getOrderRecordRecord(orderRecordEntity);
         orderRecords.forEach(orderRecord -> {
             orderRecord.setOrderStatus(OrderStatusType.getById(orderRecord.getOrderStatusType()).getDes());
             orderRecord.setOperation(OperationType.getById(orderRecord.getOperationType()).getDes());
@@ -151,7 +141,7 @@ public class OrderController {
             //在管理后台操作者类型只可能为管理员
             orderRecordEntity.setOperationType(OperationType.ADMIN.getId());
             orderRecordEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
-            if (orderRecordService.insertOrderRecord(orderRecordEntity) != 0) {
+            if (orderService.insertOrderRecordRecord(orderRecordEntity) != 0) {
                 return CommonResult.success();
             }
         }
@@ -184,18 +174,39 @@ public class OrderController {
         }
     }
 
-    @RequestMapping(value = "/setting/update/{id}",method = RequestMethod.PUT)
+    @RequestMapping(value = "/setting/update",method = RequestMethod.PUT)
     @ResponseBody
-    public CommonResult<ResultCode> updateOrder (@PathVariable Integer id, @RequestBody OrderSettingEntity orderSettingEntity){
-        if (orderSettingEntity != null) {
-            orderSettingEntity.setId(id);
-            orderSettingEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
-            //开启的情况才需要重启
-            if (orderSettingService.updateOrderSetting(orderSettingEntity,orderSettingEntity.getOnOff()) != 0) {
-                return CommonResult.success();
-            }
+    public CommonResult<ResultCode> updateOrderSetting (@RequestBody List<OrderSettingEntity> orderSettingEntities){
+        if (orderSettingEntities == null || orderSettingEntities.isEmpty()) {
+            return CommonResult.failed();
         }
-        return CommonResult.failed();
+        try {
+            orderSettingService.updateOrderSettingBatch(orderSettingEntities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonResult.failed(e.getMessage());
+        }
+
+        return CommonResult.success();
+    }
+
+    @RequestMapping(value = "/setting/onOff/{id}",method = RequestMethod.PUT)
+    @ResponseBody
+    public CommonResult<ResultCode> onOffOrderSetting (@PathVariable Integer id, @RequestBody OrderSettingEntity orderSettingEntity){
+        if (orderSettingEntity == null) {
+            CommonResult.failed();
+        }
+        try {
+            if (orderSettingEntity.getOnOff()) {
+                orderSettingService.start(orderSettingService.getOrderSettingById(id));
+            } else {
+                orderSettingService.stop(id);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonResult.failed(e.getMessage());
+        }
+        return CommonResult.success();
     }
 
     @RequestMapping(value = "/setting/create", method = RequestMethod.POST)
@@ -203,6 +214,7 @@ public class OrderController {
     public CommonResult<ResultCode> createOrderSetting (@RequestBody OrderSettingEntity orderSettingEntity){
         if (orderSettingEntity != null) {
             orderSettingEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            orderSettingEntity.setOnOff(false);
             if (orderSettingService.insertOrderSetting(orderSettingEntity) != 0) {
                 return CommonResult.success();
             }

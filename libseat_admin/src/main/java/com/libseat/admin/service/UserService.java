@@ -15,9 +15,11 @@ public interface UserService {
 
     Integer insertUser(UserEntity userEntity);
 
-    UserDetailEntity getUserDetail(UserDetailEntity userDetailEntity);
+    UserDetailEntity getUserDetailById(UserDetailEntity userDetailEntity);
 
     UserEntity getUserById(UserEntity userEntity );
 
     List<String> getAllUsername();
+
+    UserDetailEntity getUserDetailByUserId(Integer id);
 }

@@ -15,7 +15,7 @@
         <Row :gutter="16">
           <Col span="6">
             <FormItem label="输入搜索:" aria-required="true">
-                <Input v-model="searchParams.username" @keyup.enter="fetchData" placeholder="用户名称"/>
+                <Input v-model="searchParams.username" @keyup.enter="fetchData" placeholder="用户账号"/>
             </FormItem>
           </Col>
           <Col span="6">
@@ -201,64 +201,33 @@
       </Card>
     </Modal>
     <Modal v-model="show_detail.value" title="详情" footer-hide>
-      <Form ref="formDetail" :model="show_detail" :label-width="100">
-        <Row :gutter="16">
-          <Col span="8">
-            <FormItem label="订单总数:" prop="orderNum" aria-required="true">
-              <span v-model="show_detail.orderNum"></span>
-            </FormItem>
-          </Col>
-          <Col span="8">
-            <FormItem label="昨日订单数:" prop="yesOrderNum" aria-required="true">
-              <span v-model="show_detail.yesOrderNum"></span>
-            </FormItem>
-          </Col>
+      <Form ref="formDetail" :model="show_detail" style="font-size: 14px;">
+        <Row>
+          <Col span="6" style="text-align: right"><strong>订单总数：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.orderNum}}</Col>
+          <Col span="6" style="text-align: right"><strong>昨日订单数：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.yesOrderNum}}</Col>
         </Row>
-        <Row :gutter="16">
-          <Col span="8">
-            <FormItem label="营业总额:" prop="turnover" aria-required="true">
-              <span v-model="show_detail.turnover"></span>
-            </FormItem>
-          </Col>
-          <Col span="8">
-            <FormItem label="昨日营业额:" prop="yesTurnover" aria-required="true">
-              <span v-model="show_detail.yesTurnover"></span>
-            </FormItem>
-          </Col>
+        <Divider />
+        <Row>
+          <Col span="6" style="text-align: right"><strong>营业总额：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.turnover}}</Col>
+          <Col span="6" style="text-align: right"><strong>昨日营业额：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.yesTurnover}}</Col>
         </Row>
-        <Row :gutter="16">
-          <Col span="8">
-            <FormItem label="顾客总数:" prop="customerNum" aria-required="true">
-              <span v-model="show_detail.customerNum"></span>
-            </FormItem>
-          </Col>
-          <Col span="8">
-            <FormItem label="昨日新增顾客数:" prop="yesCustomerNum" aria-required="true">
-              <span v-model="show_detail.yesCustomerNum"></span>
-            </FormItem>
-          </Col>
-          <Col span="8">
-            <FormItem label="vip顾客数:" prop="vipCustomerNum" aria-required="true">
-              <span v-model="show_detail.vipCustomerNum"></span>
-            </FormItem>
-          </Col>
+        <Divider />
+        <Row>
+          <Col span="6" style="text-align: right"><strong>顾客总数：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.vipCustomerNum}}/{{show_detail.customerNum}}</Col>
+          <Col span="6" style="text-align: right"><strong>昨日新增顾客数：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.yesVipCustomerNum}}/{{show_detail.yesCustomerNum}}</Col>
         </Row>
-        <Row :gutter="16">
-          <Col span="8">
-            <FormItem label="场馆数:" prop="stadiumNum" aria-required="true">
-              <span style="width: 80%" v-model="show_detail.stadiumNum"></span>
-            </FormItem>
-          </Col>
-          <Col span="8">
-            <Icon type="md-list" size="20" style="margin-left: 15px;margin-bottom: 15px;" @click="openStadiumPage()"></Icon>
-          </Col>
-        </Row>
-        <Row :gutter="16">
-          <Col span="8">
-            <FormItem label="商品详情:" aria-required="true">
-              <Icon type="md-list" size="20" style="margin-left: 15px;margin-bottom: 15px;" @click="openProductPage()"></Icon>
-            </FormItem>
-          </Col>
+        <Divider />
+        <Row>
+          <Col span="6" style="text-align: right"><strong>场馆数：</strong></Col>
+          <Col span="6" style="text-align: left">{{show_detail.stadiumNum}}<Icon type="md-list" size="20" style="margin-left: 15px;" @click="openStadiumPage()"></Icon></Col>
+          <Col span="6" style="text-align: right"><strong>商品详情：</strong></Col>
+          <Col span="6" style="text-align: left"> <Icon type="md-list" size="20" style="margin-left: 15px;margin-bottom: 15px;" @click="openProductPage()"></Icon></Col>
         </Row>
       </Form>
     </Modal>
@@ -266,7 +235,7 @@
 </template>
 
 <script>
-  import { getUser, updateUser, updateUserPassword, deleteUser, createUser } from '@/api/user';
+  import { getUser, updateUser, updateUserPassword, deleteUser, createUser, getUserDetail} from '@/api/user';
   import { uploadImg } from '@/api/data'
   import {validateUsername, validatePass, validatePhone, validateEMail} from '@/libs/validate';
   import { timestampFormat, getIconDefault} from '@/libs/tools';
@@ -308,9 +277,10 @@
             render: (h, params) => {
               return h('img', {
                 style: {
-                  width: '100px',
-                  'height': '80px',
-                  'border-radius': '5%'
+                  width: '50px',
+                  'height': '50px',
+                  'border-radius': '25%',
+                  'margin-top': '5px'
                 },
                 attrs: {
                   src: params.row.icon
@@ -323,10 +293,10 @@
               });
             }
           },
-          { title: '用户账号', key: 'username'},
-          { title: '用户名称', key: 'nickname'},
-          { title: '公司名称', key: 'companyName'},
-          { title: '电话号码', key: 'tel'},
+          { title: '账号', key: 'username'},
+          { title: '昵称', key: 'nickname'},
+          { title: '公司', key: 'companyName'},
+          { title: '电话', key: 'tel'},
           { title: '邮箱', key: 'email'},
           { title: '地址', key: 'address'},
           { title: '密码', key: '',
@@ -391,9 +361,16 @@
                     marginRight: '5px',
                   },
                   on: {
-                    click: () => {
-                      this.show_detail.value = true;
-                      this.show_detail.id = params.row.id;
+                    click: async () => {
+                      const res = await getUserDetail(params.row.id)
+                      if (res.data.code === 200) {
+                        this.show_detail.value = true;
+                        Object.keys( res.data.data).forEach(key => {
+                          this.show_detail[key] = res.data.data[key];
+                        });
+                      } else {
+                        this.$Message.error(res.data.msg);
+                      }
                     }
                   }
                 }, '查看'),
@@ -407,15 +384,13 @@
                   },
                   on: {
                     click: () => {
-                      this.show_edit.value = true;
-                      this.show_edit.id= params.row.id;
-                      this.show_edit.nickname= params.row.nickname;
-                      this.show_edit.companyName= params.row.companyName;
-                      this.show_edit.icon = params.row.icon;
-                      this.show_edit.tel = params.row.tel;
-                      this.show_edit.address = params.row.address;
-                      this.show_edit.email = params.row.email;
-                      this.show_edit.status = params.row.status;
+                      Object.keys( this.show_edit).forEach(key => {
+                        if (key === 'value') {
+                          this.show_edit[key] = true;
+                        } else {
+                          this.show_edit[key] = params.row[key];
+                        }
+                      });
                     }
                   }
                 }, '编辑'),
@@ -485,7 +460,7 @@
         show_image: false,
         show_detail: {
           value: false,
-          id: '',
+          userId: '',
           yesVipCustomerNum: '',
           vipCustomerNum: '',
           yesCustomerNum: '',
@@ -598,6 +573,8 @@
               this.show_edit.value = false;
               this.$emit('refresh');
               this.fetchData();
+            } else {
+              this.$Message.error(res.data.msg);
             }
           }
         })
@@ -612,6 +589,8 @@
                   this.show_create.value = false;
                   this.$emit('refresh');
                   this.fetchData();
+                } else {
+                  this.$Message.error(res.data.msg);
                 }
               } else {
                 this.$Message.warning("两次密码不一样！")
@@ -637,14 +616,12 @@
       paramToEmpty() {
         this.$refs.formDate1.handleClear();
         this.$refs.formDate2.handleClear();
-        this.searchParams.status = '';
-        this.searchParams.username = '';
-        this.searchParams.createTime_start = '';
-        this.searchParams.createTime_end = '';
-        this.searchParams.lastLoginTime_start = '';
-        this.searchParams.lastLoginTime_end = '';
+        Object.keys(this.searchParams).forEach(key => {
+          this.searchParams[key] = '';
+        });
         this.searchParams.page = 1;
         this.searchParams.pageSize = 10;
+        this.searchParams.total = 0;
       },
       createToEmpty() {
         this.$refs.formCreate.resetFields();

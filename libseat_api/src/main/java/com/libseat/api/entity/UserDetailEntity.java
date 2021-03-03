@@ -33,4 +33,16 @@ public class UserDetailEntity {
     private BigDecimal turnover;
     @Column
     private Integer stadiumNum;
+
+    public void init() {
+        this.setVipCustomerNum(0);
+        this.setYesVipCustomerNum(0);
+        this.setCustomerNum(0);
+        this.setYesCustomerNum(0);
+        this.setTurnover(BigDecimal.ZERO);
+        this.setYesTurnover(BigDecimal.ZERO);
+        this.setStadiumNum(0);
+        this.setOrderNum(0);
+        this.setYesOrderNum(0);
+    }
 }

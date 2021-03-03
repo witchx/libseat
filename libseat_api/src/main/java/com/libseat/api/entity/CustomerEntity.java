@@ -4,6 +4,7 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
@@ -26,11 +27,11 @@ public class CustomerEntity {
      * 2：女
      */
     @Column
-    private String sex;
+    private Integer sex;
     @Column
     private String tel;
     @Column
-    private String mail;
+    private String email;
     @Column
     private Timestamp createTime;
     @Column
@@ -38,5 +39,16 @@ public class CustomerEntity {
     @Column
     private Timestamp lastLoginTime;
     @Column
-    private String deleteFlag;
+    private Integer deleteFlag;
+    @Column
+    private Integer userId;
+    @Column
+    private String companyName;
+
+    @Transient
+    private BigDecimal totalValue;
+    @Transient
+    private Integer totalTimes;
+    @Transient
+    private Integer totalDays;
 }

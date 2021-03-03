@@ -503,6 +503,12 @@
               cancelText: "取消",
               onOk: async () => {
                 const res = await deleteCouponBatch(JSON.stringify(this.selected));
+                if (res.data.code === 200) {
+                  this.$Message.success(res.data.msg);
+                  await this.fetchData();
+                } else {
+                  this.$Message.error(res.data.msg);
+                }
               }
             });
             break;

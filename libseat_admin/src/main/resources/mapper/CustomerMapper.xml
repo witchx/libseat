@@ -5,33 +5,44 @@
 
     <select id="getCustomerList" resultType="CustomerEntity">
         SELECT
-            id,
-            username,
-            nickname,
-            icon,
-            sex,
-            status,
-            tel,
-            mail,
-            user_id,
-            delete_flag,
-            modify_time,
-            create_time,
-            last_login_time
+            lc.id,
+            lc.username,
+            lc.nickname,
+            lc.icon,
+            lc.sex,
+            lc.tel,
+            lc.email,
+            lc.user_id,
+            lc.delete_flag,
+            lc.modify_time,
+            lc.create_time,
+            lc.last_login_time,
+            lu.company_name
         FROM
-            lib_customer
-        WHERE delete_flag = 0
+            lib_customer lc,
+            lib_user lu
+        WHERE lc.delete_flag = 0
+        AND lc.user_id = lu.id
         <if test="username != null and username != ''">
-            AND username like concat('%',#{username},'%')
+            AND lc.username like concat('%',#{username},'%')
         </if>
         <if test="userId != null and userId != ''">
-            AND user_id = #{userId}
+            AND lc.user_id = #{userId}
         </if>
         <if test="sex != null and sex != ''">
-            AND sex = #{sex}
+            AND lc.sex = #{sex}
         </if>
-        <if test="status != null and status != ''">
-            AND status = #{status}
+        <if test="createTimeStart != null ">
+            AND lc.create_time <![CDATA[ >= ]]> #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null ">
+            AND lc.create_time <![CDATA[ <= ]]> #{createTimeEnd}
+        </if>
+        <if test="lastLoginTimeStart != null ">
+            AND lc.last_login_time <![CDATA[ >= ]]> #{lastLoginTimeStart}
+        </if>
+        <if test="lastLoginTimeEnd != null ">
+            AND lc.last_login_time <![CDATA[ <= ]]> #{lastLoginTimeEnd}
         </if>
         ORDER BY id
     </select>
@@ -46,7 +57,7 @@
             status,
             password,
             tel,
-            mail,
+            email,
             user_id,
             delete_flag,
             modify_time,
@@ -63,7 +74,7 @@
             #{customerEntity.status},
             #{customerEntity.password},
             #{customerEntity.tel},
-            #{customerEntity.mail},
+            #{customerEntity.email},
             #{customerEntity.user_id},
             #{customerEntity.delete_flag},
             #{customerEntity.modify_time},
@@ -92,4 +103,22 @@
             id = #{customerEntity.id}
         </foreach>
     </update>
+
+    <select id="getYesterdayCustomerByUserId" resultType="CustomerEntity">
+        SELECT
+            lc.id,
+            lcb.total_days,
+            lcb.total_value,
+            lcb.total_times
+        FROM
+        lib_customer lc
+        LEFT JOIN lib_customer_bag lcb
+        ON lc.id = lcb.customer_id
+        WHERE
+            lo.user_id = #{userId}
+        AND
+            lo.create_time <![CDATA[ >= ]]> #{yesStartTime}
+        AND
+            lo.create_time <![CDATA[ < ]]> #{yesEndTime}
+    </select>
 </mapper>

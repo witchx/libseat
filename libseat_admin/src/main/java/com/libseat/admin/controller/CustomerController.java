@@ -2,12 +2,17 @@ package com.libseat.admin.controller;
 
 import com.libseat.admin.annotations.TrimRequired;
 import com.libseat.admin.service.CustomerService;
+import com.libseat.api.constant.DeleteFlagType;
+import com.libseat.api.entity.CustomerBagEntity;
 import com.libseat.api.entity.CustomerEntity;
+import com.libseat.api.entity.CustomerStatisticsEntity;
+import com.libseat.api.entity.UserDetailEntity;
 import com.libseat.utils.code.CommonResult;
 import com.libseat.utils.code.ResultCode;
 import com.libseat.utils.page.PageResult;
+import com.libseat.utils.utils.DateUtils;
+import com.libseat.utils.utils.UsernameGenerateUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -29,16 +34,25 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    private final Object lock = new Object();
+
     @TrimRequired
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<PageResult<CustomerEntity>> getCustomerList (@RequestParam String username,
-                                                                    @RequestParam Integer sex,
-                                                                    @RequestParam Integer userId,
-                                                                    @RequestParam String status,
-                                                                    @RequestParam(required = false, defaultValue = "1") Integer page,
-                                                                    @RequestParam(required = false, defaultValue = "10") Integer pageSize){
-        PageResult<CustomerEntity> customerList = customerService.getCustomerList(username, sex, status, userId, page, pageSize);
+                                                                     @RequestParam Integer sex,
+                                                                     @RequestParam Integer userId,
+                                                                     @RequestParam(required = false) String createTimeStart,
+                                                                     @RequestParam(required = false) String createTimeEnd,
+                                                                     @RequestParam(required = false) String lastLoginTimeStart,
+                                                                     @RequestParam(required = false) String lastLoginTimeEnd,
+                                                                     @RequestParam(required = false, defaultValue = "1") Integer page,
+                                                                     @RequestParam(required = false, defaultValue = "10") Integer pageSize){
+        PageResult<CustomerEntity> customerList = customerService.getCustomerList(username, sex, userId,
+                DateUtils.strToTimestamp(createTimeStart,DateUtils.YYYY_MM_DD_HH_MM_SS),
+                DateUtils.strToTimestamp(createTimeEnd,DateUtils.YYYY_MM_DD_HH_MM_SS),
+                DateUtils.strToTimestamp(lastLoginTimeStart,DateUtils.YYYY_MM_DD_HH_MM_SS),
+                DateUtils.strToTimestamp(lastLoginTimeEnd,DateUtils.YYYY_MM_DD_HH_MM_SS),page, pageSize);
         if (customerList == null || customerList.getTotal() == 0) {
             return CommonResult.failed(ResultCode.EMPTY);
         } else {
@@ -46,18 +60,31 @@ public class CustomerController {
         }
     }
 
+    @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult<CustomerBagEntity> getCustomerDetail (@PathVariable Integer id){
+        CustomerBagEntity customerBagEntity = customerService.getCustomerBagByCustomerId(id);
+        if (customerBagEntity != null) {
+            return CommonResult.success(customerBagEntity);
+        }
+        return CommonResult.failed(ResultCode.EMPTY);
+    }
+
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult<ResultCode> createCustomer(@RequestBody List<CustomerEntity> customers) {
-        for (CustomerEntity customerEntity : customers) {
+    public CommonResult<ResultCode> createCustomer(@RequestBody CustomerEntity customerEntity) {
+        synchronized (lock) {
+            List<String> allUsername = customerService.getAllUsername();
+            String username = UsernameGenerateUtils.getUsername(4, 6, allUsername);
             String password = DigestUtils.md5Hex(customerEntity.getPassword());
+            customerEntity.setUsername(username);
             customerEntity.setPassword(DigestUtils.md5Hex(password));
-            customerEntity.setUsername(customerEntity.getUsername().trim());
+            customerEntity.setNickname(customerEntity.getNickname().trim());
             customerEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
             customerEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            customerEntity.setDeleteFlag(DeleteFlagType.EXIST.getId());
         }
-        Integer row = customerService.insertCustomerBatch(customers);
-        if (row != 0) {
+        if (customerService.insertCustomer(customerEntity) != 0) {
             return CommonResult.success();
         }
         return CommonResult.failed();
@@ -68,7 +95,7 @@ public class CustomerController {
     public CommonResult<ResultCode> updateCustomer(@PathVariable Integer id, @RequestBody CustomerEntity customerEntity) {
         if (customerEntity != null) {
             customerEntity.setId(id);
-            customerEntity.setUsername(customerEntity.getUsername().trim());
+            customerEntity.setNickname(customerEntity.getNickname().trim());
             customerEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
             if (customerService.updateCustomer(customerEntity) != 0) {
                 return CommonResult.success();
@@ -77,7 +104,7 @@ public class CustomerController {
         return CommonResult.failed();
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete/batch", method = RequestMethod.DELETE)
     @ResponseBody
     public CommonResult<ResultCode> deleteCustomer(@RequestBody List<Integer> ids) {
         if (ids == null || ids.isEmpty()) {
@@ -87,10 +114,24 @@ public class CustomerController {
             CustomerEntity customerEntity = new CustomerEntity();
             customerEntity.setId(id);
             customerEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
-            customerEntity.setDeleteFlag("1");
+            customerEntity.setDeleteFlag(DeleteFlagType.CANCEL.getId());
             return customerEntity;
         }).collect(Collectors.toList());
         customerService.deleteCustomerBatch(CustomerEntities);
         return CommonResult.success();
+    }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public CommonResult<ResultCode> deleteCustomer(@PathVariable Integer id, @RequestBody CustomerEntity customerEntity){
+        if (customerEntity != null) {
+            customerEntity.setId(id);
+            customerEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            customerEntity.setDeleteFlag(DeleteFlagType.CANCEL.getId());
+            if (customerService.updateCustomer(customerEntity) != 0) {
+                return CommonResult.success();
+            }
+        }
+        return CommonResult.failed();
     }
 }

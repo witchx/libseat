@@ -21,4 +21,10 @@ public interface OrderMapper extends MyBaseMapper<OrderEntity> {
                                    @Param("type") Integer type,
                                    @Param("progress") Integer progress,
                                    @Param("status") Integer status);
+
+    List<OrderEntity> getOrderListSimple(@Param("type") Integer type,@Param("status") Integer status,@Param("isBack") Boolean isBack);
+
+    List<OrderEntity> getYesterdayOrderByUserId(@Param("userId") Integer userId,
+                                                @Param("yesStartTime") Timestamp yesStartTime,
+                                                @Param("yesEndTime") Timestamp yesEndTime);
 }

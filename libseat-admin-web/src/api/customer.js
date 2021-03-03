@@ -9,6 +9,12 @@ export function getCustomer(params) {
     params: params
   })
 }
+export function getCustomerDetail(id) {
+  return axios.request({
+    url: domain + '/detail/' + id,
+    method: 'get'
+  })
+}
 export function updateCustomer(id,data) {
   return axios.request({
     url: domain + '/update/' + id,
@@ -19,15 +25,21 @@ export function updateCustomer(id,data) {
 export function createCustomer(data) {
   return axios.request({
     url: domain + '/create',
-    headers: { 'content-type': 'application/json;charset=utf-8' },
     method: 'post',
     data: data
   })
 }
-export function deleteCustomer (data) {
+export function deleteCustomerBatch (data) {
   return axios.request({
-    url: domain + '/delete',
+    url: domain + '/delete/batch',
     headers: { 'content-type': 'application/json;charset=utf-8' },
+    method: 'delete',
+    data: data
+  })
+}
+export function deleteCustomer (id,data) {
+  return axios.request({
+    url: domain + '/delete/' + id,
     method: 'delete',
     data: data
   })

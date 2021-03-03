@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.UserDetailMapper">
+
+    <update id="updateUserDetailBatch" parameterType="list">
+        update lib_user_detail
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="yes_vip_customer_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.yesVipCustomerNum}
+                </foreach>
+            </trim>
+            <trim prefix="vip_customer_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.vipCustomerNum}
+                </foreach>
+            </trim>
+            <trim prefix="yes_customer_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.yesCustomerNum}
+                </foreach>
+            </trim>
+            <trim prefix="customer_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.customerNum}
+                </foreach>
+            </trim>
+            <trim prefix="yes_order_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.yesOrderNum}
+                </foreach>
+            </trim>
+            <trim prefix="order_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.orderNum}
+                </foreach>
+            </trim>
+            <trim prefix="yes_turnover = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.yesTurnover}
+                </foreach>
+            </trim>
+            <trim prefix="turnover = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.turnover}
+                </foreach>
+            </trim>
+            <trim prefix="stadium_num = case id" suffix="end,">
+                <foreach collection="userDetailEntityList" item="userDetail" index="index">
+                    when #{userDetail.id} then #{userDetail.stadiumNum}
+                </foreach>
+            </trim>
+        </trim>
+        WHERE
+        <foreach collection="userDetailEntityList" item="userDetail" separator="or"  index="index">
+            id = #{userDetail.id}
+        </foreach>
+    </update>
+</mapper>

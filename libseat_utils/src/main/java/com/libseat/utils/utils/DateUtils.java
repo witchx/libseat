@@ -1,5 +1,6 @@
 package com.libseat.utils.utils;
 
+import com.libseat.api.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
@@ -290,6 +291,38 @@ public class DateUtils {
         return time - getDayStartTime(time);
     }
 
+    /**
+     * 获取这个时间距离到今天凌晨有几周时间。
+     *
+     * @param time 带时区的时间
+     * @return 负数，几天前，正数，几天后。
+     */
+    public static int getWeeksBetweenToday(long time) {
+        return (int) ((getDayStartTime(time) - getDayStartTime(System.currentTimeMillis())) / WEEK);
+    }
+
+    /**
+     * 获取这个时间距离到现在有多少时间 （毫秒）
+     * @param time
+     * @return
+     */
+    public static long getMillisecondsBetweenNow(long time) {
+        return time - System.currentTimeMillis();
+    }
+
+    /**
+     * 获取本周几的凌晨时间。星期一是第一天。
+     *
+     * @param dayType Calendar的week定义,Calendar.FRIDAY之类的
+     * @return
+     */
+    public static long getWeekStartTime(int dayType) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.DAY_OF_WEEK, dayType);
+        return getDayStartTime(calendar.getTimeInMillis());
+    }
 
     public static void main(String[] args) {
  

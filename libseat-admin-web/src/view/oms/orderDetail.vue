@@ -3,11 +3,11 @@
     <Card dis-hover>
       <Spin size="large" fix v-if="loading"></Spin>
       <div v-if="data[0] && data[0].order" style="margin: 2% 7%;">
-        <Steps :current="data[0].order.progress" v-model="data" style="margin-bottom: 50px;">
+        <Steps :current="data[0].order.progress" v-model="data" style="margin: 0% 0% 6% 8%;">
           <Step class="blue" title="提交订单" :content="data[0].order.createTime"></Step>
           <Step class="blue" title="支付订单" :content="data[0].order.payTime"></Step>
-          <Step class="blue" title="确认签到" :content="data[0].order.signTime"></Step>
-          <Step class="blue" title="完成评价" :content="data[0].order.evaluateTime"></Step>
+          <Step v-if="data[0].order.type === 0" class="blue" title="确认签到" :content="data[0].order.confirmTime"></Step>
+          <Step v-if="data[0].order.type === 0" class="blue" title="完成评价" :content="data[0].order.evaluateTime"></Step>
           <Step class="blue" title="订单结束"></Step>
         </Steps>
         <div>
@@ -16,9 +16,9 @@
               <Icon type="md-warning" color="#f56c6c" size="25" style="margin-right: 5px"></Icon>当前订单状态：{{data[0].order.orderStatus}}
             </p>
             <div slot="extra" style="margin-top: -4px;">
-              <Button type="default"  @click="cancelOrder" v-if="data[0].order.status === 1" style="margin-right: 10px">取消订单</Button>
-              <Button type="default"  @click="closeOrder" v-if="data[0].order.status === 6" style="margin-right: 10px">关闭订单</Button>
-              <Button type="default"  @click="deleteOrder" v-if="data[0].order.status === 4 || data[0].order.status === 5" style="margin-right: 10px">删除订单</Button>
+              <Button type="default"  @click="closeOrder" v-if="data[0].order.status === 1" style="margin-right: 10px">关闭订单</Button>
+              <Button type="default"  @click="cancelOrder" v-if="data[0].order.type === 0 && data[0].order.status === 2" style="margin-right: 10px">取消订单</Button>
+              <Button type="default"  @click="deleteOrder" v-if="(data[0].order.status > 3) || (data[0].order.type === 0 && data[0].order.status === 2)" style="margin-right: 10px">删除订单</Button>
               <Button type="default"  @click="create_show.value = true">备注订单</Button>
             </div>
             <div>
@@ -253,7 +253,8 @@
             title: '合计',
             key: 'orderPrice',
             render: (h, params) => {
-              return h('div', params.row.order.price);
+              const price = params.row.order.price + params.row.order.coupon + params.row.order.discount;
+              return h('div', '￥'+ price);
             }
           },
           {
@@ -285,12 +286,7 @@
             title: '应付金额',
             key: 'amount',
             render: (h, params) => {
-              if (params.row.order.vipCardId != null) {
-                return h('div', '￥0');
-              } else {
-                const price = params.row.order.price - params.row.order.coupon - params.row.order.discount;
-                return h('div', '￥'+ price);
-              }
+              return h('div', '￥'+ params.row.order.price);
             }
           }
         ],
@@ -374,8 +370,7 @@
           okText: "确定",
           cancelText: "取消",
           onOk: async () => {
-            debugger
-            const res = await updateOrder(vm.data[0].order.id, {status: 4})
+            const res = await updateOrder(vm.data[0].order.id, {status: 6})
             if (res.data.code === 200) {
               this.$Message.success(res.data.msg);
               await this.fetchData();

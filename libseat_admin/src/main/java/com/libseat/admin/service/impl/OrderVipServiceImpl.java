@@ -28,4 +28,9 @@ public class OrderVipServiceImpl implements OrderVipService {
         orderVip.setVipCard(vipCardById);
         return orderVip;
     }
+
+    @Override
+    public Integer updateOrderById(OrderVipEntity orderVipEntity) {
+        return orderVipMapper.updateByPrimaryKeySelective(orderVipEntity);
+    }
 }

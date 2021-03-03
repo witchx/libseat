@@ -1,12 +1,12 @@
 package com.libseat.api.constant;
 
 public enum SchedulerTaskType {
-    /** 自动取消*/
-    CANCEL(1, "自动取消"),
-    /** 自动好评*/
-    EVALUATE(2, "自动好评"),
     /** 自动关闭*/
-    CLOSE(3, "自动关闭"),
+    CLOSE(1, "自动关闭"),
+    /** 自动确认*/
+    CONFIRM(2, "自动确认"),
+    /** 自动好评*/
+    EVALUATE(3, "自动评价"),
     /** 自动删除*/
     DELETE(4, "自动删除");
 

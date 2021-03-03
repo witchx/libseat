@@ -58,12 +58,10 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/get/{id}",method = RequestMethod.GET)
+    @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<UserDetailEntity> getUserDetail (@PathVariable Integer id){
-        UserDetailEntity userDetailEntity = new UserDetailEntity();
-        userDetailEntity.setUserId(id);
-        UserDetailEntity userDetail = userService.getUserDetail(userDetailEntity);
+        UserDetailEntity userDetail = userService.getUserDetailByUserId(id);
         if (userDetail != null) {
             return CommonResult.success(userDetail);
         }

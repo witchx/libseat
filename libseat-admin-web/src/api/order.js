@@ -59,9 +59,18 @@ export function getOrderSetting(params) {
     params:params
   })
 }
-export function updateOrderSetting(id,data) {
+export function updateOrderSetting(data) {
   return axios.request({
-    url:domain + '/setting/update/' + id,
+    url:domain + '/setting/update',
+    headers: { 'content-type': 'application/json;charset=utf-8' },
+    method:'put',
+    data:data
+  })
+}
+
+export function onOffOrderSetting(id,data) {
+  return axios.request({
+    url:domain + '/setting/onOff/' + id,
     method:'put',
     data:data
   })

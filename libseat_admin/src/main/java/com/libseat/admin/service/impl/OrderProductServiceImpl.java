@@ -26,4 +26,9 @@ public class OrderProductServiceImpl implements OrderProductService {
         orderProduct.forEach(product -> product.setProduct(productService.getProductById(product.getProductId())));
         return orderProduct;
     }
+
+    @Override
+    public Integer updateOrderById(OrderProductEntity orderProductEntity) {
+        return orderProductMapper.updateByPrimaryKeySelective(orderProductEntity);
+    }
 }

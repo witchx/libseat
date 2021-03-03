@@ -160,7 +160,35 @@ public class SeatScheduler {
         return sPool.scheduleAtFixedRate(runnable, delay, DateUtils.DAY, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 每周X点Y分Z秒固定执行一次。
+     *
+     * @param runnable
+     * @param weekDay  Calendar的week定义,Calendar.FRIDAY之类的
+     * @param hour     0-23，整点
+     * @param minute   0-59，整分
+     * @param second   0-59, 整秒
+     */
+    public ScheduledFuture<?> schedulePerWeek(Runnable runnable, int weekDay, int hour, int minute, int second) {
+        long targetTime = DateUtils.getWeekStartTime(weekDay) + hour * DateUtils.HOUR + minute * DateUtils.MINUTE + second * DateUtils.SECONDS;
+        long now = System.currentTimeMillis();
+        //时间差
+        long delay = targetTime - now;
+        if (delay < 0) {
+            //已经过了时间，就下一周的
+            delay += DateUtils.DAY * 7;
+        }
+        logger.info(" schedulePerWeek #### perweek, delay=" + delay + "," + (delay / DateUtils.DAY) + ":" + ((delay % DateUtils.DAY / DateUtils.HOUR)) + ":" + ((delay % DateUtils.HOUR / DateUtils.MINUTE)));
+        return sPool.scheduleAtFixedRate(runnable, delay, 7 * DateUtils.DAY, TimeUnit.MILLISECONDS);
+    }
 
+    public ScheduledFuture<?> schedulePerWeek(Runnable runnable, int weekDay, int hour, int minute) {
+        return schedulePerWeek(runnable,weekDay,hour,0,0);
+    }
+
+    public ScheduledFuture<?> schedulePerWeek(Runnable runnable, int weekDay, int hour) {
+        return schedulePerWeek(runnable,weekDay,0,0);
+    }
 
 
 }

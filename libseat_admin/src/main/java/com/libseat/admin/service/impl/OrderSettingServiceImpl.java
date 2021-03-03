@@ -1,8 +1,12 @@
 package com.libseat.admin.service.impl;
 
 import com.libseat.admin.mapper.OrderSettingMapper;
+import com.libseat.admin.service.OrderService;
 import com.libseat.admin.service.OrderSettingService;
-import com.libseat.admin.task.AutoEvaluateTask;
+import com.libseat.admin.task.OrderCloseTask;
+import com.libseat.admin.task.OrderConfirmTask;
+import com.libseat.admin.task.OrderDeleteTask;
+import com.libseat.admin.task.OrderEvaluateTask;
 import com.libseat.api.constant.Constant;
 import com.libseat.api.constant.SchedulerTaskType;
 import com.libseat.api.entity.OrderSettingEntity;
@@ -18,7 +22,9 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class OrderSettingServiceImpl implements OrderSettingService {
@@ -28,6 +34,9 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     @Autowired
     private OrderSettingMapper orderSettingMapper;
 
+    @Autowired
+    private OrderService orderService;
+
     private final Object lock = new Object();
 
     private Map<Integer, ScheduledFuture<?>> scheduledFutureMap = new HashMap<>();
@@ -35,17 +44,35 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     private SeatScheduler seatScheduler;
 
     @Override
-    public Integer updateOrderSetting(OrderSettingEntity orderSettingEntity, Boolean isRestart) {
-        if (isRestart) {
-            restart(orderSettingEntity);
-        }
+    public Integer updateOrderSetting(OrderSettingEntity orderSettingEntity) {
         return orderSettingMapper.updateByPrimaryKeySelective(orderSettingEntity);
     }
 
-    private void restart(OrderSettingEntity orderSettingEntity) {
-        if (stop(orderSettingEntity.getId())) {
-            start(orderSettingEntity);
-        }
+    @Override
+    public Boolean updateOrderSettingBatch(List<OrderSettingEntity> orderSettingEntities) {
+        //先停掉所有,包含修改数据库启动状态
+        scheduledFutureMap.keySet().forEach(this::stop);
+        //再轮着启动
+        orderSettingEntities.forEach(orderSettingEntity -> {
+            Boolean onOff = orderSettingEntity.getOnOff();
+            //先修改数据库时间
+            orderSettingEntity.setOnOff(null);
+            orderSettingEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            updateOrderSetting(orderSettingEntity);
+            if (onOff) {
+                //再启动，包含修改数据库启动状态
+                start(orderSettingEntity);
+            }
+
+        });
+        return true;
+    }
+
+    @Override
+    public void restart(OrderSettingEntity orderSettingEntity) {
+        Integer id = orderSettingEntity.getId();
+        stop(id);
+        start(orderSettingEntity);
     }
 
     @Override
@@ -94,18 +121,19 @@ public class OrderSettingServiceImpl implements OrderSettingService {
                 logger.error(schedulerTaskType.getDes() + "任务已启动！！！！！");
                 return false;
             } else {
-                switch (SchedulerTaskType.getById(id)) {
-                    case CANCEL:
-                        scheduledFuture = buildScheduledFuture(new AutoEvaluateTask(),(int)(time*DateUtils.MINUTE/DateUtils.SECONDS));
+                switch (Objects.requireNonNull(SchedulerTaskType.getById(id))) {
+                    case CLOSE:
+                        //每十分钟执行一次
+                        scheduledFuture = seatScheduler.scheduleAtFixSecond(new OrderCloseTask(orderService, time*DateUtils.MINUTE), 0, 10*60);
+                        break;
+                    case CONFIRM:
+                        scheduledFuture = seatScheduler.scheduleAtFixSecond(new OrderConfirmTask(orderService, time*DateUtils.MINUTE), 0, 10*60);
                         break;
                     case EVALUATE:
-                        scheduledFuture = buildScheduledFuture(new AutoEvaluateTask(),(int)(time*DateUtils.DAY/DateUtils.SECONDS));
-                        break;
-                    case CLOSE:
-                        scheduledFuture = buildScheduledFuture(new AutoEvaluateTask(),(int)(time*DateUtils.DAY/DateUtils.SECONDS));
+                        scheduledFuture = seatScheduler.schedulePerDay(new OrderEvaluateTask(orderService, time*DateUtils.DAY), 0);
                         break;
                     case DELETE:
-                        scheduledFuture = buildScheduledFuture(new AutoEvaluateTask(),(int)(time*DateUtils.DAY/DateUtils.SECONDS));
+                        scheduledFuture = seatScheduler.schedulePerDay(new OrderDeleteTask(orderService, time*DateUtils.DAY), 0);
                         break;
                     default:
                         break;
@@ -113,6 +141,12 @@ public class OrderSettingServiceImpl implements OrderSettingService {
             }
             if (scheduledFuture != null) {
                 scheduledFutureMap.put(id, scheduledFuture);
+                OrderSettingEntity orderSetting = new OrderSettingEntity();
+                orderSetting.setModifyTime(new Timestamp(System.currentTimeMillis()));
+                orderSetting.setOnOff(true);
+                orderSetting.setId(id);
+                updateOrderSetting(orderSetting);
+                logger.info("task start success");
                 return true;
             }
         }
@@ -136,16 +170,10 @@ public class OrderSettingServiceImpl implements OrderSettingService {
             orderSettingEntity.setId(id);
             orderSettingEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
             orderSettingEntity.setOnOff(false);
-            updateOrderSetting(orderSettingEntity,false);
+            updateOrderSetting(orderSettingEntity);
             logger.info("task stop success");
             return true;
         }
         return false;
-    }
-
-    private ScheduledFuture<?> buildScheduledFuture(ScheduleRunnable scheduleRunnable, int second) {
-        long openTime = DateUtils.strToDate(Constant.OPEN_DAY, DateUtils.YYYY_MM_DD_HH_MM_SS).getTime();
-        ScheduledFuture<?> scheduledFuture = seatScheduler.scheduleAtFixSecond(scheduleRunnable, openTime, second);
-        return scheduledFuture;
     }
 }

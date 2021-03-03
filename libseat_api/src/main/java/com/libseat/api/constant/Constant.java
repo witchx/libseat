@@ -30,15 +30,14 @@ public class Constant {
 
     public static final String MENU = "menus";
 
-    public static final String STUDENT_ID = "id";
+    public static final String RANK_WEEK = "lib_rank_week_";
 
-    public static final String STUDENT_SID = "sid";
+    public static final String RANK_MONTH = "lib_rank_month_";
 
-    public static final String STUDENT_NAME = "name";
+    public static final String RANK_YEAR = "lib_rank_year_";
 
-    public static final String STUDENT_UNIVERSITY_ID = "universityId";
-
-    public static final String STUDENT_UNIVERSITY_NAME = "universityName";
-
-    public static final String OPEN_DAY = "";
+    /**
+     * 2020/1/4 08:00:00 (北京时间)
+     */
+    public static final long OPEN_DAY = 1609718400000L;
 }

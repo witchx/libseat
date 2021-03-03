@@ -46,4 +46,12 @@ public class CustomerStatisticsEntity {
      */
     @Column
     private Integer yearRank;
+
+    public void init() {
+        this.setWeekRank(0);
+        this.setMonthRank(0);
+        this.setYearRank(0);
+        this.setTotalHours(0L);
+        this.setTotalDays(0L);
+    }
 }

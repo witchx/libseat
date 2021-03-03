@@ -44,4 +44,11 @@ public class StadiumServiceImpl implements StadiumService {
     public Integer deleteStadium(StadiumEntity stadiumEntity) {
         return stadiumMapper.deleteByPrimaryKey(stadiumEntity);
     }
+
+    @Override
+    public List<StadiumEntity> getStadiumByUserId(Integer userId) {
+        StadiumEntity stadiumEntity = new StadiumEntity();
+        stadiumEntity.setUserId(userId);
+        return stadiumMapper.select(stadiumEntity);
+    }
 }

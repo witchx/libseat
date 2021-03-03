@@ -4,4 +4,6 @@ import com.libseat.api.entity.OrderSeatEntity;
 
 public interface OrderSeatService {
     OrderSeatEntity getOrderByOrderId(Integer orderId);
+
+    Integer updateOrderById(OrderSeatEntity orderSeatEntity);
 }

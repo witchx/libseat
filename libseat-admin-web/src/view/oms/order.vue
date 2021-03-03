@@ -100,11 +100,11 @@
       value: 2
     },
     {
-      label: "已消费",
+      label: "已确认",
       value: 3
     },
     {
-      label: "已评价",
+      label: "已完成",
       value: 4
     }
   ]
@@ -114,7 +114,7 @@
         value: 1
     },
     {
-      label: "待消费",
+      label: "待确认",
         value: 2
     },
     {
@@ -122,7 +122,7 @@
         value: 3
     },
     {
-      label: "已取消",
+      label: "已完成",
         value: 4
     },
     {
@@ -130,7 +130,7 @@
       value: 5
     },
     {
-      label: "已完成",
+      label: "已取消",
       value: 6
     }
   ]
@@ -180,7 +180,7 @@
           {
             title: '操作', width: 200, key: 'action', align: 'center',
             render: (h, params) => {
-              if (params.row.status === 4 || params.row.status === 5) {
+              if ((params.row.status > 3) || (params.row.type === 0 && params.row.status === 2)) {
                 return h('div', [
                   h('Button', {
                     props: {
@@ -220,7 +220,7 @@
                       }
                     }, '删除')])
                 ]);
-              } else if ((params.row.status === 6) || (params.row.status === 1)) {
+              } else if (params.row.status === 1) {
                 return h('div', [
                   h('Button', {
                     props: {
@@ -246,7 +246,7 @@
                     },
                     on: {
                       click: async () => {
-                        const res = await updateOrder(params.row.id, {status: 3})
+                        const res = await updateOrder(params.row.id, {status: 5})
                         if (res.data.code === 200) {
                           this.$Message.success(res.data.msg);
                           await this.fetchData();
@@ -256,6 +256,43 @@
                       }
                     }
                   }, '关闭')
+                ]);
+              } else if (params.row.status === 2 && params.row.type === 0) {
+                return h('div', [
+                  h('Button', {
+                    props: {
+                      type: 'default',
+                      size: 'small'
+                    },
+                    style: {
+                      marginRight: '5px',
+                    },
+                    on: {
+                      click: () => {
+                        this.showDetail(params.row.id,params.row.type)
+                      }
+                    }
+                  }, '查看'),
+                  h('Button', {
+                    props: {
+                      type: 'default',
+                      size: 'small'
+                    },
+                    style: {
+                      marginRight: '5px',
+                    },
+                    on: {
+                      click: async () => {
+                        const res = await updateOrder(params.row.id, {status: 6})
+                        if (res.data.code === 200) {
+                          this.$Message.success(res.data.msg);
+                          await this.fetchData();
+                        } else {
+                          this.$Message.error(res.data.msg);
+                        }
+                      }
+                    }
+                  }, '取消')
                 ]);
               } else {
                 return h('div', [

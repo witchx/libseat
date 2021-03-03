@@ -17,7 +17,7 @@
           <Form ref="formData1" :model="formData1" :rules="formRules1" :label-width="100">
             <Row v-if="formData2.id === ''">
               <FormItem label="公司:" prop="userId">
-                <Select v-model="formData1.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" placeholder="请输入搜索用户名称">
+                <Select v-model="formData1.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" placeholder="请输入搜索公司名称">
                   <Option v-for="(option, index) in user_option" :value="option.value" :key="index">{{option.label}}</Option>
                 </Select>
               </FormItem>
@@ -162,10 +162,12 @@
             {required: true, message: "必输项不能为空", trigger: 'blur'}
           ],
           times: [
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
+            {required: true, message: "必输项不能为空"},
+            {type: 'number', message: "请输入数字值"},
           ],
           userId:[
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
+            {required: true, message: "必输项不能为空"},
+            {type: 'number', message: "请输入数字值"},
           ],
           startTime:[
             {required: true,trigger: 'change',type: 'date', message: "必输项不能为空"}
@@ -174,13 +176,16 @@
             {required: true,trigger: 'change',type: 'date', message: "必输项不能为空"}
           ],
           money:[
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
+            {required: true, message: "必输项不能为空"},
+            {type: 'number', message: "请输入数字值"},
           ],
           originalPrice:[
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
+            {required: true, message: "必输项不能为空"},
+            {type: 'number', message: "请输入数字值"},
           ],
           price:[
-            {required: true, type: 'number', message: "必输项不能为空", trigger: 'change'}
+            {required: true, message: "必输项不能为空"},
+            {type: 'number', message: "请输入数字值"},
           ],
           des:[
             {required: true, message: "必输项不能为空", trigger: 'blur'}

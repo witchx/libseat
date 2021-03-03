@@ -9,11 +9,10 @@ export function getUser (params) {
     params: params
   })
 }
-export function getUserDetail (id, params) {
+export function getUserDetail (id) {
   return axios.request({
-    url: domain + '/get/'+id,
-    method: 'get',
-    params: params
+    url: domain + '/detail/'+id,
+    method: 'get'
   })
 }
 export function updateUser (id,data) {

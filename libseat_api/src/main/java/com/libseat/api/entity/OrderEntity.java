@@ -55,6 +55,20 @@ public class OrderEntity {
     /** 每一个月逻辑删除,六个月物理删除 */
     @Column
     private Integer deleteFlag;
+    /** 创建时间*/
+    @Column
+    private Timestamp createTime;
+    /** 签到时间*/
+    @Column
+    private Timestamp confirmTime;
+    /** 评价时间*/
+    @Column
+    private Timestamp evaluateTime;
+    @Column
+    private Integer evaluate;
+    /** 支付时间*/
+    @Transient
+    private Timestamp payTime;
     /** 公司名称*/
     @Transient
     private String companyName;
@@ -66,21 +80,11 @@ public class OrderEntity {
     private String orderProgress;
     @Transient
     private String orderType;
-    /** 创建时间*/
-    @Column
-    private Timestamp createTime;
-    /** 签到时间*/
-    @Column
-    private Timestamp signTime;
-    /** 评价时间*/
-    @Column
-    private Timestamp evaluateTime;
-    /** 支付时间*/
     @Transient
-    private Timestamp payTime;
-    @Transient
-    private BigDecimal coupon = new BigDecimal("0.00");
+    private BigDecimal coupon;
     @Transient
     private String orderStatus;
+    @Transient
+    private Timestamp startTime;
 
 }

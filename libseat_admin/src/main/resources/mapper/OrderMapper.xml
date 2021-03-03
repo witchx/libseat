@@ -14,18 +14,20 @@
             lo.stadium_id,
             lo.vip_card_id,
             lo.coupon_id,
-            lcou.price coupon,
             lo.discount,
             lo.price,
             lo.progress,
             lo.`type`,
             lo.delete_flag,
             lo.`status`,
-            lo.sign_time,
+            lo.confirm_time,
             lo.evaluate_time,
             lu.company_name,
             lc.username customer_name,
-            lp.pay_time
+            lp.pay_time,
+            CASE
+            WHEN lcou.price IS NULL THEN 0.00
+            END AS coupon
         FROM
             lib_order lo
             JOIN lib_user lu ON lo.user_id = lu.id
@@ -62,5 +64,50 @@
             AND lo.`status` = #{status}
         </if>
         ORDER BY lo.id
+    </select>
+
+    <select id="getOrderListSimple" resultType="OrderEntity">
+        SELECT
+            lo.id,
+            lo.`type`,
+            lo.progress,
+            lo.create_time,
+            lo.evaluate_time,
+            lo.confirm_time,
+            los.start_time
+        FROM
+            lib_order lo
+        LEFT JOIN lib_order_seat los on lo.id = los.order_id
+        WHERE
+            lo.delete_flag = 0
+        <if test="status != null and isBack == false">
+        AND lo.`status` = #{status}
+        </if>
+        <if test="status != null and isBack == true">
+            AND lo.`status` <![CDATA[ >= ]]> #{status}
+        </if>
+        <if test="type != null">
+        AND lo.`type` = #{type}
+        </if>
+        ORDER BY lo.id
+    </select>
+
+    <select id="getYesterdayOrderByUserId" resultType="OrderEntity">
+        SELECT
+        lo.price,
+        lo.discount,
+        CASE
+           WHEN lc.price IS NULL THEN 0.00
+         END AS coupon
+        FROM
+        lib_order lo
+        LEFT JOIN lib_coupon lc
+        ON lo.coupon_id = lc.id
+        WHERE
+            lo.user_id = #{userId}
+        AND
+            lo.create_time <![CDATA[ >= ]]> #{yesStartTime}
+        AND
+            lo.create_time <![CDATA[ < ]]> #{yesEndTime}
     </select>
 </mapper>

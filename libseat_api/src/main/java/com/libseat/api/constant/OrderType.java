@@ -28,4 +28,7 @@ public enum OrderType {
     public String getDes() {
         return this.des;
     }
+    public Integer getId() {
+        return this.id;
+    }
 }
