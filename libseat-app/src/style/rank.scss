@@ -1,0 +1,64 @@
+.rank_one{
+  background: #e0e0e0;
+  height: 75px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #797979;
+  width: 100%;
+}
+.rank_one_left{
+  width: 10%;
+  text-align: center;
+  float: left;
+  height: 75px;
+  line-height: 75px;
+}
+.rank_one_center{
+  float: left;
+  width: 25%;
+  img{
+    width: 65px;
+    height: 65px;
+    margin-top: 5px;
+    margin-left: 10px;
+    border-radius: 50%;
+  }
+}
+.rank_one_right{
+  p{
+    height: 40px;
+    line-height: 45px;
+    font-size: 18px;
+    color: #403f3f;
+  }
+}
+.rank_one_right_bottom_right{
+  margin-left: 15px;
+}
+.rank_box{
+  height: 120px;
+  background: #108ee9;
+}
+.rank_box_left{
+  float: left;
+  padding: 25px;
+ img{
+   width: 70px;
+   height: 70px;
+   border-radius: 50%;
+ }
+}
+.rank_box_right{
+  float: left;
+  font-size: 16px;
+  color: white;
+  p{
+    height: 60px;
+    line-height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+.rank_box_right_bottom_right{
+  margin-left: 40px;
+}

@@ -1,0 +1,47 @@
+.aOrder_box{
+  width: 100%;
+  height: 100px;
+  background: white;
+}
+.aOrder_left{
+  float: left;
+  width: 15%;
+  height: 100px;
+  line-height: 100px;
+  font-size: 40px;
+  color: #108ee9;
+}
+.aOrder_center{
+  float: left;
+  width: 60%;
+}
+.aOrder_right{
+  float: right;
+  width: 25%;
+}
+.aOrder_left_icon{
+  margin-left: 27%;
+}
+.aOrder_center_top{
+  font-size: 22px;
+  font-weight: bold;
+  height: 50px;
+  line-height: 60px;
+  margin-left: 15px;
+}
+.aOrder_center_bottom{
+  font-size: 16px;
+  height: 50px;
+  line-height: 25px;
+  margin-left: 15px;
+}
+.aOrder_right_top{
+  height: 50px;
+  line-height: 60px;
+  font-size: 22px;
+}
+.aOrder_right_bottom{
+  height: 50px;
+  line-height: 25px;
+  font-size: 16px;
+}

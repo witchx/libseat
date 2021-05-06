@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.server.web.mapper.CustomerVipCardMapper">
+    <select id="getAllVipCardByCustomerId" resultType="VipCardEntity">
+        SELECT
+            lvc.*
+        FROM
+            lib_customer_vip_card lcvc,
+            lib_vip_card lvc
+        WHERE
+            lcvc.vip_card_id = lvc.id
+        AND  lcvc.customer_id = #{id}
+
+    </select>
+</mapper>

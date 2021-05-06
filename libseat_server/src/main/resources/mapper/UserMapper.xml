@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.server.web.mapper.UserMapper">
+    <resultMap id="BasicCompanyInfoResult" type="com.libseat.server.web.dto.BasicCompanyInfo">
+        <result property="userId" column="user_id"/>
+        <result property="stadiumId" column="stadium_id"/>
+        <result property="companyName" column="company_name"/>
+        <result property="stadiumName" column="stadium_name"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="icon" column="icon"/>
+    </resultMap>
+    <select id="getBasicCompanyInfo" resultMap="BasicCompanyInfoResult">
+        SELECT
+            lu.id user_id,
+            ls.id stadium_id,
+            lu.company_name,
+            ls.`name` stadium_name,
+            concat(ls.address,' ',ls.detail_address) detail_address,
+            lu.icon
+        FROM
+        lib_user lu
+        left join lib_stadium ls
+        on ls.user_id = lu.id
+        WHERE lu.delete_flag = 0
+        <if test="id != null">
+            AND lu.id = #{id}
+        </if>
+    </select>
+
+    <select id="getAllCompany" resultType="com.libseat.server.web.dto.CompanyInfo">
+        SELECT
+            lu.id value,
+            lu.company_name label
+        FROM
+            lib_user lu
+        WHERE lu.delete_flag = 0
+    </select>
+</mapper>

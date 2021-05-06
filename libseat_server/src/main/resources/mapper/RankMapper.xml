@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.server.web.mapper.RankMapper">
+    <select id="getCustomerRankById" resultType="com.libseat.server.web.dto.RankInfo">
+        SELECT
+            lc.icon,
+            lc.nickname,
+            lr.hours_by_week,
+            lr.hours_by_month,
+            lr.hours_by_year,
+            lr.days_by_week,
+            lr.days_by_month,
+            lr.days_by_year
+        FROM
+            lib_customer lc,
+            lib_rank lr
+        WHERE
+            lc.id = lr.customer_id
+        AND
+            lc.delete_flag = 0
+        AND
+            lc.id=#{customerId}
+    </select>
+</mapper>

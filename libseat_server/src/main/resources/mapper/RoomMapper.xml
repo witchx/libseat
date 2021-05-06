@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.server.web.mapper.RoomMapper">
+    <select id="getRoomList" resultType="com.libseat.server.web.dto.RoomInfo">
+        SELECT
+            lr.id,
+            lr.`name`,
+            lr.stadium_id,
+            CASE
+                WHEN oo.occupy_seat_count  IS NULL THEN COUNT( ls.id )
+                ELSE COUNT( ls.id ) - oo.occupy_seat_count
+            END AS available_seat_count,
+            COUNT( ls.id ) total_seat_count
+        FROM
+            lib_room lr
+        JOIN
+            lib_seat ls
+        ON ls.room_id = lr.id
+        LEFT JOIN
+        (
+            SELECT
+                ii.room_id,
+                COUNT( DISTINCT id ) occupy_seat_count
+            FROM
+            (
+                SELECT
+                    ls.room_id room_id,
+                    ls.id,
+                CASE
+                    WHEN lo.`status` IS NULL THEN ls.`status`
+                    WHEN ls.`status` = 0 THEN 0
+                    WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
+                    WHEN #{startTime} <![CDATA[ >= ]]> los.end_time THEN 1
+                    WHEN #{endTime} <![CDATA[ <= ]]> los.start_time THEN 1
+                    ELSE 2
+                    END AS `status`
+                FROM
+                lib_seat ls
+                LEFT JOIN lib_order_seat los
+                ON ls.id = los.seat_id
+                LEFT JOIN lib_order lo
+                on los.order_id = lo.id
+            ) ii
+            WHERE ii.`status` = 2
+            GROUP BY ii.room_id
+        ) oo
+        ON oo.room_id = lr.id
+	    WHERE ls.`status` = '1'
+        AND lr.stadium_id = #{stadiumId}
+        GROUP BY ls.room_id
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.server.web.mapper.CustomerMapper">
+    <select id="getCustomerDetail" resultType="com.libseat.server.web.dto.CustomerInfo">
+        SELECT
+            lc.id,
+            lc.username,
+            lc.sex,
+            lc.nickname,
+            lc.tel,
+            lc.email,
+            lc.icon,
+            lc.user_id,
+            lu.company_name
+        FROM
+            lib_customer lc,
+            lib_user lu
+        WHERE
+            lc.user_id = lu.id
+        <if test="username != null and username != ''">
+            AND  lc.username = #{username}
+        </if>
+        <if test="password != null and password != ''">
+            AND  lc.password = #{password}
+        </if>
+        <if test="id != null and id != ''">
+            AND  lc.id = #{id}
+        </if>
+        AND
+            lc.delete_flag = '0'
+        AND
+            lu.delete_flag = '0'
+    </select>
+    <select id="getCustomerInfo" resultType="CustomerEntity">
+        SELECT
+        lc.*,
+        lcb.total_value,
+        lcb.total_times,
+        lcb.total_days,
+        lcb.total_coupon,
+        lr.hours_by_week
+        FROM
+        lib_customer lc,
+        lib_customer_bag lcb,
+        lib_rank lr
+        WHERE
+        lc.id = lcb.customer_id
+        AND
+        lc.id = lr.customer_id
+        AND
+        lc.id = #{id}
+        AND
+        lc.delete_flag = '0'
+    </select>
+</mapper>

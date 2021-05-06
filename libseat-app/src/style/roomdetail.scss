@@ -1,0 +1,47 @@
+.room_top{
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 999;
+}
+.box{
+  position: fixed;
+  background: white;
+  width: 100%;
+  bottom: 0px;
+  height: 110px;
+}
+.box .one{
+  float: left;
+  margin-top: 15px;
+  width: 33%;
+  height: 35px;
+}
+.box .one img{
+  float: left;
+  margin-left: 18%;
+}
+
+.box .one span{
+  float: left;
+  font-size: 10px;
+  margin-left: 12px;
+  line-height: 27px;
+}
+.box .two{
+  width: 100%;
+  float: left;
+}
+.box .two .sub{
+  width: 90%;
+  margin-left: 5%;
+  margin-top: 5PX;
+}
+.room_alert{
+  float: left;
+  color: black;
+}
+.room_alert_bottom{
+  float: left;
+  margin-top: 10px;
+}

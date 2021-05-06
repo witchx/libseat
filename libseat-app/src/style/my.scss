@@ -1,0 +1,30 @@
+.rank{
+    background: linear-gradient(45deg, black, dimgrey);
+    color: white;
+    font-size: 16px;
+    border: 1px solid dimgray;
+    border-radius: 15px 15px 0 0;
+    .rank_left{
+        padding-left: 14px;
+        line-height: 45px;
+
+    }
+    .rank_right{
+        padding-right: 14px;
+        line-height: 45px;
+        float: right;
+    }
+}
+.my_box{
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    background: white;
+    height: 16px;
+    line-height: 16px;
+    color: #a7a4a4;
+}
+.my_box_one{
+    float: left;
+    width: 25%;
+}

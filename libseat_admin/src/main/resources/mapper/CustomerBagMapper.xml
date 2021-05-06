@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.admin.mapper.CustomerBagMapper">
+
+    <update id="updateCustomerBagBatch" parameterType="list">
+        update lib_customer_bag
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="total_days = case id" suffix="end,">
+                <foreach collection="customerBagEntities" item="customerBag" index="index">
+                    when #{customerBag.id} then #{customerBag.totalDays}
+                </foreach>
+            </trim>
+        </trim>
+        WHERE
+        <foreach collection="customerBagEntities" item="customerBag" separator="or"  index="index">
+            id = #{customerBag.id}
+        </foreach>
+    </update>
+</mapper>

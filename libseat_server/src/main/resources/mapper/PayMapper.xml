@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libseat.server.web.mapper.PayMapper">
+    <select id="getPayByOrderId" resultType="com.libseat.server.web.dto.PayInfo">
+        SELECT
+            lp.create_time time,
+            lo.price,
+            lp.payment_type,
+            lp.`no`,
+            lo.`type`
+        FROM
+            lib_order lo,
+            lib_pay lp
+        WHERE
+            lo.pay_id = lp.id
+        AND
+            lo.id = #{id}
+    </select>
+</mapper>
