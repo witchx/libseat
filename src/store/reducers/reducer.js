@@ -1,8 +1,13 @@
 import { combineReducers } from 'redux'
-import { CartReducer } from './CartReducer'
 import { UserReducer } from './UserReducer'
+import { SeatReducer} from "./SeatReducer";
+import {OrderReducer} from "./OrderReducer";
+import {CardReducer} from "./CardReducer";
+
 const RootReducer = combineReducers({
-    CartModule: CartReducer,
-    userModule: UserReducer
+    userModule: UserReducer,
+    seatModule: SeatReducer,
+    orderModule: OrderReducer,
+    cardModule: CardReducer
 })
 export default RootReducer

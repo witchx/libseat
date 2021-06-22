@@ -1,21 +1,23 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import {connect} from 'react-redux'
-import { List, InputItem, WhiteSpace, NavBar, Icon, Button, Toast, Flex } from 'antd-mobile';
+import { List, InputItem, WhiteSpace, WingBlank, Card, Button, Toast } from 'antd-mobile';
 import { createForm } from 'rc-form';
-import {submitLogin, getCartGoods} from '../api/index'
+import {submitLogin, getInfo, getCompanyInfo, getUserRank} from '../api/index'
 import axios from 'axios'
+import loginBg from "../assets/imgs/login-bg.jpg";
+import Cookies from 'js-cookie'
 
 export class Login extends Component {
     constructor(props) {
         super(props)
-
         this.state = {
             // 预设用户名和密码为13999999999，123456
             // 用户名
             username: '',
             // 密码
-            password: ''
+            password: '',
+            companyId: '',
         }
     }
     UNSAFE_componentWillMount() {
@@ -40,39 +42,44 @@ export class Login extends Component {
                   }
                 submitLogin(obj).then(res => {
                     // 解构赋值
-                    const {meta: {status, msg}, message} = res.data
+                    const {code,msg,data} = res.data
                     // 状态码为200的即登录成功
-                    if (status === 200) {
+                    if (code === 200) {
                         // 登录成功将token设置在请求头
-                        let {token} = message
+                        Toast.success(msg, 1)
+                        let token = data
                         axios.defaults.headers.common['Authorization'] = token
                         // 修改userReducer中的登录状态
                         this.props.changeLoginState({Login: true, token})
-                        // 登陆成功后同步购物车数据
-                        getCartGoods().then(res => {
-                            // 将数据解构处理
-                            const { meta: { status }, message } = res.data
-                            // 状态码200表示获取购物车数据成功
-                            if (status === 200) {
-                                // 判断购物车是否为空
-                                if (message.cart_info) {
-                                    // 不为空的话同步购物车，修改CartReducer中购物车数量
-                                    this.props.snycCartGoods(Object.values(JSON.parse(message.cart_info)))
-                                }
-                
+                        Cookies.set("token", token, { expires: 1 })
+                        // 获取用户信息
+                        getInfo(token).then(res => {
+                            const {code,msg,data} = res.data
+                            if (code === 200) {
+                                this.setState({
+                                    companyId: data.companyId
+                                })
+                                this.props.saveCompanyInfo({companyId: data.companyId,companyName:data.companyName})
+                                this.props.saveUserID({id:data.id})
                             }
-                
+                            getCompanyInfo(this.state.companyId).then(res => {
+                                // 解构赋值
+                                const {code, data, msg} = res.data
+                                if (code === 200) {
+                                    this.props.saveStadiumId({stadiumId: data[0].stadiumId})
+                                }
+                            })
                         })
                         // 获取location中的from
                         const {from} = this.props.location.state || {from: {pathname: '/'}}
                         // 获取pathname
                         let pathname = from.pathname
-                        if (pathname === '/login') {
-                            pathname = '/'
+                        if (pathname === '/') {
+                            pathname = '/my'
                         }
                         // 登录成功的话弹框提示，1秒后消失
                         Toast.success(msg, 1, () => {
-                            this.props.history.push(pathname)
+                            this.props.history.replace(pathname)
                         })
                     } else {
                         // 否则提示错误信息
@@ -81,122 +88,96 @@ export class Login extends Component {
                 })
             }
         })
-        
+
     }
-    
+
     render() {
         const { getFieldError, getFieldProps } = this.props.form;
         return (
-            <div>
-                {this.props.location.pathname === '/login'? 
-                <NavBar
-                    mode="dark"
-                    leftContent={<Icon type='left' />}
-                    onLeftClick={() => this.props.history.push('/')}
-                    style={{
-                        position: 'fixed',
-                        width: '10rem',
-                        left: '50%',
-                        top: 0,
-                        transform: 'translateX(-50%)',
-                        zIndex: 1,
-                    }}
-                >
-                    登录
-                </NavBar>: ''}
-                <List
-                    style={{
-                        marginTop: 45
-                    }}
-                    renderHeader={() => '请登录'}
-                >
-                    <InputItem
-                        // 输入类型为手机号码
-                        type="phone"
-                        placeholder="请输入手机号码"
-                        // 输入框尾部清空按钮
-                        clear
-                        {...getFieldProps('username', {
-                            // 输入框失焦时验证
-                            validateTrigger: 'onBlur',
-                            // 验证规则
-                            rules: [
-                                { required: true, message: "用户名不能为空" },
-                                { min: 11, message: "手机号码必须为11位" },
-                            ]
-                        })
-                        }
-                        // 验证不通过时设置error为true
-                        error={getFieldError('username') ? true : false}
-                        // 点击右侧的错误弹出提示
-                        onErrorClick={() => {
-                            Toast.info(getFieldError('username')[0], 2)
-                        }}
-                        // 输入框输入改变时同步数据到state中的username
-                        onChange={v => {
-                            this.setState({
-                                username: v
-                            })
-                        }}
-                        // 将state中的username赋值给输入框
-                        value={this.state.username}
-                    >
-                        用户名
-                    </InputItem>
-                    <InputItem
-                        type="password"
-                        placeholder="请输入密码"
-                        clear
-                        {...getFieldProps('password', {
-                            validateTrigger: 'onBlur',
-                            rules: [
-                                {
-                                    required: true, message: '密码不能为空'
-                                },
-                                {
-                                    min: 6, message: '密码不能低于6位'
-                                }
-                            ]
-                        })}
-                        error={getFieldError('password') ? true: false}
-                        onErrorClick={() => {
-                            Toast.fail(getFieldError('password')[0], 2)
-                        }}
-                        onChange={v => {
-                            this.setState({
-                                password: v
-                            })
-                        }}
-                        value={this.state.password}
-                    >
-                        密码
-                    </InputItem>
-                    <WhiteSpace />
-                        <Flex justify="center">
-                            <Button type="primary"   size="small" 
-                            className="bottom-button"
-                            style={{marginRight: 10}}
-                            onClick={this.handleLogin}>
-                                立即登录
-                            </Button>
-                            <Button type="warning"  size="small" 
-                            className="bottom-button"
-                            onClick={() => this.props.history.push('/register')}>
-                                免费注册
-                            </Button>     
-                        </Flex>
-                    <WhiteSpace/>     
-                </List>
-
-                <style jsx>{`
-                        .bottom-button {
-                            width: 30%;
-                            padding: 10px 0;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                        }
-                `}</style>
+            <div className="login" style={{ backgroundImage: 'url('+loginBg+')',height:'100%'}}>
+                <h2 style={{textAlign: 'center', margin: 'auto',paddingTop: '20%',color: '#fff'}}> SIGN UP</h2>
+                <WingBlank size="lg">
+                    <Card style={{transform: 'translateY(70%)'}}>
+                        <Card.Body>
+                            <List>
+                                <InputItem
+                                    // 输入类型为手机号码
+                                    type="phone"
+                                    placeholder="请输入手机号码"
+                                    // 输入框尾部清空按钮
+                                    clear
+                                    {...getFieldProps('username', {
+                                        // 输入框失焦时验证
+                                        validateTrigger: 'onBlur',
+                                        // 验证规则
+                                        rules: [
+                                            { required: true, message: "用户名不能为空" },
+                                            { min: 11, message: "手机号码必须为11位" },
+                                        ]
+                                    })
+                                    }
+                                    // 验证不通过时设置error为true
+                                    error={getFieldError('username') ? true : false}
+                                    // 点击右侧的错误弹出提示
+                                    onErrorClick={() => {
+                                        Toast.info(getFieldError('username')[0], 2)
+                                    }}
+                                    // 输入框输入改变时同步数据到state中的username
+                                    onChange={v => {
+                                        this.setState({
+                                            username: v
+                                        })
+                                    }}
+                                    // 将state中的username赋值给输入框
+                                    value={this.state.username}
+                                >
+                                    用户名
+                                </InputItem>
+                                <InputItem
+                                    type="password"
+                                    placeholder="请输入密码"
+                                    clear
+                                    {...getFieldProps('password', {
+                                        validateTrigger: 'onBlur',
+                                        rules: [
+                                            {
+                                                required: true, message: '密码不能为空'
+                                            },
+                                            {
+                                                min: 6, message: '密码不能低于6位'
+                                            }
+                                        ]
+                                    })}
+                                    error={getFieldError('password') ? true: false}
+                                    onErrorClick={() => {
+                                        Toast.fail(getFieldError('password')[0], 2)
+                                    }}
+                                    onChange={v => {
+                                        this.setState({
+                                            password: v
+                                        })
+                                    }}
+                                    value={this.state.password}
+                                >
+                                    密码
+                                </InputItem>
+                                <List.Item/>
+                                <List.Item>
+                                    <Button type="primary"
+                                            style={{background: 'black'}}
+                                            onClick={this.handleLogin}>
+                                        登陆
+                                    </Button>
+                                </List.Item>
+                                <List.Item>
+                                    <Button onClick={() => this.props.history.push('/register')}>
+                                        注册
+                                    </Button>
+                                </List.Item>
+                            </List>
+                        </Card.Body>
+                    </Card>
+                </WingBlank>
             </div>
         )
     }
@@ -215,9 +196,15 @@ const mapActionToProps = dispatch => {
         changeLoginState: newState => {
             dispatch({type: 'CHANGE_LOGIN_STATE', payload: newState})
         },
-        snycCartGoods: cart_Infos => {
-            dispatch({type: 'SYNC_CART_GOODS', payload: {cart_Infos}})
-        }
+        saveCompanyInfo: company =>{
+            dispatch({type: 'SAVE_COMPANY_INFO', payload: company})
+        },
+        saveUserID: id =>{
+            dispatch({type: 'SAVE_USER_ID', payload: id})
+        },
+        saveStadiumId:  (stadiumId) => {
+            dispatch({ type: 'SAVE_STADIUM_ID',payload: stadiumId })
+        },
     }
 }
 

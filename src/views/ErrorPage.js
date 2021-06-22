@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { WingBlank } from 'antd-mobile'
-import '../style/errorpage.css'
+import '../style/errorpage.scss'
 export class ErrorPage extends Component {
     render() {
         return (
@@ -17,15 +17,13 @@ export class ErrorPage extends Component {
                     </div>
                     <div className="links">
                         <p>或者逛逛：
-                        <Link to="/">商城首页</Link>
+                        <Link to="/">场馆首页</Link>
                         <span>|</span>
-                        <Link to="/searchfield">搜宝贝</Link>
-                        <span>|</span>
-                        <Link to="/category">商品分类</Link>
+                        <Link to="/my">个人中心</Link>
                         </p>
                     </div>
                 </WingBlank>
-                
+
             </div>
         )
     }

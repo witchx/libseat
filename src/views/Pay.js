@@ -1,90 +1,187 @@
 import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom';
-import { NavBar, Icon, Toast } from 'antd-mobile'
+import {Link, withRouter} from 'react-router-dom';
+import {NavBar, Icon, ActionSheet, Button, Toast, Modal} from 'antd-mobile'
 import { connect } from 'react-redux'
-import { createOrder, syncCart, getGoodsDetail, getCartGoods } from '../api/index'
-import '../style/pay.css'
+import {getOrder, createPay, getRoomName, updateOrder, aliPay} from '../api/index'
+import '../style/pay.scss'
+import {strToTime, timestampToTime} from '../utils/time'
+
 export class Pay extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            cart_infos_Array: [],
-
+            userId: this.props.userId,
+            roomId: this.props.roomId,
+            seatId: this.props.seatId,
+            companyId: this.props.companyId,
+            name: '',
+            pay: 0,
+            disable: false,
+            orderId: this.props.orderId,
+            couponId: '',
+            orderInfo: ''
         }
     }
     UNSAFE_componentWillMount() {
-
-        // render之前获取页面是否有id 如果是购物车跳转过来的话没有id，Number之后的NaN
-        let id = Number(this.props.location.pathname.split('/').pop())
-        let cart_infos_Array
-        if (id) {
-            this.setState({
-                id
-            })
-            getGoodsDetail(id).then(res => {
-                res.data.message.selectedStatus = true
-                cart_infos_Array = [res.data.message]
+        getOrder(this.state.orderId).then(res => {
+            const { code,msg,data } = res.data
+            let start = new Date(data.startTime);
+            let end = new Date(data.endTime);
+            let hours = end.getHours()-start.getHours();
+            let minutes = end.getMinutes()-start.getMinutes();
+            // 获取数据成功
+            if (code === 200) {
                 this.setState({
-                    cart_infos_Array
+                    orderInfo: data,
+                    startTime: start.getTime(),
+                    endTime: end.getTime(),
+                    hours: hours,
+                    minutes: minutes,
                 })
+            }
+            console.log(this.state)
+        })
+        if (this.state.orderInfo.type === 0) {
+            //座位
+            // 获取自习室名称
+            getRoomName(this.state.roomId).then(res => {
+                const { code,msg,data } = res.data
+                // 获取数据成功
+                if (code === 200) {
+                    this.setState({
+                        name: data,
+                    })
+                }
             })
-        } else if (this.props.cart_Infos) {
-            cart_infos_Array = Object.values(this.props.cart_Infos)
-            this.setState({
-                cart_infos_Array
-            })
+            if(this.state.startTime >=this.state.endTime) {
+                this.setState({
+                    disable: true
+                })
+            }
         }
     }
-    // 提交订单
-    submitOrder = () => {
-        // 初始化goods数组
-        let goods = []
-        let cart_infos
-        //因为有可能从商品详情的立即购买跳转过来，也可能从购物车的结算跳转过来，所以分两条路径判断
-        // 从商品详情的立即购买跳转过来location带有参数，购物车没有
-        if (!this.state.id) {
-            cart_infos = this.props.cart_Infos
-            this.state.cart_infos_Array.forEach(v => {
-                // 商品选中就将id，数量，价格存入goods数组中
-                if (v.selectedStatus) {
-                    goods.push({
-                        goods_id: v.goods_id,
-                        goods_number: v.amount,
-                        goods_price: v.goods_price,
-                    })
-                    // 同时将订单中选择的商品删除
-                    delete cart_infos[v.goods_id]
-                }
-            })
-        } else {
-            // 如果从商品详情的立即购买跳转过来，要拿到购物车的数据，否则提交订单的时候购物车还没结算的数据会丢失
-            getCartGoods().then(res => {
-                // 将数据解构处理
-                const { meta: { status }, message: { cart_info } } = res.data
-                // 状态码200表示获取购物车数据成功
-                if (status === 200) {
-                    cart_infos = JSON.parse(cart_info)
-                }
-            })
-            goods = [{
-                goods_id: this.state.cart_infos_Array[0].goods_id,
-                goods_number: 1,
-                goods_price: this.state.cart_infos_Array[0].goods_price
-            }]
+
+    getInfo = (type) => {
+        if (type === 1) {
+            return this.state.orderInfo.money + "元"
+        } else if (type === 2) {
+            return this.state.orderInfo.times + "次"
+        } else if(type === 3){
+            return this.state.orderInfo.usefulLife + "天"
         }
-        // 创建订单
-        createOrder({ order_price: this.props.totalPrice, consignee_addr: this.props.address, goods }).then(res => {
-            const { meta: { msg, status } } = res.data
-            if (status === 200) {
-                Toast.success(msg, 2, () => {
-                    this.props.history.push('/order')
-                })
-                // 提交订单后同步购物车 cart_infos中的数据是未被提交的订单
-                syncCart({ infos: JSON.stringify(cart_infos) })
-                this.props.snycCartGoods(cart_infos)
+    }
+
+    getPay = () => {
+        switch(this.state.orderInfo.type) {
+            case 0:
+                //座位
+                return (
+                    <div className="pay_box">
+                        <div className="pay_top">{this.state.name}自习室&nbsp;{this.state.seatId}</div>
+                        <p className="pay_alert">预约时间：</p>
+                        <p className="pay_info">{timestampToTime(this.state.startTime)}</p>
+                        <p className="pay_alert">预约时长：</p>
+                        <p className="pay_info">{(this.state.minutes > 0)?(this.state.hours)+'小时'+(this.state.minutes)+'分钟':(this.state.hours-1)+'小时'+(this.state.minutes+60)+'分钟'}</p>
+                        <div className="pay_mid"><span className="pay_big_alert">单价</span> <span className="pay_single">8元/小时</span></div>
+                        <div className="pay_bottom">
+                            <span className="pay_count_alert">费用总计</span>
+                            <span className="pay_count_money">{this.state.orderInfo.price}</span>
+                            <span className="pay_count_dan">元</span>
+                        </div>
+                        <img className="pay_img" src={require('../assets/imgs/chose_seat.png')}/>
+                    </div>
+                )
+            case 1:
+                //vip
+                return (
+                    <div className="pay_box">
+                        <div className="pay_top_top">新购会员卡</div>
+                        <div className="pay_top_mid">
+                            <span className="pay_card_alert_left">充值：</span>
+                            <span className="pay_card_info_left">{this.state.orderInfo.price}元</span>
+                            <span className="pay_card_alert_right">到账：</span>
+                            <span className="pay_card_info_right">{this.getInfo(this.state.orderInfo.cardType)}</span>
+                        </div>
+                        <p className="pay_top_bottom">{this.state.orderInfo.usefulLife?("有效期："+this.state.orderInfo.usefulLife):("不限有效期")}</p>
+                        <div className="pay_mid"><span className="pay_big_alert">支付宝</span> <span className="pay_single">{this.state.orderInfo.price}元</span></div>
+                        <div className="pay_bottom">
+                            <span className="pay_count_alert">费用总计</span>
+                            <span className="pay_count_money">{this.state.orderInfo.price}</span>
+                            <span className="pay_count_dan">元</span>
+                        </div>
+                    </div>
+                )
+        }
+    }
+
+    showActionSheet = () => {
+        if(this.state.orderId) {
+            let BUTTONS = [];
+            if (this.state.orderInfo.type === 0) {
+                //座位
+                BUTTONS = ['支付宝', '储值卡', '计次卡','期限卡', '取消'];
+            } else if (this.state.orderInfo.type === 1) {
+                //vip
+                BUTTONS = ['支付宝', '取消'];
             }
-        })
+            ActionSheet.showActionSheetWithOptions({
+                    options: BUTTONS,
+                    cancelButtonIndex: BUTTONS.length - 1,
+                    title: '选择支付方式',
+                    maskClosable: true
+                },
+                (buttonIndex) => {
+                    console.log(buttonIndex)
+                    if (buttonIndex !== BUTTONS.length - 1){
+
+                        if(buttonIndex === 0) {
+                            //支付宝
+                            aliPay({
+                                orderType: this.state.orderInfo.type,
+                                userId: this.state.companyId,
+                                customerId: this.state.userId,
+                                paymentType: buttonIndex,
+                                orderId: this.state.orderId,
+                                couponId: this.state.couponId,
+                                discount: this.state.orderInfo.discount
+                            }).then(res => {
+                                document.querySelector('body').innerHTML = res.data;//查找到当前页面的body，将后台返回的form替换掉他的内容
+                                document.forms[0].submit();
+                            })
+                        } else {
+                            //支付
+                            createPay({
+                                orderType: this.state.orderInfo.type,
+                                userId: this.state.companyId,
+                                customerId: this.state.userId,
+                                paymentType: buttonIndex,
+                                orderId: this.state.orderId,
+                                couponId: this.state.couponId,
+                                discount: this.state.orderInfo.discount
+                            }).then(res => {
+                                const {code, msg, data} = res.data
+                               if(code === 200) {
+                                   Toast.success('预约成功!', 2, () => {
+                                       this.props.clearOrder();
+                                       if (this.state.orderInfo.type === 0) {
+                                           this.props.clearSeat();
+                                           this.props.history.push('/result/'+this.state.orderId)
+                                       } else if (this.state.orderInfo.type === 1) {
+                                           this.props.clearCard();
+                                           this.props.history.push('/result/'+this.state.orderId)
+                                       }
+
+                                   })
+                               } else {
+                                   Toast.fail(msg, 2)
+                               }
+                            })
+                        }
+                    }
+                });
+        }
+
     }
 
     render() {
@@ -93,81 +190,53 @@ export class Pay extends Component {
                 {/* 顶部导航条 */}
                 <NavBar
                     mode="dark"
-                    leftContent={<Icon type='left' />}
+                    icon={<Icon type="left" />}
+                    leftContent={[
+                        <span>支付</span>
+                    ]}
                     onLeftClick={() => this.props.history.goBack()}
-                    className="nav-bar-style"
-                >确认订单</NavBar>
-                <div style={{ margin: '60px 10px 0' }}>
-                    <div className="default-address"
-                        onClick={() => this.props.history.push('/address')}
-                    >
-                        <div className="left-icon">
-                            <i className="iconfont icon-dingwei" ></i>
-                        </div>
-                        <div className="address-info">
-                            <div className="address-info-top">
-                                <span className="name">{this.props.name}</span>
-                                <span className="phone">{this.props.phone}</span>
-                            </div>
-                            <div className="address-info-bottom">{this.props.address}</div>
-                        </div>
-                        <div className="right-icon">
-                            <i className="iconfont icon-youjiantou" ></i>
-                        </div>
-                    </div>
-                    <div className="order-list">
-                        {this.state.cart_infos_Array ? this.state.cart_infos_Array.map(v => (
-                            v.selectedStatus ?
-                                <div key={v.goods_id} className="single-order">
-                                    <img src={v.goods_small_logo} alt="" />
-                                    <div className="order-content">
-                                        <div className="order-title ellipsis-2">{v.goods_name}</div>
-                                        <div className="order-price">
-                                            <span>共{v.amount ? v.amount : 1}件 </span>
-                                            <span>小计：</span>
-                                            <span>&yen;{v.amount ? v.amount * v.goods_price : v.goods_price}.00</span>
-                                        </div>
-                                    </div>
-                                </div> : ''
-                        ))
-                            : ''
-                        }
-
-                    </div>
+                />
+                {this.getPay()}
+                <div className="pay_center">
+                    <p>
+                        <Link to="/" style={{color: 'black'}}>场馆首页</Link>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <Link to="/my" style={{color: 'black'}}>个人中心</Link>
+                    </p>
+                    <span className="alert_bottom">励步*提供技术支持</span>
                 </div>
-                <div className="submit-order-footer">
-                    <div className="submit-order-footer-left">
-                        共{this.props.selectedGoodsTotalNum}件
-                </div>
-                    <div className="submit-order-footer-center">
-                        <span>合计：</span>
-                        <span className="total-price"><span>￥</span> {this.props.totalPrice}</span>
+                <div className="submit_order_footer">
+                    <div className="submit_order_footer_left">
+                        <span className="total-price">{this.state.orderInfo.price}</span>
+                        <span className="total_dan">元</span>
                     </div>
-                    <div className="submit-order-footer-right" onClick={this.submitOrder}>
-                        <span className="submit-order">提交订单</span>
-                    </div>
+                    <Button disable={this.state.disable} onClick={this.showActionSheet} className="submit_order" type="primary">确认支付</Button>
                 </div>
-                
             </div>
         )
     }
 }
+
 const mapStateToProps = (state) => {
     return {
-        cart_Infos: state.CartModule.cart_Infos,
-        totalPrice: state.CartModule.totalPrice,
-        selectedGoodsTotalNum: state.CartModule.selectedGoodsTotalNum,
-        name: state.userModule.name,
-        phone: state.userModule.phone,
-        address: state.userModule.address
+        userId: state.userModule.id,
+        roomId: state.seatModule.roomId,
+        seatId: state.seatModule.seatId,
+        orderId: state.orderModule.orderId,
+        companyId: state.userModule.companyId
     }
 }
 
 const mapActionToProps = (dispatch) => {
     return {
-        // 同步购物车数据
-        snycCartGoods: (cart_Infos) => {
-            dispatch({ type: 'SYNC_CART_GOODS', payload: { cart_Infos } })
+        clearOrder: () => {
+            dispatch({ type: 'CLEAR_ORDER'})
+        },
+        clearSeat: () => {
+            dispatch({ type: 'CLEAR_SEAT'})
+        },
+        clearCard: () => {
+            dispatch({ type: 'CLEAR_CARD'})
         }
     }
 }

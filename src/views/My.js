@@ -1,117 +1,157 @@
 import React, { Component } from 'react'
 import { getUserInfo } from '../api/index'
+import {TabBar, Card, WingBlank, WhiteSpace, List, NavBar} from 'antd-mobile'
 import { withRouter } from 'react-router-dom'
-import { TabBar, Card, Button, Modal } from 'antd-mobile'
 import { connect } from 'react-redux'
-import avatar from '../upload/avatar.png'
-const alert = Modal.alert;
+import '../style/my.scss'
+import user from "../assets/imgs/user.png";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faList,faCogs,faCalendarCheck,faDiceTwo,faDiceOne,faDiceThree,faDiceFour,faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
+library.add(faList,faCogs,faCalendarCheck,faDiceTwo,faDiceOne,faDiceThree,faDiceFour,faArrowAltCircleRight)
 export class My extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-
+            companyName: this.props.companyName,
+            userId: this.props.id,
+            totalValue: 0,
+            totalTimes: 0,
+            totalDays: 0,
+            totalCoupon: 0,
+            hoursByWeek: 0,
+            isLoading: false,
         }
     }
-    UNSAFE_componentWillMount() {
+    componentDidMount() {
         // 获取用户信息
-        getUserInfo().then(res => {
-            const { meta: { status }, message } = res.data
-            if (status === 200) {
-                this.setState({
-                    phone: message.user_tel
-                })
+        getUserInfo(this.state.userId).then(res => {
+            const { code,msg,data } = res.data
+            if (code === 200) {
+                setTimeout(() => {
+                    this.setState({
+                        tel: data.tel,
+                        nickname: data.nickname,
+                        companyName: data.companyName,
+                        avatar: data.icon,
+                        totalValue: data.totalValue,
+                        totalTimes: data.totalTimes,
+                        totalDays: data.totalDays,
+                        totalCoupon: data.totalCoupon,
+                        hoursByWeek: data.hoursByWeek,
+                        isLoading: true
+                    })
+                },600);
+
             }
         })
-    }
-    // 退出
-    logout = () => {
-        alert('即将退出账号', '您确定吗?', [
-            {
-                text: '我还没逛完', 
-                style: {
-                    backgroundColor: '#777',
-                    color: '#fff',
-                    fontWeight: 700
-                }
-            },
-            {
-                text: '确定', 
-                style: {
-                    backgroundColor: 'rgb(244, 51, 60)',
-                    color: '#fff',
-                    fontWeight: 700
-                }, 
-                onPress: () => {
-                    // 退出
-                    this.props.loginOut()
-                    // 清除cartReducer中的数据
-                    this.props.clearCartData()
-                    this.props.history.push('/mynologin')
-                }
-            }
-        ])
     }
     render() {
         return (
             <div>
-                <Card>
-                    <Card.Header
-                        title="暴走"
-                        thumb={avatar}
-                        thumbStyle={{ width: 43 }}
-                        style={{ fontSize: 15 }}
-                        extra={<span style={{ fontSize: 13 }}>{this.state.phone}</span>}
-                    />
-                    <Card.Header
-                        title="我的订单"
-                        style={{ fontSize: 15 }}
-                    />
-                </Card>
+                <NavBar
+                    leftContent={this.props.companyName}
+                    mode="dark"
+                >
+                </NavBar>
+                <div  style={{background: '#118eea'}}>
+                    {this.state.isLoading?<Card full style={{background: '#118eea',border:'0px'}}>
+                        <Card.Header
+                            title={<span style={{ color: '#ffffff',fontSize: '0.9em'}}>{this.state.nickname}用户</span>}
+                            thumb={this.state.avatar?this.state.avatar:user}
+                            thumbStyle={{ borderRadius: 50,border: '2px solid white',width: '65px', height: '65px'}}
+                            style={{ fontSize: 24}}
+                            extra={<span style={{ fontSize: 13, color: '#ffffff'}}>{this.state.tel}</span>}
+                        />
+                    </Card>:''}
+
+                    <WingBlank size="lg" className="rank">
+                        <span className="rank_left">学习排行</span>
+                        <span className="rank_right" onClick={() => {
+                            this.props.history.push('/rank');
+                        }}>本周学习{this.state.hoursByWeek}小时<FontAwesomeIcon style={{marginLeft: '5px'}} icon="arrow-alt-circle-right"/></span>
+                    </WingBlank>
+                </div>
                 <TabBar
-                    unselectedTintColor="#949494"
-                    tintColor="#33A3F4"
+                    unselectedTintColor="#000000"
+                    tintColor="#000000"
                     barTintColor="white"
                 >
                     <TabBar.Item
-                        title="所有订单"
-                        key="Home"
-                        icon={<i className="iconfont icon-dingdan"></i>}
-                        onPress={() => { this.props.history.push('/order/0') }}
+                        title="储值卡"
+                        key="value"
+                        icon={<FontAwesomeIcon icon="dice-one" style={{fontSize:'18px'}}/>}
+                        onPress={() => { this.props.history.push('/myCard') }}
                     >
                     </TabBar.Item>
                     <TabBar.Item
-                        title="待付款"
-                        key="obligation"
-                        icon={<i className="iconfont icon-daifukuan"></i>}
-                        onPress={() => { this.props.history.push('/order/1') }}
+                        title="计次卡"
+                        key="would"
+                        icon={<FontAwesomeIcon icon="dice-two" style={{fontSize:'18px'}}/>}
+                        onPress={() => { this.props.history.push('/myCard') }}
                     >
                     </TabBar.Item>
                     <TabBar.Item
-                        title="待发货"
-                        key="Mine"
-                        icon={<i className="iconfont icon-daifahuo"></i>}
-                        onPress={() => { this.props.history.push('/order/2') }}
+                        title="期限卡"
+                        key="time"
+                        icon={<FontAwesomeIcon icon="dice-three" style={{fontSize:'18px'}}/>}
+                        onPress={() => { this.props.history.push('/myCard') }}
+                    >
+                    </TabBar.Item>
+                    <TabBar.Item
+                        title="优惠卷"
+                        key="coupon"
+                        icon={<FontAwesomeIcon icon="dice-four" style={{fontSize:'18px'}}/>}
+                        onPress={() => { this.props.history.push('/myCard') }}
                     >
                     </TabBar.Item>
                 </TabBar>
-                <Button onClick={this.logout}>退出登录</Button>
+                <div className="my_box">
+                    <div className="my_box_one">{this.state.totalValue}元</div>
+                    <div className="my_box_one">{this.state.totalTimes}次</div>
+                    <div className="my_box_one">{this.state.totalDays}天</div>
+                    <div className="my_box_one">{this.state.totalCoupon}张</div>
+                </div>
+                <WhiteSpace size="lg" style={{background: '#ffffff'}}/>
+                <WhiteSpace size="md"/>
+                <List>
+                    <List.Item
+                        thumb={<FontAwesomeIcon icon="calendar-check" style={{fontSize:'18px'}}/>}
+                        arrow="horizontal"
+                        onClick={() => {
+                            this.props.history.push('/seatOrder')
+                        }}
+                    >预约记录
+                    </List.Item>
+                </List>
+                <WhiteSpace size="md"/>
+                <List>
+                    <List.Item
+                        thumb={<FontAwesomeIcon icon="list" style={{fontSize:'18px'}}/>}
+                        arrow="horizontal"
+                        onClick={() => {
+                            this.props.history.push('/order')
+                        }}
+                    >订单记录
+                    </List.Item>
+                    <List.Item
+                        thumb={<FontAwesomeIcon icon="cogs" style={{fontSize:'18px'}}/>}
+                        arrow="horizontal"
+                        onClick={() => {
+                            this.props.history.push('/setting')
+                        }}
+                    >用户设置
+                    </List.Item>
+                </List>
             </div>
         )
     }
 }
-// 创建映射函数
-const mapDispatchToProps = (dispatch) => {
+const mapStateToProps = state => {
     return {
-        // 退出
-        loginOut: () => {
-            dispatch({ type: 'LOGINOUT' })
-        },
-        // 清除cartReducer中的数据
-        clearCartData: () => {
-            dispatch({ type: 'CLEAR' })
-        }
+        companyName: state.userModule.companyName,
+        id: state.userModule.id
     }
 }
-// 由于这里没有mapStateToProps，所以connect第一个参数设置为null
-export default connect(null, mapDispatchToProps)(withRouter(My))
+export default connect(mapStateToProps)(withRouter(My))

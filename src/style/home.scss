@@ -1,0 +1,37 @@
+.top{
+  height: 3em;
+  line-height: 4em;
+  font-size: 16px;
+}
+.top .share{
+  float: right;
+  color: #108ee9;
+  background: lightskyblue;
+  width: 20%;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 10px 10px 10px 10px;
+  margin-top: 1em;
+}
+.top .share .font{
+  float: right;
+  margin-right: 10px;
+}
+.icon{
+  width: 100%;
+  height: 170px;
+  border-radius: 15px;
+}
+.bottom{
+  color: rgb(136, 136, 136);
+  font-size: 15px;
+  float: left;
+  margin-left: 35%;
+  margin-top: 9px;
+}
+.time_picker .am-list-item .am-list-line .am-list-content {
+  max-width: 40%
+}
+.time_picker .am-list-item .am-list-line .am-list-extra{
+  min-width: 55%
+}

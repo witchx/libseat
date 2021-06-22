@@ -1,210 +1,247 @@
-import React, { Component } from 'react'
-import { Tabs, NavBar, Icon, WingBlank } from 'antd-mobile';
-import { getOrder } from '../api/index'
-import '../style/orderlist.css'
+import React, {Component, Fragment} from 'react'
+import { NavBar, Icon, ListView, WhiteSpace} from 'antd-mobile';
+import {getOrderList} from '../api/index'
+import '../style/orderlist.scss'
+import {connect} from "react-redux";
+import {withRouter} from "react-router-dom";
+import { strToTime } from '../utils/time';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faClipboardList } from '@fortawesome/free-solid-svg-icons';
+library.add(faClipboardList)
 export class OrderList extends Component {
     constructor(props) {
         super(props)
-
+        const dataSource = new ListView.DataSource({
+            rowHasChanged: (row1, row2) => row1 !== row2,
+        });
         this.state = {
-            count: 0,
-            orders: []
+            userId: this.props.id,
+            data: null,
+            isLoading: false,
+            dataSource,
+            height: document.documentElement.clientHeight * 0.95
         }
     }
-    UNSAFE_componentWillMount() {
-        // render之前获取页面是否有id 如果是提交订单后跳转过来的话没有id，Number之后的NaN
-        let id = Number(this.props.location.pathname.split('/').pop())
-        if (id) {
-            this.setState({ id })
-        }
-        // 获取订单
-        getOrder().then(res => {
-            const { meta: { status }, message: {orders } } = res.data
-            if (status === 200) {
-                let count = 0
-                // 计算总订单数量
-                orders.forEach(order => count += order.total_count)
-                this.setState({
-                    count,
-                    orders
-                })
+    componentWillMount() {
+        this.init()
+    }
+
+    // 初始化
+    init = () => {
+        getOrderList(this.state.userId).then(res => {
+            const { code,msg,data } = res.data
+            if (code === 200) {
+                console.log(data)
+                setTimeout(() => {
+                    this.setState({
+                        data: data,
+                    })
+                }, 600);
+                setTimeout(() => {
+                    const dataBlob = {};
+                    for (let i = 0; i < this.state.data.length; i++) {
+                        const ii = i;
+                        dataBlob[`${ii}`] = `row - ${ii}`;
+                    }
+                    this.rData = dataBlob;
+                    this.setState({
+                        dataSource: this.state.dataSource.cloneWithRows(this.rData),
+                        isLoading: true,
+                    });
+
+                }, 600);
             }
         })
     }
-    
-    // 将时间戳转换为2019-9-12 22:36:35格式
-    convertTime = (create_time) => {
-        let time = new Date(parseInt(create_time) * 1000)
-        let y = time.getFullYear(); //getFullYear方法以四位数字返回年份
-        let M = time.getMonth() + 1; // getMonth方法从 Date 对象返回月份 (0 ~ 11)，返回结果需要手动加一
-        let d = time.getDate(); // getDate方法从 Date 对象返回一个月中的某一天 (1 ~ 31)
-        let h = time.getHours(); // getHours方法返回 Date 对象的小时 (0 ~ 23)
-        let m = time.getMinutes(); // getMinutes方法返回 Date 对象的分钟 (0 ~ 59)
-        let s = time.getSeconds(); // getSeconds方法返回 Date 对象的秒数 (0 ~ 59)
-        return y + '-' + M + '-' + d + ' ' + h + ':' + m + ':' + s;
+
+    getSingle = (obj) => {
+        switch (obj.orderType) {
+            case 0://座位
+                return(
+                    <div className="aOrder_box">
+                        <div className="aOrder_left">
+                            <FontAwesomeIcon className="aOrder_left_icon" icon="clipboard-list"/>
+                        </div>
+                        <div className="aOrder_center">
+                            <div className="aOrder_center_top">预约座位</div>
+                            <div className="aOrder_center_bottom">{strToTime(obj.orderTime)}</div>
+                        </div>
+                        <div className="aOrder_right">
+                            <div className="aOrder_right_top">{obj.price}元</div>
+                            <div className="aOrder_right_bottom">
+                                {this.getStatus(obj.orderStatus)}
+                            </div>
+                        </div>
+                    </div>
+                )
+            case 1://会员卡
+                return(
+                    <div className="aOrder_box">
+                        <div className="aOrder_left">
+                            <FontAwesomeIcon className="aOrder_left_icon" icon="clipboard-list"/>
+                        </div>
+                        <div className="aOrder_center">
+                            <div className="aOrder_center_top">新购会员卡</div>
+                            <div className="aOrder_center_bottom">{strToTime(obj.orderTime)}</div>
+                        </div>
+                        <div className="aOrder_right">
+                            <div className="aOrder_right_top">{obj.price}元</div>
+                            <div className="aOrder_right_bottom">
+                                {this.getStatus(obj.orderStatus)}
+                            </div>
+                        </div>
+                    </div>
+                )
+            case 3://优惠劵
+                return (
+                    <div className="aOrder_box">
+                        <div className="aOrder_left">
+                            <FontAwesomeIcon className="aOrder_left_icon" icon="clipboard-list"/>
+                        </div>
+                        <div className="aOrder_center">
+                            <div className="aOrder_center_top">优惠劵</div>
+                            <div className="aOrder_center_bottom">{strToTime(obj.orderTime)}</div>
+                        </div>
+                        <div className="aOrder_right">
+                            <div className="aOrder_right_top">{obj.price}元</div>
+                            <div className="aOrder_right_bottom">
+                                {this.getStatus(obj.orderStatus)}
+                            </div>
+                        </div>
+                    </div>
+                )
+            case 4://商品
+                return (
+                    <div className="aOrder_box">
+                        <div className="aOrder_left">
+                            <FontAwesomeIcon className="aOrder_left_icon" icon="clipboard-list"/>
+                        </div>
+                        <div className="aOrder_center">
+                            <div className="aOrder_center_top">购买商品</div>
+                            <div className="aOrder_center_bottom">{strToTime(obj.orderTime)}</div>
+                        </div>
+                        <div className="aOrder_right">
+                            <div className="aOrder_right_top">{obj.price}元</div>
+                            <div className="aOrder_right_bottom">
+                                {this.getStatus(obj.orderStatus)}
+                            </div>
+                        </div>
+                    </div>
+                )
+            default:
+                break;
+        }
     }
+    getStatus = (status) => {
+        switch (status) {
+            case 1:
+                return (
+                    <p style={{color: 'red'}}>待支付</p>
+                )
+            case 2:
+                return (
+                    <p style={{color: 'rgb(245 165 109)'}}>待确认</p>
+                )
+            case 3:
+                return (
+                    <p style={{color: '#2641c7'}}>待评价</p>
+                )
+            case 4:
+                return (
+                    <p style={{color: '#22e856'}}>已完成</p>
+                )
+            case 5:
+                return (
+                    <p style={{color: '#676767'}}>已关闭</p>
+                )
+            case 6:
+                return (
+                    <p style={{color: '#676767'}}>已取消</p>
+                )
+            default:
+                break
+        }
+    }
+
     render() {
-        const tabs = [
-            { title: '全部订单' },
-            { title: '待付款' },
-            { title: '待发货' },
-        ];
+        const separator = (sectionID, rowID) => (
+            <div
+                key={`${sectionID}-${rowID}`}
+                style={{
+                    backgroundColor: '#f2f2f2',
+                    height: 3,
+                    borderTop: '1px solid #ECECED',
+                    borderBottom: '1px solid #ECECED',
+                }}
+            />
+        );
+        let index = 0;
+        const row = (rowData, sectionID, rowID) => {
+            if (index > this.state.data.length - 1) {
+                index = 0;
+            }
+            const obj = this.state.data[index++];
+            return (
+                <div onClick={() => {
+                    const data = {
+                        orderId: obj.orderId,
+                        type: obj.orderType
+                    }
+                    this.props.history.push('/orderDetail/'+JSON.stringify(data));
+                }}>
+                    {this.getSingle(obj)}
+                </div>
+            )
+        };
         return (
             <div>
-                <NavBar
-                    mode="dark"
-                    leftContent={<Icon type='left' />}
-                    onLeftClick={() => this.props.history.push('/my')}
-                    className="nav-bar-style"
-                >
-                    我的订单{this.state.count ? `(${this.state.count})` : ''}
-                </NavBar>
-                <Tabs tabs={tabs} initialPage={this.state.id ? this.state.id : 0} animated={false} useOnPan={false}>
-                    <WingBlank style={{ marginTop: 20, marginBottom: 60 }}>
-                        <div>
-                            {this.state.orders.length ?
-                                this.state.orders.map(v => (
-                                    v.goods.length ?
-                                        <div key={v.order_id} className="single-order-list">
-                                            {v.goods.map(v1 => (
-                                                <div key={v1.goods_id} className="single-order">
-                                                    <img src={v1.goods_small_logo} alt="" />
-                                                    <div className="order-content">
-                                                        <div className="order-title ellipsis-2">
-                                                            {v1.goods_name}
-                                                        </div>
-                                                        <div className="num-price">
-                                                            <span>￥{v1.goods_price}</span> X <span>{v1.goods_number}</span>
-                                                        </div>
-                                                        <div className="order-price">
-                                                            <span>共{v1.goods_number}件</span>
-                                                            <span>小计：</span>
-                                                            <span>&yen;{v1.goods_total_price}.00</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <div className="order-infos">
-                                                <h4 className="title">订单信息</h4>
-                                                <div className="order-infos-content">
-                                                    <div>
-                                                        <span>订单编号：</span>
-                                                        <span>{v.order_number}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>创建时间：</span>
-                                                        <span>{this.convertTime(v.create_time)}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>地址：</span>
-                                                        <span>{v.consignee_addr}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>发票抬头：</span>
-                                                        <span>{v.order_fapiao_title}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>总件数：</span>
-                                                        <span>{v.total_count}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>总价：</span>
-                                                        <span className="total-price">￥{v.total_price}.00</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>状态：</span>
-                                                        <span>待付款</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        : ''
-                                ))
-                                : ''}
-                        </div>
-                    </WingBlank>
-                    <WingBlank style={{ marginTop: 20, marginBottom: 60 }}>
-                        <div>
-                            {this.state.orders.length ?
-                                this.state.orders.map(v => (
-                                    v.goods.length ?
-                                        <div key={v.order_id} className="single-order-list">
-                                            {v.goods.map(v1 => (
-                                                <div key={v1.goods_id} className="single-order">
-                                                    <img src={v1.goods_small_logo}
-                                                        alt="" />
-                                                    <div className="order-content">
-                                                        <div className="order-title ellipsis-2">
-                                                            {v1.goods_name}
-                                                        </div>
-                                                        <div className="num-price">
-                                                            <span>￥{v1.goods_price}</span> X <span>{v1.goods_number}</span>
-                                                        </div>
-                                                        <div className="order-price">
-                                                            <span>共{v1.goods_number}件</span>
-                                                            <span>小计：</span>
-                                                            <span>&yen;{v1.goods_total_price}.00</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <div className="order-infos">
-                                                <h4 className="title">订单信息</h4>
-                                                <div className="order-infos-content">
-                                                    <div>
-                                                        <span>订单编号：</span>
-                                                        <span>{v.order_number}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>创建时间：</span>
-                                                        <span>{this.convertTime(v.create_time)}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>地址：</span>
-                                                        <span>{v.consignee_addr}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>发票抬头：</span>
-                                                        <span>{v.order_fapiao_title}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>总件数：</span>
-                                                        <span>{v.total_count}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>总价：</span>
-                                                        <span className="total-price">￥{v.total_price}.00</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>状态：</span>
-                                                        <span>待付款</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        : ''
-                                ))
-                                : ''}
-                        </div>
-                    </WingBlank>
-
-                    <div >
-
-                    </div>
-                </Tabs>
-
-                <style jsx>{`
-                    :global(.am-tabs) {
-                        position: fixed;
-                        top: 45px;
-                    }
-                    `}
-                </style>
+                {this.props.location.pathname === "/order" ?<Fragment>
+                    <NavBar
+                        icon={<Icon type="left" />}
+                        mode="dark"
+                        onLeftClick={() => {
+                            this.props.history.goBack()
+                        }}
+                        leftContent={[
+                            <span>我的账单</span>
+                        ]}
+                    >
+                    </NavBar>
+                    {this.state.isLoading?<ListView
+                        ref={el => this.lv = el}
+                        dataSource={this.state.dataSource}
+                        renderRow={row}
+                        renderSeparator={separator}
+                        pageSize={this.state.data.length-1}
+                        scrollRenderAheadDistance={500}
+                        style={{
+                            height: this.state.height
+                        }}
+                    >
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <span className="card_bottom_alert">励步*提供技术支持</span>
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                        <WhiteSpace size="lg" />
+                    </ListView>:''}
+                </Fragment>:''}
             </div>
         )
     }
 }
+const mapStateToProps = (state) => {
+    return {
+        id: state.userModule.id,
+    }
+}
 
-export default OrderList
+export default connect(mapStateToProps)(withRouter(OrderList))

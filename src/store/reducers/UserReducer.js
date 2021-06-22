@@ -1,27 +1,52 @@
+import Cookies from 'js-cookie'
 // 初始token为空
 let initState = {
     loginState: false,
-    name: '暴走',
-    phone: 13999999999,
-    address: '广东省广州市天河区...'
+    nickname: '',
+    tel: '',
+    avatar: '',
+    id: '',
+    companyName:''
 }
 export const UserReducer = (state = initState, action) => {
     switch (action.type) {
-        // 如果改变了登录状态
         case 'CHANGE_LOGIN_STATE':
-            // 登录成功则将token存入会话存储
             if (action.payload.Login) {
                 sessionStorage.setItem('token', action.payload.token)
             }
             return {...state, loginState: action.payload.Login}
-        // 保存地址信息
-        case 'SAVE_ADDRESS_INFO': 
-            return {...state, ...action.payload}
-        // 退出账号
+        case 'SAVE_COMPANY_INFO':
+            if (action.payload.companyName) {
+                sessionStorage.setItem('companyName', action.payload.companyName)
+                sessionStorage.setItem('companyId', action.payload.companyId)
+            }
+            return {...state,companyName: action.payload.companyName,companyId: action.payload.companyId}
+        // 保存场馆号
+        case 'SAVE_STADIUM_ID':
+            if (action.payload.stadiumId) {
+                sessionStorage.setItem('stadiumId', action.payload.stadiumId)
+            }
+            return {...state,stadiumId: action.payload.stadiumId};
+        case 'SAVE_USER_ID':
+            if (action.payload.id) {
+                sessionStorage.setItem('id', action.payload.id)
+            }
+            return {...state,id: action.payload.id};
         case 'LOGINOUT':
-            sessionStorage.removeItem('token')
-            return {...state, loginState: false}
+            Cookies.remove("token")
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('companyName');
+            sessionStorage.removeItem('companyId');
+            sessionStorage.removeItem('stadiumId');
+            sessionStorage.removeItem('id');
+            return {...state, loginState: false};
         default:
-            return {...state, loginState: sessionStorage.getItem('token')? true: false}
+            return {...state,
+                id: sessionStorage.getItem('id')? sessionStorage.getItem('id'): '',
+                loginState: !!sessionStorage.getItem('token'),
+                companyId:sessionStorage.getItem('companyId')?sessionStorage.getItem('companyId'):'',
+                companyName:sessionStorage.getItem('companyName')?sessionStorage.getItem('companyName'):'',
+                stadiumId: sessionStorage.getItem('stadiumId')?sessionStorage.getItem('stadiumId'):'',
+            }
     }
-}
+};

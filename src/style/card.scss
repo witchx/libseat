@@ -1,0 +1,137 @@
+.am-tabs-default-bar-underline {
+  position: absolute;
+  border: 1px black solid;
+  transform: translate3d(0, 0, 0);
+}
+.am-tabs-default-bar-tab {
+  color: dimgray;
+}
+.am-tabs-default-bar-tab-active {
+  color: black;
+  font-size: 18px;
+}
+.am-list-body {
+  background-color: transparent;
+  border-top: 1PX solid transparent;
+  border-bottom: 1PX solid transparent;
+}
+.card_box{
+  height: 200px;
+  border-radius: 15px;
+  background: transparent;
+  color: white;
+  border: 1px solid dimgray;
+}
+.value_card{
+  background: linear-gradient( 150deg , black, dimgrey);
+  height: 140px;
+  border-radius: 15px 15px 0 0;
+}
+.would_card{
+  background: linear-gradient(150deg, #f47910, #fadc30);
+  height: 140px;
+  border-radius: 15px 15px 0 0;
+}
+.time_card{
+  background: linear-gradient( 150deg , #7a1d8b, #f63ea9);
+  height: 140px;
+  border-radius: 15px 15px 0 0;
+}
+.card_bottom{
+  height: 60px;
+  background: content-box;
+  border-radius: 0 0 15px 15px;
+  line-height: 60px;
+}
+.card_top_top{
+  margin-left: 20px;
+  height: 60px;
+  line-height: 60px;
+  text-align: left;
+}
+.card_top_top_left{
+  font-size: 24px;
+}
+.card_top_top_right{
+  font-size: 18px;
+  margin-left: 5px;
+}
+.card_top_mid{
+  height: 40px;
+  line-height: 40px;
+  font-size: 18px;
+  margin-left: 20px;
+  text-align: left;
+}
+.card_top_bottom{
+  height: 40px;
+  line-height: 25px;
+  font-size: 16px;
+  margin-left: 20px;
+  text-align: left;
+}
+.card_bottom_left{
+  font-size: 17px;
+  color: dimgrey;
+  margin-left: 30px;
+  float: left;
+}
+.card_bottom_right{
+  float: right;
+  width: 40%;
+  color: red;
+  font-size: 16px;
+}
+.card_bottom_right_left{
+  float: right;
+  color: dimgrey;
+  text-decoration: line-through;
+}
+.card_bottom_right_mid{
+  float: right;
+  font-size: 24px;
+  margin-right: 6px;
+}
+.card_bottom_right_right{
+  float: right;
+  margin-right: 6px;
+}
+.card_bottom_alert{
+  color: rgb(136, 136, 136);
+  font-size: 15px;
+  float: left;
+  margin-left: 35%;
+  margin-top: 9px;
+}
+.card_buy_bottom{
+  float: left;
+  margin-left: 20px;
+  color: red;
+  font-size: 16px;
+}
+.card_buy_bottom_left{
+  font-size: 24px;
+}
+.card_buy_bottom_right{
+  width: 31%;
+  float: right;
+  margin-right: 20px;
+  margin-top: 7px;
+}
+.card_buy_submit{
+  height: 36px;
+  line-height: 36px;
+}
+.card_des_box{
+  text-align: left;
+  margin-left: 20px;
+  font-size: 16px;
+  margin-top: 20px;
+}
+.card_des_bold{
+  font-weight: bold;
+  color: black;
+}
+.card_des{
+  margin-left: 15px;
+}

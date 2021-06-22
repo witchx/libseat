@@ -4,8 +4,10 @@ import { Provider } from 'react-redux'
 import App from './App';
 import store from './store/store'
 
+import './style/csstransition.scss'
+
 // 引入全局样式
-import './style/index.css'
+import './style/index.scss'
 // 处理点击移动端事件
 import FastClick from 'fastclick';
 FastClick.attach(document.body);

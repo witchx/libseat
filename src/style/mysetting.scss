@@ -1,0 +1,22 @@
+.bg_div{
+    height: 200px;
+    background: /*rgb(17, 142, 234);*/linear-gradient(180deg, rgb(17, 142, 234), transparent);
+}
+.user_card{
+    position: relative;
+    top: -125px;
+    width: 90%;
+    margin-left: 5%;
+    border-radius: 6%;
+    padding: 1%;
+    border: 1px dashed dimgray;
+    background: #ffffff;
+}
+.saveButton{
+    position: relative;
+    top: -90px;
+    margin-left: 5%;
+    width: 90%;
+    color: rgb(17, 142, 234);
+}
+

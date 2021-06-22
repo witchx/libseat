@@ -1,0 +1,130 @@
+.pay_box{
+  height: 330px;
+  border: 1px dashed dimgray;
+  width: 90%;
+  margin-left: 5%;
+  margin-top: 40px;
+  border-radius: 15px;
+  background: white;
+}
+.pay_box .pay_alert{
+  font-size: 14px;
+  color: dimgray;
+  margin-left: 20px;
+}
+.pay_box .pay_big_alert{
+  font-size: 18px;
+  color: dimgray;
+  margin-left: 20px;
+  float: left;
+}
+.pay_box .pay_bottom{
+  float: right;
+  margin-right: 20px;
+}
+.pay_box .pay_bottom .pay_count_alert{
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+.pay_box .pay_top{
+  font-size: 22px;
+  font-weight: bold;
+  margin-left: 20px;
+  height: 50px;
+  line-height: 50px;
+}
+.pay_box .pay_info{
+  font-size: 20px;
+  font-weight: bold;
+  height: 50px;
+  line-height: 50px;
+  margin-left: 20px;
+}
+.pay_box .pay_mid{
+  width: 100%;
+  height: 62px;
+  line-height: 60px;
+  border-top: 1px dashed dimgray;
+  border-bottom: 1px dashed dimgray;
+}
+.pay_box .pay_single{
+  float: right;
+  margin-right: 20px;
+  font-size: 18px;
+}
+.pay_box .pay_bottom .pay_count_money{
+  font-size: 22px;
+  font-weight: bold;
+  color: red;
+}
+.pay_box .pay_bottom .pay_count_dan{
+  font-size: 20px;
+  margin-left: 10px;
+  color: red;
+}
+.pay_box .pay_img{
+  position: absolute;
+  top: 122px;
+  right: 60px;
+  width: 50px;
+}
+/*vip*/
+.pay_top_top{
+  font-size: 22px;
+  font-weight: bold;
+  margin-left: 20px;
+  height: 100px;
+  line-height: 115px;
+}
+.pay_top_mid{
+  font-size: 18px;
+  margin-left: 20px;
+  font-weight: bold;
+}
+.pay_top_mid .pay_card_alert_left{
+}
+.pay_top_mid .pay_card_info_left{
+  color: red;
+}
+.pay_top_mid .pay_card_alert_right{
+  margin-left: 20px;
+}
+.pay_top_mid .pay_card_info_right{
+  color: lime;
+}
+.pay_top_bottom{
+  font-size: 18px;
+  color: dimgray;
+  margin-left: 20px;
+  height: 60px;
+  line-height: 40px;
+}
+.submit_order_footer{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background: white;
+}
+.submit_order_footer .submit_order_footer_left{
+  float: left;
+  font-size: 18px;
+  font-weight: bold;
+  height: 60px;
+  line-height: 60px;
+  margin-left: 20px;
+}
+.submit_order_footer .submit_order {
+  width: 143px;
+  float: right;
+  margin-right: 20px;
+  margin-top: 8px;
+}
+.pay_center{
+  font-size: 17px;
+  width: 100%;
+  text-align: center;
+  margin-top: 25%;
+  color: dimgray;
+}
