@@ -1,7 +1,7 @@
 package com.libseat.admin.task;
 
 import com.libseat.admin.service.OrderService;
-import com.libseat.api.constant.OrderEvaluateType;
+import com.libseat.admin.service.RankService;
 import com.libseat.api.constant.OrderProgressType;
 import com.libseat.api.constant.OrderStatusType;
 import com.libseat.api.constant.OrderType;
@@ -23,10 +23,13 @@ public class OrderConfirmTask extends ScheduleRunnable {
 
     private final OrderService orderService;
 
+    private final RankService rankService;
+
     private final long flagTime;
 
-    public OrderConfirmTask(OrderService orderService, long flagTime) {
+    public OrderConfirmTask(OrderService orderService, RankService rankService, long flagTime) {
         this.orderService = orderService;
+        this.rankService = rankService;
         this.flagTime = flagTime;
     }
 
@@ -38,14 +41,17 @@ public class OrderConfirmTask extends ScheduleRunnable {
             List<OrderEntity> orderList = orderService.getOrderList(OrderType.SEAT.getId(), OrderStatusType.CONFIRM.getId(),false);
             orderList.forEach(orderEntity -> {
                 //超过时间,更改状态
-                if (Math.abs(DateUtils.getMillisecondsBetweenNow(orderEntity.getStartTime().getTime())) >= flagTime) {
+                long betweenNow = DateUtils.getMillisecondsBetweenNow(orderEntity.getStartTime().getTime());
+                if ( betweenNow > 0 || Math.abs(betweenNow) <= flagTime) {
                     OrderEntity order = new OrderEntity();
                     order.setId(orderEntity.getId());
                     order.setStatus(OrderStatusType.EVALUATE.getId());
                     order.setProgress(OrderProgressType.CONFIRM.getId());
-                    order.setEvaluateTime(new Timestamp(System.currentTimeMillis()));
-                    order.setEvaluate(OrderEvaluateType.FIVE_STAR.getId());
-                    orderService.updateOrderByTask(orderEntity);
+                    order.setConfirmTime(new Timestamp(System.currentTimeMillis()));
+                    order.setType(orderEntity.getType());
+                    orderService.updateOrderByTask(order);
+                    //更新rank 加学习时长
+                    rankService.addStudyTime(orderEntity.getId());
                 }
             });
         } catch (Exception e) {

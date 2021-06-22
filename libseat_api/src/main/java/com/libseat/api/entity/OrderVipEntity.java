@@ -4,7 +4,6 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 
 /**
@@ -20,9 +19,6 @@ public class OrderVipEntity extends Order{
     /** vip卡id*/
     @Column
     private Integer vipCardId;
-    /** 创建时间*/
-    @Column
-    private Timestamp createTime;
     /** 订单id*/
     @Column
     private Integer orderId;

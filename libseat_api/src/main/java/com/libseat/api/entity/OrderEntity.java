@@ -35,9 +35,6 @@ public class OrderEntity {
     /** 订单金额*/
     @Column
     private BigDecimal price;
-    /** 使用vip卡*/
-    @Column
-    private Integer vipCardId;
     /** 使用优惠劵*/
     @Column
     private Integer couponId;
@@ -86,5 +83,15 @@ public class OrderEntity {
     private String orderStatus;
     @Transient
     private Timestamp startTime;
+    @Transient
+    private Integer paymentType;
 
+    @Transient
+    private OrderSeatEntity orderSeat;
+    @Transient
+    private VipCardEntity vipCard;
+    @Transient
+    private OrderProductEntity orderProduct;
+    @Transient
+    private ProductEntity product;
 }

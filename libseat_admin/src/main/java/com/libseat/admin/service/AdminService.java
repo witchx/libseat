@@ -26,4 +26,6 @@ public interface AdminService {
     void deleteAdmin(AdminEntity adminEntity);
 
     List<String> getAllUsername();
+
+    AdminEntity getAdminById(Integer id);
 }

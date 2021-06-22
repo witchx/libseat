@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { getUserDetail,updateUser,checkPassword } from '../api/index'
+import { getUserDetail,updateUser,checkPassword ,uploadImage} from '../api/index'
 import { withRouter } from 'react-router-dom'
 import { CSSTransition } from 'react-transition-group'
-import { Button, Modal,NavBar,Icon,List,Toast,Picker } from 'antd-mobile'
+import { Button, Modal,NavBar,Icon,List,Toast,Picker,ImagePicker } from 'antd-mobile'
 import { connect } from 'react-redux'
 import { createForm } from 'rc-form';
 import '../style/mysetting.scss'
@@ -22,7 +22,8 @@ export class MySetting extends Component {
         super(props)
 
         this.state = {
-            isShow:true
+            isShow:true,
+            isLoading: false
         }
     }
     componentDidMount() {
@@ -34,16 +35,24 @@ export class MySetting extends Component {
             const { code,msg,data } = res.data
             console.log(res.data)
             if (code === 200) {
-                this.setState({
-                    id: data.id,
-                    tel: data.tel,
-                    nickname: data.nickname,
-                    companyName: data.companyName,
-                    avatar: data.icon,
-                    sex: data.sex,
-                    username: data.username,
-                    email: data.email
-                })
+                setTimeout(() => {
+                    this.setState({
+                        id: data.id,
+                        tel: data.tel,
+                        nickname: data.nickname,
+                        companyName: data.companyName,
+                        avatar: data.icon,
+                        sex: data.sex,
+                        username: data.username,
+                        email: data.email,
+                        files: [{
+                            url: data.icon,
+                            id: '1',
+                        }],
+                        isLoading:true
+                    })
+                    }, 300);
+
             }
         })
     }
@@ -76,9 +85,31 @@ export class MySetting extends Component {
             }
         ])
     }
+    onChange = async (files, type, index) => {
+        this.setState({
+            files,
+        });
+        console.log(files)
+        if (type === 'add') {
+            let formData = new FormData();
+            let file = files[0].file;
+            formData.append('file', file);
+            const res = await uploadImage(this.state.id, formData)
+            if (res.data.code === 200) {
+                Toast.success('修改成功!', 2)
+                setTimeout(() => {
+                    this.fetchData()
+                }, 2000)
+            } else {
+                Toast.fail(res.data.msg, 2)
+            }
+        }
+    }
     render() {
         const { getFieldProps } = this.props.form;
         const {isShow}=this.state;
+        const { files } = this.state;
+        console.log(this.state)
         return (
             <div>
                 <NavBar
@@ -92,15 +123,23 @@ export class MySetting extends Component {
                     ]}
                 >{this.props.history.location.query ? this.props.history.location.query.name : ''}</NavBar>
                 <div className="bg_div"></div>
-                <CSSTransition in={isShow}
+                {this.state.isLoading?<CSSTransition in={isShow}
                                classNames="card"
                                timeout={10000}
                                appear>
-                    <div className="user_card">
+                   <div className="user_card">
+                       <div style={{width:'100%'}}>
+                           <ImagePicker
+                               length="1"
+                               files={files}
+                               onChange={this.onChange}
+                               onImageClick={(index, fs) => console.log(index, fs)}
+                               selectable={files.length < 1}
+                               multiple="false"
+                               style={{width: '40%',marginLeft: '30%'}}
+                           />
+                       </div>
                         <List>
-                            <List.Item onClick={() => {}}>
-                                头像
-                            </List.Item>
                             <List.Item extra={this.state.nickname+'用户'}
                                        onClick={() => {
                                            Modal.prompt('用户名', '请输入用户名!', [
@@ -254,7 +293,7 @@ export class MySetting extends Component {
                             </List.Item>
                         </List>
                     </div>
-                </CSSTransition>
+                </CSSTransition>:''}
                 <Button onClick={this.logout} className="saveButton">退出登录</Button>
             </div>
         )

@@ -70,11 +70,7 @@ public class OrderController {
     @PostMapping("/create")
     @ResponseBody
     public CommonResult<Integer> createOrder (@RequestBody OrderDto orderDto){
-        Integer orderId = orderService.createOrder(orderDto);
-        if (orderId == null){
-            return CommonResult.failed();
-        }
-        return CommonResult.success(orderId);
+        return orderService.createOrder(orderDto);
     }
 
     @GetMapping("/info")
@@ -158,9 +154,12 @@ public class OrderController {
                 if ((System.currentTimeMillis()+ DateUtils.MINUTE*30) > orderSeatEntity.getStartTime().getTime()) {
                     //离开始时间不到30分钟
                     return CommonResult.failed("离开始时间不到30分钟,不能取消预约！");
+                }else {
+                   orderService.cancelOrder(orderEntity);
+                    return CommonResult.success();
                 }
-            }
-            if (orderService.updateOrder(orderEntity) > 0) {
+            }else {
+                orderService.updateOrder(orderEntity);
                 return CommonResult.success();
             }
         }

@@ -6,4 +6,5 @@ public interface BaseService {
     void startWeek();
 
     void startDay();
+
 }

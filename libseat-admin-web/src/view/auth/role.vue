@@ -154,7 +154,7 @@
                       if (this.show_menu.value) {
                         this.show_menu.menu = [];
                         this.show_menu.selectMenu = [];
-                        const res = await getMenu({})
+                        const res = await getMenu({page:1,pageSize:9999})
                         if ( res.data.code === 200 ) {
                           res.data.data.rows.forEach(item => {
                             if (item.parentId === 0) {

@@ -1,9 +1,9 @@
 package com.libseat.server.web.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.libseat.api.entity.RankEntity;
-import com.libseat.api.model.RankNode;
-import com.libseat.server.web.dto.RankInfo;
+import com.libseat.api.entity.RankInfo;
 import com.libseat.server.web.mapper.RankMapper;
 import com.libseat.server.web.service.RankService;
 import com.libseat.utils.redis.RedisUtil;
@@ -13,7 +13,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Tuple;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,28 +49,6 @@ public class RankServiceImpl implements RankService {
     }
 
     @Override
-    public RankInfo getRank(String flag, Integer customerId) {
-        Jedis jedis = null;
-        int rank = -1;
-        RankInfo rankInfo = null;
-        try {
-            jedis = redisUtil.getJedis();
-            rank = jedis.zrank(flag,customerId.toString()).intValue() + 1;
-            rankInfo = getCustomerRankById(customerId);
-            if (rankInfo != null) {
-                rankInfo.setRank(rank);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
-        }
-        return rankInfo;
-    }
-
-    @Override
     public Integer insertRank(RankEntity rankEntity) {
         return rankMapper.insert(rankEntity);
     }
@@ -85,14 +62,7 @@ public class RankServiceImpl implements RankService {
 
     @Override
     public List<RankInfo> getRanks(String flag) {
-        List<RankNode> ranksTopN = getRanksTopN(flag, 50);
-        List<RankInfo> rankInfos = new LinkedList<>();
-        if (ranksTopN != null && !ranksTopN.isEmpty()) {
-            ranksTopN.forEach(rankNode -> {
-                rankInfos.add(getRank(flag,rankNode.getId()));
-            });
-        }
-        return rankInfos;
+        return getRanksTopN(flag, 50);
     }
 
     @Override
@@ -100,15 +70,17 @@ public class RankServiceImpl implements RankService {
         return rankMapper.getCustomerRankById(id);
     }
 
-    public List<RankNode> getRanksTopN(String flag, int n) {
+    public List<RankInfo> getRanksTopN(String flag, int n) {
         Jedis jedis = null;
-        List<RankNode> rankNodes = new ArrayList<>();
+        List<RankInfo> rankInfos = new ArrayList<>();
         AtomicInteger rank = new AtomicInteger(1);
         try {
             jedis = redisUtil.getJedis();
             Set<Tuple> tuples = jedis.zrangeWithScores(flag, 0, n - 1);
             tuples.forEach(tuple -> {
-                rankNodes.add(new RankNode(Integer.valueOf(tuple.getElement()),Math.abs(tuple.getScore()),rank.getAndIncrement()));
+                RankInfo rankInfo = JSON.parseObject(tuple.getElement(), RankInfo.class);
+                rankInfo.setRank(rank.getAndIncrement());
+                rankInfos.add(rankInfo);
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,6 +89,6 @@ public class RankServiceImpl implements RankService {
                 jedis.close();
             }
         }
-        return rankNodes;
+        return rankInfos;
     }
 }

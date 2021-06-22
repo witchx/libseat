@@ -18,7 +18,7 @@
               <Input v-model="searchParams.name" @keyup.enter="fetchData" placeholder="场馆名称"/>
             </FormItem>
           </Col>
-          <Col span="6">
+          <Col span="6" v-if="!sellerId">
             <FormItem label="公司:" prop="companyName" aria-required="true">
               <Input v-model="searchParams.companyName" @keyup.enter="fetchData" placeholder="公司名称"/>
             </FormItem>
@@ -229,6 +229,7 @@
             }}
         ],
         data: [],
+        sellerId: this.$store.state.user.sellerId,
         searchParams: searchParams,
         loading: true,
         show_edit: {
@@ -281,6 +282,9 @@
         if (typeof(this.$route.query.userId) !== "undefined" && this.$route.query.userId !== '') {
           this.searchParams.userId = this.$route.query.userId
           this.$route.query.userId = ''
+        }
+        if (this.sellerId) {
+          this.searchParams.userId = this.sellerId
         }
         const res = await getStadium(this.searchParams)
         if (res.data.code === 200) {

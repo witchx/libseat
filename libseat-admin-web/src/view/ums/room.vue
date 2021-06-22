@@ -23,6 +23,11 @@
               <Input v-model="searchParams.stadiumName" @keyup.enter="fetchData" placeholder="场馆名称"/>
             </FormItem>
           </Col>
+          <Col span="6" v-if="!sellerId">
+            <FormItem label="公司:" prop="stadiumName" aria-required="true">
+              <Input v-model="searchParams.userId" @keyup.enter="fetchData" placeholder="公司ID"/>
+            </FormItem>
+          </Col>
         </Row>
       </Form>
       <div style="clear: both"></div>
@@ -57,6 +62,7 @@
     name: '',
     stadiumId: '',
     stadiumName: '',
+    userId: '',
     page: 1,
     pageSize: 10,
     total: 0
@@ -71,6 +77,7 @@
       return {
         columns: [
           { title: 'ID', key: 'id',width: 80, sortable: true },
+          { title: '公司名称', key: 'companyName'},
           { title: '场馆名称', key: 'stadiumName'},
           { title: '自习室名称', key: 'name' , render: (h, params) => {
             if (params.row.edit) {
@@ -225,6 +232,7 @@
           name: ''
         },
         searchParams: searchParams,
+        sellerId: this.$store.state.user.sellerId,
         create_modal_show: false,
         seat: []
       }
@@ -243,6 +251,9 @@
         if (typeof(this.$route.query.stadiumId) !== "undefined" && this.$route.query.stadiumId !== '') {
           this.searchParams.stadiumId = this.$route.query.stadiumId;
           this.$route.query.stadiumId = '';
+        }
+        if (this.sellerId) {
+          this.searchParams.userId = this.sellerId
         }
         const res = await getRoom(this.searchParams)
         if (res.data.code === 200) {

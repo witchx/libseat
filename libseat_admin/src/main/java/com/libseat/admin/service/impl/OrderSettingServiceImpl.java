@@ -3,14 +3,13 @@ package com.libseat.admin.service.impl;
 import com.libseat.admin.mapper.OrderSettingMapper;
 import com.libseat.admin.service.OrderService;
 import com.libseat.admin.service.OrderSettingService;
+import com.libseat.admin.service.RankService;
 import com.libseat.admin.task.OrderCloseTask;
 import com.libseat.admin.task.OrderConfirmTask;
 import com.libseat.admin.task.OrderDeleteTask;
 import com.libseat.admin.task.OrderEvaluateTask;
-import com.libseat.api.constant.Constant;
 import com.libseat.api.constant.SchedulerTaskType;
 import com.libseat.api.entity.OrderSettingEntity;
-import com.libseat.utils.scheduler.ScheduleRunnable;
 import com.libseat.utils.scheduler.SeatScheduler;
 import com.libseat.utils.utils.DateUtils;
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class OrderSettingServiceImpl implements OrderSettingService {
@@ -36,6 +34,10 @@ public class OrderSettingServiceImpl implements OrderSettingService {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private RankService rankService;
+
 
     private final Object lock = new Object();
 
@@ -127,7 +129,7 @@ public class OrderSettingServiceImpl implements OrderSettingService {
                         scheduledFuture = seatScheduler.scheduleAtFixSecond(new OrderCloseTask(orderService, time*DateUtils.MINUTE), 0, 10*60);
                         break;
                     case CONFIRM:
-                        scheduledFuture = seatScheduler.scheduleAtFixSecond(new OrderConfirmTask(orderService, time*DateUtils.MINUTE), 0, 10*60);
+                        scheduledFuture = seatScheduler.scheduleAtFixSecond(new OrderConfirmTask(orderService, rankService,time*DateUtils.MINUTE), 0, 10*60);
                         break;
                     case EVALUATE:
                         scheduledFuture = seatScheduler.schedulePerDay(new OrderEvaluateTask(orderService, time*DateUtils.DAY), 0);

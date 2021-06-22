@@ -35,7 +35,7 @@
         <if test="companyName != null and companyName !=''">
             AND lu.company_name like concat('%',#{companyName},'%')
         </if>
-        ORDER BY lc.id
+        ORDER BY lc.id DESC
     </select>
 
     <delete id="deleteCouponBatch" parameterType="Integer">

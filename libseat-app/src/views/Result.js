@@ -48,7 +48,7 @@ export class Result extends Component {
         switch (type) {
             case 0:
                 return (
-                    <span className="result_right">直接支付</span>
+                    <span className="result_right">支付宝</span>
                 )
             case 1:
                 return (

@@ -42,13 +42,17 @@ public class CustomerEntity {
     private Integer deleteFlag;
     @Column
     private Integer userId;
-    @Column
-    private String companyName;
 
+    @Transient
+    private String companyName;
     @Transient
     private BigDecimal totalValue;
     @Transient
     private Integer totalTimes;
     @Transient
     private Integer totalDays;
+    @Transient
+    private Integer totalCoupon;
+    @Transient
+    private Double hoursByWeek;
 }

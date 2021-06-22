@@ -49,7 +49,7 @@ export const constantRouterMap = [
       }
     ]
   },
-  {
+  /*{
     path: '/demo',
     name: 'demo',
     meta: {
@@ -472,7 +472,7 @@ export const constantRouterMap = [
         component: () => import('@/view/argu-page/query.vue')
       }
     ]
-  },
+  },*/
   {
     path: '/401',
     name: 'error_401',
@@ -526,7 +526,17 @@ export const asyncRouterMap = [
           title: '顾客列表'
         },
         component: () => import('@/view/ums/customer')
-      },
+      }
+    ]
+  }, {
+    path: '/rms',
+    name: 'rms',
+    meta: {
+      icon: 'md-list-box',
+      title: '自习室'
+    },
+    component: Main,
+    children: [
       {
         path: 'stadium',
         name: 'stadium',

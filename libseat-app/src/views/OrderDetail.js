@@ -4,6 +4,9 @@ import {getOrderDetail} from '../api/index'
 import '../style/orderdetail.scss'
 import { strToTime } from '../utils/time';
 import {Link} from "react-router-dom";
+import QRCode from 'qrcode.react';
+import JSEncrypt from 'jsencrypt';
+import {getPublicKey }from '../utils/constant'
 export class OrderDetail extends Component {
     constructor(props) {
         super(props)
@@ -24,6 +27,7 @@ export class OrderDetail extends Component {
                         data: data,
                         isLoading: true
                     })
+                    console.log(this.state)
                 }, 600);
             }
         })
@@ -70,6 +74,13 @@ export class OrderDetail extends Component {
         }
     }
 
+    encrypt = (text) =>{
+        const encrypt = new JSEncrypt();
+        encrypt.setPublicKey(getPublicKey());
+        const encrypted = encrypt.encrypt(text);
+        return encrypted;
+    }
+
     getTop = (type) => {
         switch (type) {
             case 0://座位
@@ -82,9 +93,16 @@ export class OrderDetail extends Component {
                             <span className="order_right">{this.state.data.price}元</span>
                         </div>
                         <hr />
-                        <div className="order_one">
-                            <span className="order_right">{this.state.data.price}元</span>
-                        </div>
+                        {this.state.data.status>1&&this.state.data.type===0?<div className="order_two">
+                            <span className="order_left">二维码</span>
+                            <div className="QRCode">
+                                <QRCode
+                                    value={this.encrypt("seatId:"+this.state.data.orderSeat.seatId+",startTime:"+this.state.data.orderSeat.startTime+",endTime:"+this.state.data.orderSeat.endTime)}
+                                    size={200}
+                                    fgColor='#000000'
+                                />
+                            </div>
+                        </div>:''}
                         <WhiteSpace size="lg"/>
                         <div className="order_one">
                             <span className="order_left">开始时间</span>
@@ -148,7 +166,7 @@ export class OrderDetail extends Component {
         switch (type) {
             case 0:
                 return (
-                   <span className="order_right">直接支付</span>
+                   <span className="order_right">支付宝</span>
                 )
             case 1:
                 return (
@@ -216,7 +234,7 @@ export class OrderDetail extends Component {
                         <WhiteSpace size="lg"/>
                         {this.getTop(this.state.data.type)}
                         <WhiteSpace size="lg"/>
-                        {this.state.data.paymentType?<div className="order_box">
+                        {this.state.data.paymentType!=null&&typeof(this.state.data.paymentType)!="undefined"?<div className="order_box">
                             <div className="order_one">
                                 <span className="order_left">支付方式</span>
                                 <span className="order_right">{this.getPaymentType(this.state.data.paymentType)}</span>
@@ -231,7 +249,7 @@ export class OrderDetail extends Component {
                             </div>
                         </div>:''}
                         <WhiteSpace size="lg"/>
-                        {this.getBottom(this.state.data.status)}
+                        {this.state.data.evaluate!=null&&typeof(this.state.data.evaluate)!="undefined"?this.getBottom(this.state.data.status):''}
                     </div>:''}
                     <div className="pay_center">
                         <p>

@@ -40,13 +40,30 @@
     <Modal v-model="show_create.value" title="创建管理员">
         <Form ref="formCreate" :model="show_create" :rules="rule"  :label-width="100">
           <Row>
+            <FormItem label="是否为商家:" prop="userId">
+              <i-switch v-model="createSwitch" @on-change="change" />
+            </FormItem>
+          </Row>
+          <Row v-if="createSwitch">
+            <FormItem label="公司:" prop="userId">
+              <Select v-model="show_create.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" placeholder="请输入搜索公司名称">
+                <Option v-for="(option, index) in user_option" :value="option.value" :key="index">{{option.label}}</Option>
+              </Select>
+            </FormItem>
+          </Row>
+          <Row v-if="!createSwitch">
             <FormItem label="管理员名:"  prop="nickname"  aria-required="true">
               <Input style="width: 80%" v-model="show_create.nickname"/>
             </FormItem>
           </Row>
-          <Row>
-            <FormItem label="密码:" prop="password"  aria-required="true">
+          <Row v-if="!createSwitch">
+            <FormItem label="密码:" prop="password" aria-required="true">
               <Input style="width: 80%" type="password" v-model="show_create.password"/>
+            </FormItem>
+          </Row>
+          <Row v-if="!createSwitch">
+            <FormItem label="重新输入密码:" prop="password2" aria-required="true">
+              <Input style="width: 80%" type="password"  v-model="show_create.password2"/>
             </FormItem>
           </Row>
         </Form>
@@ -70,10 +87,12 @@
 <script>
   import Tables from '_c/tables'
   import { getAdmin, createAdmin, updateAdmin, deleteAdmin } from '@/api/admin';
+  import { getUser} from '@/api/user';
   import { getRole } from '@/api/role';
   import {timestampFormat} from '@/libs/tools';
   import {validateUsername, validatePass} from '@/libs/validate';
   import md5 from "js-md5";
+  import lodash from "lodash";
   const searchParams = {
     username: '',
     page: 1,
@@ -213,6 +232,10 @@
               }
             },
             {
+              title: '公司名称',
+              key: 'companyName'
+            },
+            {
               title: '角色名称',
               key: 'roleName'
             },
@@ -241,11 +264,11 @@
                 return h('i-switch', {
                   props: {
                     size: 'large',
-                    value: params.row.deleteFlag === '0'
+                    value: params.row.deleteFlag === 0
                   },
                   on: {
                     'on-change': async (value) => {
-                      await updateAdmin(params.row.id, {deleteFlag: value ? '0' : '1'});
+                      await updateAdmin(params.row.id, {deleteFlag: value ? 0 : 1});
                     }
                   }
                 })
@@ -325,7 +348,9 @@
         show_create: {
           value: false,
           nickname: '',
-          password: ''
+          password: '',
+          password2: '',
+          userId: '',
         },
         user: this.$store.state.user,
         show: false,
@@ -338,8 +363,14 @@
           ],
           password: [
             { validator: validatePass, trigger: 'blur' },
+          ],
+          password2: [
+            { validator: validatePass, trigger: 'blur' },
           ]
-        }
+        },
+        user_loading: false,
+        user_option: [],
+        createSwitch: true
       }
     },
     created() {
@@ -369,6 +400,9 @@
         this.show_create.value = !this.show_create.value;
         this.createToEmpty();
       },
+      change (status) {
+        console.log('开关状态：' + this.createSwitch);
+      },
       async submit() {
         const res = await updateAdmin(this.id, {role: JSON.stringify(this.roleIds)})
         if (res.data.code === 200) {
@@ -384,9 +418,8 @@
       },
       submitCreate() {
         this.$refs.formCreate.validate(async (valid) => {
-          if (valid) {
-            this.show_create.password = md5(this.show_create.password);
-            const res = await createAdmin(this.show_create)
+          if (this.createSwitch) {
+            const res = await createAdmin({userId: this.show_create.userId})
             if (res.data.code === 200) {
               this.$Message.success(res.data.msg);
               this.show_create.value = false
@@ -395,9 +428,45 @@
               this.$Message.warning(res.data.msg);
             }
           } else {
-            return false
+            if (valid) {
+              if (this.show_create.password === this.show_create.password2) {
+                return this.$Message.warning('两次密码不一样');
+              }
+              this.show_create.password = md5(this.show_create.password);
+              const res = await createAdmin(this.show_create)
+              if (res.data.code === 200) {
+                this.$Message.success(res.data.msg);
+                this.show_create.value = false
+                this.$emit('refresh')
+              } else {
+                this.$Message.warning(res.data.msg);
+              }
+            } else {
+              return false
+            }
           }
         })
+      },
+      async searchUser(query) {
+        if (query) {
+          this.user_loading = true
+          const res = await getUser({companyName: query})
+          if ( res.data.code === 200 ) {
+            this.user_option = res.data.data.rows.map(item => {
+              return {
+                value: item.id,
+                label: item.companyName
+              }
+            })
+          } else {
+            this.user_option = [];
+          }
+          setTimeout(() => {
+            this.user_loading = false
+          }, 200)
+        } else {
+          this.user_option = [];
+        }
       },
       exportExcel () {
         this.$refs.tables.exportCsv({
@@ -418,6 +487,9 @@
       createToEmpty() {
         this.show_create.username = '';
         this.show_create.password = '';
+      },
+      debounce(fun, time) {
+        return lodash.debounce(fun, time)
       }
     }
   }

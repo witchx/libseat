@@ -4,34 +4,20 @@
 <mapper namespace="com.libseat.server.web.mapper.SeatMapper">
     <!--0代表此处为无座，1代表空座，2代表已被占用-->
     <select id="getSeatList" resultType="SeatEntity">
-        SELECT
-            ls.id,
-            ls.room_id,
-            ls.`row`,
-            ls.line,
-            oo.order_id,
-            oo.start_time,
-            oo.end_time,
+        SELECT  ls.id, ls.room_id, ls.`row`, ls.line, oo.order_id, oo.start_time, oo.end_time,
         CASE
             WHEN oo.`status` is null THEN 1
             ELSE oo.`status` END AS `status`
-        FROM
-            lib_seat ls
+        FROM lib_seat ls
         LEFT JOIN
         (
-            SELECT
-            *
-            FROM
+            SELECT * FROM
             (
-                SELECT
-                    ls.id seat_id,
-                    los.order_id,
-                    los.start_time,
-                    los.end_time,
+                SELECT ls.id seat_id, los.order_id, los.start_time, los.end_time,
                 CASE
                     WHEN lo.`status` IS NULL THEN ls.`status`
                     WHEN ls.`status` = 0 THEN 0
-                    WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
+                    WHEN lo.`status` <![CDATA[ > ]]> 3 THEN 1
                     WHEN #{startTime} <![CDATA[ > ]]> los.end_time THEN 1
                     WHEN #{endTime} <![CDATA[ < ]]> los.start_time THEN 1
                     ELSE 2
@@ -49,5 +35,42 @@
         ON ls.id = oo.seat_id
         WHERE ls.room_id = #{roomId}
         ORDER BY ls.id
+    </select>
+    <select id="getSeatStatusBySeatId" resultType="Integer">
+        SELECT
+            CASE
+        WHEN oo.`status` is null THEN 1
+        ELSE oo.`status` END AS `status`
+        FROM
+            lib_seat ls
+        LEFT JOIN
+        (
+            SELECT
+                ii.`status`,
+                ii.id seat_id
+            FROM
+            (
+                SELECT
+                    ls.id,
+                CASE
+                    WHEN lo.`status` IS NULL THEN ls.`status`
+                    WHEN ls.`status` = 0 THEN 0
+                    WHEN lo.`status` <![CDATA[ > ]]> 3 THEN 1
+                    WHEN #{startTime} <![CDATA[ > ]]> los.end_time THEN 1
+                    WHEN #{endTime} <![CDATA[ < ]]> los.start_time THEN 1
+                ELSE 2
+                END AS `status`
+                FROM
+                    lib_seat ls
+                LEFT JOIN lib_order_seat los
+                ON ls.id = los.seat_id
+                LEFT JOIN lib_order lo
+                on los.order_id = lo.id
+                WHERE ls.id = #{seatId}
+            ) ii
+            WHERE ii.`status` = 2 OR ii.`status` = 0
+        )oo
+        ON ls.id = oo.seat_id
+        WHERE ls.id = #{seatId}
     </select>
 </mapper>

@@ -15,4 +15,6 @@ import java.util.List;
 public interface SeatMapper extends MyBaseMapper<SeatEntity> {
 
     List<SeatEntity> getSeatList(@Param("roomId") Integer roomId, @Param("startTime") Timestamp startTime, @Param("endTime") Timestamp endTime);
+
+    Integer getSeatStatusBySeatId(@Param("seatId") Integer seatId, @Param("startTime") Timestamp startTime, @Param("endTime") Timestamp endTime);
 }

@@ -55,7 +55,8 @@
             title: `SEAT_ID:${row.seatId}`,
             content: `<p>占用时间: ${timestampFormat(row.startTime)} 至 ${timestampFormat(row.endTime)}</p>`,
             onOk: async () => {
-              await updateOrder({id: row.orderId, seatId: row.seatId, status: 3, endTime: Date.now()})
+              await updateOrder(row.orderId,{ seatId: row.seatId, status: 6})
+              this.$Message.success('强制签退成功！');
               this.$emit('refresh')
             },
             onCancel: () => {

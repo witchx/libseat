@@ -1,4 +1,4 @@
-package com.libseat.server.web.dto;
+package com.libseat.api.entity;
 
 import lombok.Data;
 

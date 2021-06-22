@@ -18,7 +18,7 @@
                 <Input v-model="searchParams.no" @keyup.enter="fetchData" placeholder="订单号"/>
               </FormItem>
             </Col>
-            <Col span="6">
+            <Col span="6" v-if="!sellerId">
               <FormItem label="公司:">
                 <Input v-model="searchParams.company" @keyup.enter="fetchData" placeholder="公司名称"/>
               </FormItem>
@@ -316,6 +316,7 @@
           }
         ],
         searchParams: searchParams,
+        sellerId: this.$store.state.user.sellerId,
         data: [],
         loading: true,
         progress_option: progress_option,
@@ -334,6 +335,9 @@
       },
       async fetchData() {
         this.loading = true
+        if (this.sellerId){
+          this.searchParams.userId = this.sellerId
+        }
         const res = await getOrder(this.searchParams)
         if (res.data.code === 200) {
           this.data = res.data.data.rows.map(item => {

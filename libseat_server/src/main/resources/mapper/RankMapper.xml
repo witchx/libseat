@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.libseat.server.web.mapper.RankMapper">
-    <select id="getCustomerRankById" resultType="com.libseat.server.web.dto.RankInfo">
+    <select id="getCustomerRankById" resultType="com.libseat.api.entity.RankInfo">
         SELECT
             lc.icon,
             lc.nickname,

@@ -5,56 +5,73 @@
 
     <select id="getRoomList" resultType="RoomEntity">
         SELECT
-        lr.id,
-        lr.`name`,
-        lr.stadium_id,
-        lr.modify_time,
-        lr.create_time,
-        oo.available_seat_count,
-        COUNT( ls.id ) total_seat_count,
-        lsta.`name` stadium_name
+            lr.id,
+            lr.`name`,
+            lr.stadium_id,
+            lr.modify_time,
+            lr.create_time,
+            lsta.`name` stadium_name,
+            lu.company_name,
+        CASE
+            WHEN oo.occupy_seat_count  IS NULL THEN COUNT( ls.id )
+            ELSE COUNT( ls.id ) - oo.occupy_seat_count
+            END AS available_seat_count,
+            COUNT( ls.id ) total_seat_count
         FROM
-        lib_room lr,
-        lib_seat ls,
-        lib_stadium lsta,
-        (
-        SELECT
-        ii.room_id,
-        COUNT( DISTINCT id ) available_seat_count
-        FROM
+            lib_room lr
+        JOIN
+            lib_stadium lsta
+        ON
+            lsta.id = lr.stadium_id
+        JOIN
+            lib_user lu
+        ON
+            lu.id = lsta.user_id
+        LEFT JOIN
         (
             SELECT
-                ls.room_id room_id,
-                ls.id,
-            CASE
-                WHEN lo.`status` IS NULL THEN ls.`status`
-                WHEN ls.`status` = 0 THEN 0
-                WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
-                WHEN now() <![CDATA[ >= ]]> los.end_time THEN 1
-                WHEN now() <![CDATA[ <= ]]> los.start_time THEN 1
-                ELSE 2
-                END AS `status`
+                ii.room_id,
+                COUNT( DISTINCT id ) occupy_seat_count
             FROM
-                lib_seat ls
-            LEFT JOIN lib_order_seat los
-            ON ls.id = los.seat_id
-            LEFT JOIN lib_order lo
-            on los.order_id = lo.id
-        ) ii
-        WHERE ii.`status` = 1
-        GROUP BY ii.room_id
+            (
+                SELECT
+                    ls.room_id,
+                    ls.id,
+                CASE
+                    WHEN lo.`status` IS NULL THEN ls.`status`
+                    WHEN ls.`status` = 0 THEN 0
+                    WHEN lo.`status` <![CDATA[ > ]]> 3 THEN 1
+                    WHEN now() <![CDATA[ >= ]]> los.end_time THEN 1
+                    WHEN now() <![CDATA[ <= ]]> los.start_time THEN 1
+                    ELSE 2 END AS `status`
+                FROM
+                    lib_seat ls
+                LEFT JOIN
+                    lib_order_seat los
+                ON
+                    ls.id = los.seat_id
+                LEFT JOIN
+                    lib_order lo
+                on
+                    los.order_id = lo.id
+            ) ii
+            WHERE ii.`status` = 2
+            GROUP BY ii.room_id
         ) oo
-        WHERE
-        ls.room_id = lr.id
-        AND oo.room_id = lr.id
-        AND lr.id = ls.room_id
-        AND lsta.id = lr.stadium_id
-        AND ls.`status` = '1'
+        ON
+            lr.id = oo.room_id
+        LEFT JOIN
+            lib_seat ls
+        ON ls.room_id = lr.id
+        WHERE ls.`status` = '1'
         <if test="name != null and name != ''">
             AND lr.`name` like concat('%',#{name},'%')
         </if>
         <if test="stadiumName != null and stadiumName != ''">
             AND lsta.`name` like concat('%',#{stadiumName},'%')
+        </if>
+        <if test="userId != null and userId != ''">
+            AND lsta.user_id = #{userId}
         </if>
         <if test="stadiumId != null and stadiumId != 0">
             AND lr.stadium_id = #{stadiumId}
@@ -69,43 +86,55 @@
             lr.stadium_id,
             lr.modify_time,
             lr.create_time,
-            oo.available_seat_count,
+            lsta.`name` stadium_name,
+        CASE
+            WHEN oo.occupy_seat_count  IS NULL THEN COUNT( ls.id )
+            ELSE COUNT( ls.id ) - oo.occupy_seat_count
+            END AS available_seat_count,
             COUNT( ls.id ) total_seat_count
         FROM
-            lib_room lr,
-            lib_seat ls,
+            lib_room lr
+        JOIN
+            lib_stadium lsta
+        ON
+            lsta.id = lr.stadium_id
+        LEFT JOIN
         (
             SELECT
                 ii.room_id,
-                COUNT( DISTINCT id ) available_seat_count
+                COUNT( DISTINCT id ) occupy_seat_count
             FROM
             (
                 SELECT
-                    ls.room_id room_id,
+                    ls.room_id,
                     ls.id,
                 CASE
                     WHEN lo.`status` IS NULL THEN ls.`status`
                     WHEN ls.`status` = 0 THEN 0
-                    WHEN lo.`status` <![CDATA[ >= ]]> 3 THEN 1
+                    WHEN lo.`status` <![CDATA[ > ]]> 3 THEN 1
                     WHEN now() <![CDATA[ >= ]]> los.end_time THEN 1
                     WHEN now() <![CDATA[ <= ]]> los.start_time THEN 1
-                    ELSE 2
-                    END AS `status`
+                    ELSE 2 END AS `status`
                 FROM
-                lib_seat ls
-                LEFT JOIN lib_order_seat los
-                ON ls.id = los.seat_id
-                LEFT JOIN lib_order lo
-                on los.order_id = lo.id
+                    lib_seat ls
+                LEFT JOIN
+                    lib_order_seat los
+                ON
+                    ls.id = los.seat_id
+                LEFT JOIN
+                    lib_order lo
+                on
+                    los.order_id = lo.id
             ) ii
-            WHERE ii.`status` = 1
+            WHERE ii.`status` = 2
             GROUP BY ii.room_id
         ) oo
-        WHERE
-	        ls.room_id = lr.id
-        AND oo.room_id = lr.id
-	    AND lr.id = ls.room_id
-        AND ls.`status` = '1'
+        ON
+            lr.id = oo.room_id
+        LEFT JOIN
+            lib_seat ls
+        ON ls.room_id = lr.id
+        WHERE ls.`status` = '1'
         AND lr.stadium_id = #{stadiumId}
         GROUP BY ls.room_id
     </select>

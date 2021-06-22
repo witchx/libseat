@@ -38,7 +38,8 @@ public class OrderDeleteTask extends ScheduleRunnable {
                     OrderEntity order = new OrderEntity();
                     order.setId(orderEntity.getId());
                     order.setDeleteFlag(DeleteFlagType.CANCEL.getId());
-                    orderService.updateOrderByTask(orderEntity);
+                    order.setType(orderEntity.getType());
+                    orderService.updateOrderByTask(order);
                 }
             });
         } catch (Exception e) {

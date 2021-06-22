@@ -1,6 +1,7 @@
 package com.libseat.admin.task;
 
 import com.libseat.admin.service.OrderService;
+import com.libseat.api.constant.OrderEvaluateType;
 import com.libseat.api.constant.OrderProgressType;
 import com.libseat.api.constant.OrderStatusType;
 import com.libseat.api.constant.OrderType;
@@ -41,8 +42,10 @@ public class OrderEvaluateTask extends ScheduleRunnable {
                     order.setId(orderEntity.getId());
                     order.setStatus(OrderStatusType.COMPLETED.getId());
                     order.setProgress(OrderProgressType.ACCOMPLISH.getId());
-                    order.setConfirmTime(new Timestamp(System.currentTimeMillis()));
-                    orderService.updateOrderByTask(orderEntity);
+                    order.setEvaluateTime(new Timestamp(System.currentTimeMillis()));
+                    order.setEvaluate(OrderEvaluateType.FIVE_STAR.getId());
+                    order.setType(orderEntity.getType());
+                    orderService.updateOrderByTask(order);
                 }
             });
         } catch (Exception e) {

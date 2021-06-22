@@ -89,11 +89,15 @@ public class LoginController {
             }
             Map<String,Object> user = new HashMap<>();
             user.put(Constant.LOGIN_ID, decode.get(Constant.LOGIN_ID));
-            user.put(Constant.LOGIN_NAME, decode.get(Constant.LOGIN_NAME));
-            user.put(Constant.LOGIN_ACCESS, decode.get(Constant.LOGIN_ACCESS));
-            user.put(Constant.LOGIN_AVATAR, decode.get(Constant.LOGIN_AVATAR));
-            user.put(Constant.LOGIN_NICKNAME, decode.get(Constant.LOGIN_NICKNAME));
+            user.put(Constant.LOGIN_USERNAME, decode.get(Constant.LOGIN_USERNAME));
+            AdminEntity adminEntity = adminService.getAdminById(Integer.valueOf(decode.get(Constant.LOGIN_ID).toString()));
+            ArrayList<Integer> arrayList = JSON.parseObject(adminEntity.getRole(), ArrayList.class);
+            String[] access = arrayList.stream().map(integer -> integer.toString()).toArray(String[]::new);
+            user.put(Constant.LOGIN_ACCESS, access);
+            user.put(Constant.LOGIN_AVATAR, adminEntity.getIcon());
+            user.put(Constant.LOGIN_NICKNAME, adminEntity.getNickname());
             user.put(Constant.MENU, menuService.getMenuList(false));
+            user.put(Constant.LOGIN_SELLER, adminEntity.getUserId());
             return CommonResult.success(user);
         }
     }
@@ -117,12 +121,7 @@ public class LoginController {
     private String jwtToken(AdminEntity adminEntity, HttpServletRequest request) throws Exception {
         Map<String, Object> loginMap = new HashMap<>();
         loginMap.put( Constant.LOGIN_ID, adminEntity.getId());
-        loginMap.put( Constant.LOGIN_NAME, adminEntity.getUsername());
-        ArrayList<Integer> arrayList = JSON.parseObject(adminEntity.getRole(), ArrayList.class);
-        String[] access = arrayList.stream().map(integer -> integer.toString()).toArray(String[]::new);
-        loginMap.put( Constant.LOGIN_ACCESS, access);
-        loginMap.put( Constant.LOGIN_AVATAR, adminEntity.getIcon());
-        loginMap.put( Constant.LOGIN_NICKNAME, adminEntity.getNickname());
+        loginMap.put( Constant.LOGIN_USERNAME, adminEntity.getUsername());
         String ip = CookieUtil.getIp(request);
         if (StringUtils.isBlank(ip)) {
             //没有通过反向代理

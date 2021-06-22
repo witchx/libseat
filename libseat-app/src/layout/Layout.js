@@ -2,8 +2,11 @@ import React, { Component } from 'react'
 import { TabBar,NavBar } from 'antd-mobile';
 import {withRouter} from 'react-router-dom'
 import {connect} from 'react-redux'
+import Cookies from 'js-cookie'
 export class Layout extends Component {
+
   render() {
+    const token = Cookies.get("token")
     return (
         <>
           <TabBar
@@ -58,12 +61,12 @@ export class Layout extends Component {
               {this.props.children}
             </TabBar.Item>
             <TabBar.Item
-                title={this.props.loginState?'个人中心': '未登录'}
+                title={this.props.loginState&&token?'个人中心': '未登录'}
                 key="Mine"
                 icon={<i className="iconfont iconweibiaoti2fuzhi12" style={{color: '#bfbfbf'}}></i>}
                 selectedIcon={<i className="iconfont iconweibiaoti2fuzhi12" style={{color: '#000000'}}></i>}
                 selected={['/login', '/register', '/my', '/mynologin'].includes(this.props.location.pathname)}
-                onPress={() => {this.props.loginState? this.props.history.push('/my'): this.props.history.push('/mynologin')}}
+                onPress={() => {this.props.loginState&&token? this.props.history.push('/my'): this.props.history.push('/mynologin')}}
             >
               {this.props.children}
             </TabBar.Item>

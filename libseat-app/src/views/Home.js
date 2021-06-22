@@ -31,7 +31,7 @@ export class Home extends Component {
             stadiumId: '',
             icon: '',
             size: 0,
-            startTime: isChangeDay?((days+1)*day+30*60*1000):(Date.now()+20*60*1000),
+            startTime: isChangeDay?((days+1)*day+30*60*1000):(Date.now()+60*60*1000),
             endTime:0
         }
     }
@@ -40,6 +40,7 @@ export class Home extends Component {
         getCompanyInfo(this.state.companyId).then(res => {
             // 解构赋值
             const {code, data, msg} = res.data
+            console.log(data)
             if (code === 200) {
                 if (this.props.stadiumId) {
                     for(let i=0; i<  data.length; i++) {
@@ -113,27 +114,33 @@ export class Home extends Component {
                 }}
             />
         );
-        let index = this.state.size - 1;
+        let index = 0;
         const row = (rowData, sectionID, rowID) => {
-            if (this.state.index === index) {
-                index--;
-             }
-            if (index < 0) {
-                index = this.state.size - 1;
+            if (index >= this.state.size) {
+                index = 0;
             }
-            const obj = this.state.data[index--];
+            if (this.state.index === index) {
+                index++;
+            }
+            console.log(index)
+            const obj = this.state.data[index++];
             return (
                 <div key={rowID}
                      style={{ padding: '21px 15px',height: '105px' }}
                      onClick={() => {
                          for(let i=0; i< this.state.size; i++) {
                              if (this.state.data[i].stadiumId === obj.stadiumId){
-                                 this.state.index = i
-                                 this.props.saveCompanyInfo({companyId: this.state.data[i].companyId,companyName:this.state.data[i].companyName})
+                                 setTimeout(() =>  {
+                                     this.setState({index : i})
+                                 },600)
+                                 this.props.saveStadiumId({stadiumId: this.state.data[i].stadiumId})
                                  break;
                              }
                          }
-                         this.fetchData(this.state.data);
+                         setTimeout(() =>  {
+                             this.fetchData(this.state.data);
+                         },600)
+
                      }}
                 >
                     <div>
@@ -177,7 +184,7 @@ export class Home extends Component {
                         <Card style={{minHeight: '25px'}}>
                             <Card.Body>
                                 <FontAwesomeIcon icon="map-marker-alt" style={{fontSize:'18px',color:'black',float: 'left'}}/>
-                                <p style={{float: 'left',marginLeft: '15px'}}>{this.state.detailAddress}</p>
+                                <p style={{marginLeft: '15px'}}>{this.state.detailAddress}</p>
                             </Card.Body>
                         </Card>
                     </div>:''}
@@ -191,7 +198,7 @@ export class Home extends Component {
                             <List className="time_picker">
                                 <DatePicker
                                     format="yyyy-MM-dd HH:mm"
-                                    minDate={new Date(Date.now()+20*60*1000)}
+                                    minDate={new Date(Date.now()+60*60*1000)}
                                     maxDate={new Date((days+2)*day+(14 * 60 * 60 * 1000))}
                                     onOk={time => {
                                         time = time.getTime();

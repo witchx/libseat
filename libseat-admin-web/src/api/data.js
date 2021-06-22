@@ -1,5 +1,7 @@
 import axios from '@/libs/api.request'
 
+const domain = '/api/data';
+
 export const getTableData = () => {
   return axios.request({
     url: 'get_table_data',
@@ -31,7 +33,7 @@ export const saveErrorLogger = info => {
 
 export const uploadImg = formData => {
   return axios.request({
-    url: 'image/upload',
+    url: domain+'/image/upload',
     data: formData
   })
 }

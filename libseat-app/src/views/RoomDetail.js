@@ -10,7 +10,6 @@ import { timestampToTime } from '../utils/time'
 export class RoomDetail extends Component {
     constructor(props) {
         super(props)
-        let data = this.props.location.query;
         this.state = {
             seat: [],
             seatId: '',
@@ -31,6 +30,10 @@ export class RoomDetail extends Component {
     }
     // 页面加载后获取数据
     UNSAFE_componentWillMount() {
+        this.fetchData();
+    }
+
+    fetchData = () => {
         // 获取自习室名称
         getRoomName(this.state.roomId).then(res => {
             const { code,msg,data } = res.data
@@ -97,14 +100,14 @@ export class RoomDetail extends Component {
                 <p className="room_alert">预约座位：{this.state.seatId}</p>
                 <p className="room_alert">预约时间：{timestampToTime(this.state.startTime)}</p>
                 <p className="room_alert">预约时长：{(this.state.minutes > 0)?(this.state.hours)+'小时'+(this.state.minutes)+'分钟':(this.state.hours-1)+'小时'+(this.state.minutes+60)+'分钟'}</p>
-                <p className="room_alert_bottom">预约到店时间前30分钟内不可取消，可提前30分钟到店。</p>
+                <p className="room_alert_bottom">离预约开始时间前30分钟内不可取消。</p>
             </div>)
             , [
             {text: '取消', onPress: () => console.log('cancel')},
             {
                 text: '确定',
                 onPress: () => {
-                    if (this.props.loginState) {
+                   if (this.props.loginState) {
                         //创建订单
                         createOrder({
                             userId: this.state.companyId,
@@ -118,12 +121,14 @@ export class RoomDetail extends Component {
                             discount: this.state.discount
                         }).then(res => {
                             const {code, msg, data} = res.data
-                            console.log(data)
                             // 获取数据成功
                             if (code === 200) {
                                 this.props.saveOrderId({orderId: data})
                                 this.props.saveSeatId({seatId: this.state.seatId})
                                 this.props.history.push('/pay')
+                            } else {
+                                Toast.fail(res.data.msg,2)
+                                this.fetchData();
                             }
                         })
                     } else {

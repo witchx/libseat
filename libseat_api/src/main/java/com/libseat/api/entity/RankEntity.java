@@ -4,10 +4,7 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
 
 @Data
 @Table(name = "lib_rank")
@@ -59,4 +56,13 @@ public class RankEntity {
 
     @Column
     private Timestamp modifyTime;
+
+    public void init() {
+        this.setHoursByWeek(0.0);
+        this.setDaysByWeek(0);
+        this.setHoursByMonth(0.0);
+        this.setDaysByMonth(0);
+        this.setHoursByYear(0.0);
+        this.setDaysByYear(0);
+    }
 }

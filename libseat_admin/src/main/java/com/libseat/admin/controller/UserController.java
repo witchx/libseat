@@ -17,8 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -39,15 +37,15 @@ public class UserController {
                                                              @RequestParam(required = false) String username,
                                                              @RequestParam(required = false) String companyName,
                                                              @RequestParam(required = false) Integer status,
-                                                             @RequestParam(required = false) String createTimeStart,
-                                                             @RequestParam(required = false) String createTimeEnd,
+                                                             @RequestParam(required = false) String createStartTime,
+                                                             @RequestParam(required = false) String createEndTime,
                                                              @RequestParam(required = false) String lastLoginTimeStart,
                                                              @RequestParam(required = false) String lastLoginTimeEnd,
                                                              @RequestParam(required = false, defaultValue = "1") Integer page,
                                                              @RequestParam(required = false, defaultValue = "10") Integer pageSize){
         PageResult<UserEntity> userList = userService.getUserList(id, username, companyName, status,
-                DateUtils.strToTimestamp(createTimeStart,DateUtils.YYYY_MM_DD_HH_MM_SS),
-                DateUtils.strToTimestamp(createTimeEnd,DateUtils.YYYY_MM_DD_HH_MM_SS),
+                DateUtils.strToTimestamp(createStartTime,DateUtils.YYYY_MM_DD_HH_MM_SS),
+                DateUtils.strToTimestamp(createEndTime,DateUtils.YYYY_MM_DD_HH_MM_SS),
                 DateUtils.strToTimestamp(lastLoginTimeStart,DateUtils.YYYY_MM_DD_HH_MM_SS),
                 DateUtils.strToTimestamp(lastLoginTimeEnd,DateUtils.YYYY_MM_DD_HH_MM_SS),
                 page, pageSize);

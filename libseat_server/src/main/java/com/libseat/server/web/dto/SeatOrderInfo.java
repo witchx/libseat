@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 
 @Data
 public class SeatOrderInfo {
-    private Integer roomName;
+    private String roomName;
     /** 1-未消费：1、2  2-已消费：3、4  3-已取消：5、6*/
     private Integer orderId;
     private Integer type;

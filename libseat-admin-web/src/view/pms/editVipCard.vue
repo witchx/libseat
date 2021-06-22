@@ -56,15 +56,9 @@
                 <Input v-model.number="formData2.price" placeholder="请输入现价"/>
               </FormItem>
             </Row>
-            <!--期限卡-->
-            <Row v-if="formData2.type === 3">
-              <FormItem label="开始有效时间:" prop="startTime">
-                <date-picker style="width: 100%" type="datetime" v-model="formData2.startTime" :value="formData2.startTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择开始时间"></date-picker>
-              </FormItem>
-            </Row>
-            <Row v-if="formData2.type === 3">
-              <FormItem label="结束有效时间:" prop="endTime">
-                <date-picker style="width: 100%" type="datetime"  v-model="formData2.endTime" :value="formData2.endTime" format="yyyy-MM-dd HH:mm:ss" placeholder="请选择结束时间"></date-picker>
+            <Row>
+              <FormItem label="有效期:" prop="usefulLife">
+                <Input v-model.number="formData2.usefulLife" placeholder="请输入有效期"/>
               </FormItem>
             </Row>
             <!--储值卡-->
@@ -98,7 +92,6 @@
   import {  getVipCard, updateVipCard, createVipCard} from '@/api/vipCard';
   import { getUser} from '@/api/user';
   import backBtnGroup from '../error-page/back-btn-group.vue'
-  import {timestampFormat} from '@/libs/tools';
   import lodash from "lodash";
   const product_type = [
     {
@@ -139,8 +132,7 @@
           type: '',
           userId: '',
           times: '',
-          startTime: '',
-          endTime: '',
+          usefulLife: '',
           money: '',
           originalPrice: '',
           price: '',
@@ -169,11 +161,8 @@
             {required: true, message: "必输项不能为空"},
             {type: 'number', message: "请输入数字值"},
           ],
-          startTime:[
-            {required: true,trigger: 'change',type: 'date', message: "必输项不能为空"}
-          ],
-          endTime:[
-            {required: true,trigger: 'change',type: 'date', message: "必输项不能为空"}
+          usefulLife:[
+            {type: 'number', message: "请输入数字值"},
           ],
           money:[
             {required: true, message: "必输项不能为空"},
@@ -210,13 +199,7 @@
               if (key === 'type') {
                 this.formData1[key] = res.data.data.rows[0][key]
               }
-              if (key === 'startTime') {
-                this.formData2.startTime = timestampFormat(res.data.data.rows[0][key],'year')
-              } else if (key === 'endTime') {
-                this.formData2.endTime = timestampFormat(res.data.data.rows[0][key],'year')
-              } else {
-                this.formData2[key] = res.data.data.rows[0][key]
-              }
+              this.formData2[key] = res.data.data.rows[0][key]
             })
             const res2 = await getUser({id: this.formData1['userId']})
             if ( res2.data.code === 200 ) {
@@ -287,8 +270,6 @@
       },
       // 确认提交
       async handleSubmit() {
-        this.formData2.startTime = timestampFormat(this.formData2.startTime,'year');
-        this.formData2.endTime = timestampFormat(this.formData2.endTime,'year')
         let res = '';
         if (this.formData2.id === '') {
           res = await createVipCard(this.formData2)
@@ -307,12 +288,6 @@
         Object.keys(this.formData2).forEach(key => {
           this.formData2[key] = '';
         });
-      },
-      changeStartTime(time) {
-        this.formData2.startTime = time;
-      },
-      changeEndTime(time) {
-        this.formData2.endTime = time;
       },
       debounce(fun, time) {
         return lodash.debounce(fun, time)

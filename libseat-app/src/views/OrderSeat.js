@@ -43,7 +43,7 @@ export class OrderSeat extends Component {
             height: document.documentElement.clientHeight * 0.85
         }
     }
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.init()
     }
 
@@ -134,6 +134,29 @@ export class OrderSeat extends Component {
     getSingle = (obj) => {
         switch (obj.type) {
             case 1://待支付
+                return(
+                    <div className="sOrder_box">
+                        <div onClick={() => {
+                            this.pay(obj.orderId,obj.seatId)
+                        }}>
+                            <div className="sOrder_top">
+                                <span>{obj.roomName}自习室</span>
+                                <span className="sOrder_top_right">{obj.seatId}</span>
+                            </div>
+                            <div className="sOrder_top_right_zero">未支付</div>
+                            <div className="sOrder_mid">
+                                预约时间
+                            </div>
+                            <div  className="sOrder_bottom">
+                                {strToTime(obj.startTime)}&nbsp;&nbsp;-&nbsp;&nbsp;{strToTime(obj.endTime)}
+                            </div>
+                        </div>
+
+                        <div className="sOrder_bottom_right_one" onClick={() => {
+                            this.cancelAlert(obj.orderId)
+                        }}>取消预约</div>
+                    </div>
+                )
             case 2://待确认
                 return(
                     <div className="sOrder_box">
@@ -240,10 +263,9 @@ export class OrderSeat extends Component {
                         type: 0
                     }).then(res => {
                         const { code,msg,data } = res.data
-                        // 状态码200表示获取购物车数据成功
                         if (code === 200) {
                             Toast.success(msg, 2);
-                            this.init()
+                            this.init();
                         } else {
                             Toast.fail(msg, 2);
                         }
@@ -252,7 +274,11 @@ export class OrderSeat extends Component {
                 }
             });
     }
-
+    pay = (orderId,seatId) => {
+        this.props.saveOrderId({orderId: orderId})
+        this.props.saveSeatId({seatId: seatId})
+        this.props.history.push('/pay')
+    }
     cancelAlert = (orderId) => {
         const alertInstance = Modal.alert('取消预约', '确定取消该预约？', [
             { text: '取消'},
@@ -478,4 +504,16 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps)(withRouter(OrderSeat))
+// 创建映射函数
+const mapDispatchToProps = (dispatch) => {
+    return {
+        saveSeatId:  (seatId) => {
+            dispatch({ type: 'SAVE_SEAT_ID',payload: seatId })
+        },
+        saveOrderId:  (orderId) => {
+            dispatch({ type: 'SAVE_ORDER_ID',payload: orderId })
+        },
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(withRouter(OrderSeat))

@@ -12,6 +12,7 @@ import com.libseat.api.entity.UserDetailEntity;
 import com.libseat.utils.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -30,6 +31,7 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Autowired
     private StadiumService stadiumService;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void statistics() {
         //先得到所有的用户详情

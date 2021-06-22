@@ -3,8 +3,6 @@ package com.libseat.utils.utils;
 import com.libseat.api.constant.Constant;
 import com.libseat.utils.redis.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
@@ -36,7 +34,7 @@ public class CodeGenerateUtils {
 		String timePrefix = getTimePrefix(DateUtils.YYYYMMDDHHMMSS);
 		return timePrefix+String.format("%1$06d", generate(Constant.ORDER_REDIS_KEY+timePrefix,1,1));
 	}
-	
+
 	/**
 	 * 支付单号
 	 * @return

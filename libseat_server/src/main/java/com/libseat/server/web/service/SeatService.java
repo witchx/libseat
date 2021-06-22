@@ -14,4 +14,6 @@ public interface SeatService {
     Integer updateSeat(SeatEntity seatEntity);
 
     Seat[] unparkSeat(List<SeatEntity> seatList, Integer line, Integer row);
+
+    Integer getSeatStatusBySeatId(Integer seatId,Timestamp startTime,Timestamp endTime);
 }

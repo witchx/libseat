@@ -27,9 +27,9 @@ export class MyNoLogin extends Component {
                                 <div className="wrapper">
                                     <i className="iconfont icon-icontouxiang"></i>
                                 </div>
-                                <span>未登录</span>
+                                <span>未登陆</span>
                             </div>
-                            <button className="goto-login" onClick={() => this.props.history.push('/login')}>立即登录</button>
+                            <button className="goto-login" onClick={() => this.props.history.push('/login')}>立即登陆</button>
                         </Flex>
                     </WingBlank>
                 </header>

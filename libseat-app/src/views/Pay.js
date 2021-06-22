@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import {Link, withRouter} from 'react-router-dom';
-import {NavBar, Icon, ActionSheet, Button,Toast} from 'antd-mobile'
+import {NavBar, Icon, ActionSheet, Button, Toast, Modal} from 'antd-mobile'
 import { connect } from 'react-redux'
-import {getOrder, createPay, getRoomName} from '../api/index'
+import {getOrder, createPay, getRoomName, updateOrder, aliPay} from '../api/index'
 import '../style/pay.scss'
-import { timestampToTime } from '../utils/time'
+import {strToTime, timestampToTime} from '../utils/time'
 
 export class Pay extends Component {
     constructor(props) {
@@ -14,10 +14,6 @@ export class Pay extends Component {
             userId: this.props.userId,
             roomId: this.props.roomId,
             seatId: this.props.seatId,
-            startTime: this.props.startTime,
-            endTime: this.props.endTime,
-            hours: this.props.hours,
-            minutes: this.props.minutes,
             companyId: this.props.companyId,
             name: '',
             pay: 0,
@@ -30,10 +26,18 @@ export class Pay extends Component {
     UNSAFE_componentWillMount() {
         getOrder(this.state.orderId).then(res => {
             const { code,msg,data } = res.data
+            let start = new Date(data.startTime);
+            let end = new Date(data.endTime);
+            let hours = end.getHours()-start.getHours();
+            let minutes = end.getMinutes()-start.getMinutes();
             // 获取数据成功
             if (code === 200) {
                 this.setState({
-                    orderInfo: data
+                    orderInfo: data,
+                    startTime: start.getTime(),
+                    endTime: end.getTime(),
+                    hours: hours,
+                    minutes: minutes,
                 })
             }
             console.log(this.state)
@@ -100,7 +104,7 @@ export class Pay extends Component {
                             <span className="pay_card_info_right">{this.getInfo(this.state.orderInfo.cardType)}</span>
                         </div>
                         <p className="pay_top_bottom">{this.state.orderInfo.usefulLife?("有效期："+this.state.orderInfo.usefulLife):("不限有效期")}</p>
-                        <div className="pay_mid"><span className="pay_big_alert">直接支付</span> <span className="pay_single">{this.state.orderInfo.price}元</span></div>
+                        <div className="pay_mid"><span className="pay_big_alert">支付宝</span> <span className="pay_single">{this.state.orderInfo.price}元</span></div>
                         <div className="pay_bottom">
                             <span className="pay_count_alert">费用总计</span>
                             <span className="pay_count_money">{this.state.orderInfo.price}</span>
@@ -116,10 +120,10 @@ export class Pay extends Component {
             let BUTTONS = [];
             if (this.state.orderInfo.type === 0) {
                 //座位
-                BUTTONS = ['直接支付', '储值卡', '计次卡','期限卡', '取消'];
+                BUTTONS = ['支付宝', '储值卡', '计次卡','期限卡', '取消'];
             } else if (this.state.orderInfo.type === 1) {
                 //vip
-                BUTTONS = ['直接支付', '取消'];
+                BUTTONS = ['支付宝', '取消'];
             }
             ActionSheet.showActionSheetWithOptions({
                     options: BUTTONS,
@@ -130,35 +134,50 @@ export class Pay extends Component {
                 (buttonIndex) => {
                     console.log(buttonIndex)
                     if (buttonIndex !== BUTTONS.length - 1){
-                        //支付
-                        createPay({
-                            orderType: this.state.orderInfo.type,
-                            userId: this.state.companyId,
-                            customerId: this.state.userId,
-                            paymentType: buttonIndex,
-                            orderId: this.state.orderId,
-                            couponId: this.state.couponId,
-                            discount: this.state.orderInfo.discount
-                        }).then(res => {
-                            const {code, msg, data} = res.data
-                            console.log(data)
-                            // 获取数据成功
-                            if (code === 200) {
-                                Toast.success('预约成功!', 2, () => {
-                                    this.props.clearOrder();
-                                    if (this.state.orderInfo.type === 0) {
-                                        this.props.clearSeat();
-                                        this.props.history.push('/result/'+this.state.orderId)
-                                    } else if (this.state.orderInfo.type === 1) {
-                                        this.props.clearCard();
-                                        this.props.history.push('/result/'+this.state.orderId)
-                                    }
 
-                                })
-                            } else {
-                                Toast.fail(msg, 2)
-                            }
-                        })
+                        if(buttonIndex === 0) {
+                            //支付宝
+                            aliPay({
+                                orderType: this.state.orderInfo.type,
+                                userId: this.state.companyId,
+                                customerId: this.state.userId,
+                                paymentType: buttonIndex,
+                                orderId: this.state.orderId,
+                                couponId: this.state.couponId,
+                                discount: this.state.orderInfo.discount
+                            }).then(res => {
+                                document.querySelector('body').innerHTML = res.data;//查找到当前页面的body，将后台返回的form替换掉他的内容
+                                document.forms[0].submit();
+                            })
+                        } else {
+                            //支付
+                            createPay({
+                                orderType: this.state.orderInfo.type,
+                                userId: this.state.companyId,
+                                customerId: this.state.userId,
+                                paymentType: buttonIndex,
+                                orderId: this.state.orderId,
+                                couponId: this.state.couponId,
+                                discount: this.state.orderInfo.discount
+                            }).then(res => {
+                                const {code, msg, data} = res.data
+                               if(code === 200) {
+                                   Toast.success('预约成功!', 2, () => {
+                                       this.props.clearOrder();
+                                       if (this.state.orderInfo.type === 0) {
+                                           this.props.clearSeat();
+                                           this.props.history.push('/result/'+this.state.orderId)
+                                       } else if (this.state.orderInfo.type === 1) {
+                                           this.props.clearCard();
+                                           this.props.history.push('/result/'+this.state.orderId)
+                                       }
+
+                                   })
+                               } else {
+                                   Toast.fail(msg, 2)
+                               }
+                            })
+                        }
                     }
                 });
         }
@@ -203,10 +222,6 @@ const mapStateToProps = (state) => {
         userId: state.userModule.id,
         roomId: state.seatModule.roomId,
         seatId: state.seatModule.seatId,
-        startTime: state.seatModule.startTime,
-        endTime: state.seatModule.endTime,
-        hours: state.seatModule.hours,
-        minutes: state.seatModule.minutes,
         orderId: state.orderModule.orderId,
         companyId: state.userModule.companyId
     }

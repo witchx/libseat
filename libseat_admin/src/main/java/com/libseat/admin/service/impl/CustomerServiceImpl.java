@@ -6,12 +6,11 @@ import com.github.pagehelper.PageInfo;
 import com.libseat.admin.mapper.CustomerMapper;
 import com.libseat.admin.service.CustomerBagService;
 import com.libseat.admin.service.CustomerService;
-import com.libseat.admin.service.CustomerStatisticService;
+import com.libseat.admin.service.RankService;
 import com.libseat.api.entity.CustomerBagEntity;
 import com.libseat.api.entity.CustomerEntity;
-import com.libseat.api.entity.CustomerStatisticsEntity;
+import com.libseat.api.entity.RankEntity;
 import com.libseat.utils.page.PageResult;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerBagService customerBagService;
     @Autowired
-    private CustomerStatisticService customerStatisticService;
+    private RankService rankService;
 
     @Override
     public PageResult<CustomerEntity> getCustomerList(String username, Integer sex,  Integer userId, Timestamp createTimeStart, Timestamp createTimeEnd, Timestamp lastLoginTimeStart, Timestamp lastLoginTimeEnd, Integer page, Integer pageSize) {
@@ -83,20 +82,21 @@ public class CustomerServiceImpl implements CustomerService {
         customerBagEntity.init();
         customerBagEntity.setCustomerId(customerEntity.getId());
         Integer j = customerBagService.insertCustomerBag(customerBagEntity);
-        CustomerStatisticsEntity customerStatisticsEntity = new CustomerStatisticsEntity();
-        customerStatisticsEntity.init();
-        customerStatisticsEntity.setCustomerId(customerEntity.getId());
-        Integer k = customerStatisticService.insertCustomerStatistic(customerStatisticsEntity);
+        RankEntity rankEntity = new RankEntity();
+        rankEntity.init();
+        rankEntity.setCustomerId(customerEntity.getId());
+        rankEntity.setModifyTime(new Timestamp(System.currentTimeMillis()));
+        Integer k = rankService.insertRank(rankEntity);
         return i+j+k;
     }
 
     @Override
     public CustomerBagEntity getCustomerBagByCustomerId(Integer id) {
         CustomerBagEntity customerBagEntity = customerBagService.getCustomerBagByCustomerId(id);
-        if (StringUtils.isNotBlank(customerBagEntity.getCoupon())) {
-
-        }
-        customerBagEntity.setCustomerStatistics(customerStatisticService.getCustomerStatisticByCustomerId(id));
+       /* int flag = DateUtils.getWeeksBetweenToday(Constant.OPEN_DAY);
+        customerBagEntity.setRankWeek(rankService.getRank(Constant.RANK_WEEK+flag,id));
+        customerBagEntity.setRankMonth(rankService.getRank(Constant.RANK_MONTH+flag,id));
+        customerBagEntity.setRankYear(rankService.getRank(Constant.RANK_YEAR+flag,id));*/
         return customerBagEntity;
     }
 

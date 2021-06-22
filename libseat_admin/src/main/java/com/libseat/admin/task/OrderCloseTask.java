@@ -1,9 +1,8 @@
 package com.libseat.admin.task;
 
-import com.libseat.admin.service.*;
+import com.libseat.admin.service.OrderService;
 import com.libseat.api.constant.OrderStatusType;
 import com.libseat.api.entity.OrderEntity;
-import com.libseat.api.entity.OrderSettingEntity;
 import com.libseat.utils.scheduler.ScheduleRunnable;
 import com.libseat.utils.utils.DateUtils;
 import org.slf4j.Logger;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * 定时任务：当提交提单后，超过指定时间，自动关闭订单
+ * 定时任务：当提交提单后，超过指定时间，未付款，自动关闭订单
  */
 public class OrderCloseTask extends ScheduleRunnable {
     private static final Logger logger = LoggerFactory.getLogger(OrderCloseTask.class);
@@ -38,7 +37,8 @@ public class OrderCloseTask extends ScheduleRunnable {
                     order.setId(orderEntity.getId());
                     order.setStatus(OrderStatusType.CLOSED.getId());
                     order.setProgress(orderEntity.getProgress());
-                    orderService.updateOrderByTask(orderEntity);
+                    order.setType(orderEntity.getType());
+                    orderService.updateOrderByTask(order);
                 }
             });
         } catch (Exception e) {

@@ -260,5 +260,5 @@ export const getProvincesJson = () => {
  * @returns {string}
  */
 export const getIconDefault = () => {
-  return  'https://img-blog.csdnimg.cn/20201014180756754.png?x-oss-process=image/resize,m_fixed,h_64,w_64';
+  return  'http://115.28.234.123/group1/M00/00/00/rB82xmC3pVmAMa5QAABayzzlGyI757.png';
 }

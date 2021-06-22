@@ -1,6 +1,7 @@
 package com.libseat.utils.jwt;
 
 import io.jsonwebtoken.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -24,6 +25,9 @@ public class JwtUtil {
 
 
     public static Map<String, Object> decode(String token, String key, String salt) {
+        if (StringUtils.isBlank(token)){
+            return null;
+        }
         Claims claims = null;
         if (salt != null) {
             key += salt;

@@ -35,18 +35,15 @@ public class VipCardEntity {
     /** 值多少钱*/
     @Column
     private BigDecimal money;
-    /** 商品类型*/
+    /** 会员卡类型*/
     @Column
     private Integer type;
     /** 具体描述 */
     @Column
     private String des;
-    /** 使用期限 开始时间*/
+    /** 使用 有效期*/
     @Column
-    private Timestamp startTime;
-    /** 使用期限 结束时间*/
-    @Column
-    private Timestamp endTime;
+    private Integer usefulLife;
     /** 创建时间*/
     @Column
     private Timestamp createTime;

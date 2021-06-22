@@ -35,4 +35,6 @@ public class RoomEntity {
     private Integer totalSeatCount;
     @Transient
     private String stadiumName;
+    @Transient
+    private String CompanyName;
 }

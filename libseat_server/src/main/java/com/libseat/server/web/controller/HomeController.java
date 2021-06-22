@@ -1,7 +1,6 @@
 package com.libseat.server.web.controller;
 
 
-import com.libseat.api.entity.CustomerEntity;
 import com.libseat.server.web.dto.BasicCompanyInfo;
 import com.libseat.server.web.service.HomeService;
 import com.libseat.server.web.service.MyService;

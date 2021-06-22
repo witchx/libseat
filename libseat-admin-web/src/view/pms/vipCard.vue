@@ -79,15 +79,9 @@
             <Input v-model="detail_show.price" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
-        <!--期限卡-->
-        <Row v-if="detail_show.type === 3">
-          <FormItem label="开始有效时间:" prop="startTime">
-            <Input v-model="detail_show.startTime" style="width: 80%;" readonly/>
-          </FormItem>
-        </Row>
-        <Row v-if="detail_show.type === 3">
-          <FormItem label="结束有效时间:" prop="endTime">
-            <Input v-model="detail_show.endTime" style="width: 80%;" readonly/>
+        <Row>
+          <FormItem label="有效期:" prop="usefulLife">
+            <Input v-model="detail_show.usefulLife" style="width: 80%;" readonly/>
           </FormItem>
         </Row>
         <!--储值卡-->
@@ -299,8 +293,7 @@
           type: '',
           userId: '',
           times: '',
-          startTime: '',
-          endTime: '',
+          usefulLife: '',
           money: '',
           originalPrice: '',
           price: '',

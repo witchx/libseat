@@ -12,7 +12,6 @@
             lo.user_id,
             lo.customer_Id,
             lo.stadium_id,
-            lo.vip_card_id,
             lo.coupon_id,
             lo.discount,
             lo.price,
@@ -24,7 +23,8 @@
             lo.evaluate_time,
             lu.company_name,
             lc.username customer_name,
-            lp.pay_time,
+            lp.create_time pay_time,
+            lp.payment_type,
             CASE
             WHEN lcou.price IS NULL THEN 0.00
             END AS coupon
@@ -63,7 +63,7 @@
         <if test="status != null ">
             AND lo.`status` = #{status}
         </if>
-        ORDER BY lo.id
+        ORDER BY lo.id DESC
     </select>
 
     <select id="getOrderListSimple" resultType="OrderEntity">
@@ -89,7 +89,7 @@
         <if test="type != null">
         AND lo.`type` = #{type}
         </if>
-        ORDER BY lo.id
+        ORDER BY lo.id DESC
     </select>
 
     <select id="getYesterdayOrderByUserId" resultType="OrderEntity">

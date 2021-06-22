@@ -27,9 +27,9 @@ public class RoomServiceImpl implements RoomService {
     private SeatService seatService;
 
     @Override
-    public PageResult<RoomEntity> getRoomList(String name, Integer stadiumId, String stadiumName, Integer page, Integer pageSize) {
+    public PageResult<RoomEntity> getRoomList(Integer userId, String name, Integer stadiumId, String stadiumName, Integer page, Integer pageSize) {
         PageHelper.startPage(page, pageSize);
-        List<RoomEntity> roomEntities = roomMapper.getRoomList(name, stadiumId, stadiumName);
+        List<RoomEntity> roomEntities = roomMapper.getRoomList(userId, name, stadiumId, stadiumName);
         PageInfo pageInfo = new PageInfo(roomEntities);
         return new PageResult<>(pageInfo.getTotal(),pageInfo.getList());
     }

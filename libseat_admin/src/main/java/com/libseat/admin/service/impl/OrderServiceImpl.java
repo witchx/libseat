@@ -105,26 +105,30 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrderByTask(OrderEntity orderEntity) {
         //先更新order数据库
-        if (updateOrder(orderEntity) > 0 && orderEntity.getDeleteFlag().equals(DeleteFlagType.CANCEL.getId())) {
+        if (updateOrder(orderEntity) > 0) {
             //根据订单类型更新其他表
             switch (Objects.requireNonNull(OrderType.getById(orderEntity.getType()))) {
                 case SEAT:
                     OrderSeatEntity orderSeatEntity = new OrderSeatEntity();
+                    orderSeatEntity.setId(orderEntity.getId());
                     orderSeatEntity.setDeleteFlag(DeleteFlagType.CANCEL.getId());
                     orderSeatService.updateOrderById(orderSeatEntity);
                     break;
                 case VIP_CARD:
                     OrderVipEntity orderVipEntity = new OrderVipEntity();
+                    orderVipEntity.setId(orderEntity.getId());
                     orderVipEntity.setDeleteFlag(DeleteFlagType.CANCEL.getId());
                     orderVipService.updateOrderById(orderVipEntity);
                     break;
                 case COUPON:
                     OrderCouponEntity orderCouponEntity = new OrderCouponEntity();
+                    orderCouponEntity.setId(orderEntity.getId());
                     orderCouponEntity.setDeleteFlag(DeleteFlagType.CANCEL.getId());
                     orderCouponService.updateOrderById(orderCouponEntity);
                     break;
                 case PRODUCT:
                     OrderProductEntity orderProductEntity = new OrderProductEntity();
+                    orderProductEntity.setId(orderEntity.getId());
                     orderProductEntity.setDeleteFlag(DeleteFlagType.CANCEL.getId());
                     orderProductService.updateOrderById(orderProductEntity);
                     break;

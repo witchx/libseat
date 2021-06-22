@@ -79,7 +79,7 @@
     components: {
 
     },
-    data() {
+    data: function () {
       return {
         loading: false,
         data: [],
@@ -154,7 +154,7 @@
             title: '顾客邮件',
             key: 'customerMail',
             render: (h, params) => {
-              return h('div', params.row.customer.mail);
+              return h('div', params.row.customer.email);
             }
           },
         ],
@@ -191,7 +191,7 @@
             title: '价格',
             key: 'vipCardPrice',
             render: (h, params) => {
-              return h('div','￥' + params.row.vipCard.originalPrice);
+              return h('div', '￥' + params.row.vipCard.originalPrice);
             }
           },
           {
@@ -254,7 +254,7 @@
             key: 'orderPrice',
             render: (h, params) => {
               const price = params.row.order.price + params.row.order.coupon + params.row.order.discount;
-              return h('div', '￥'+ price);
+              return h('div', '￥' + price);
             }
           },
           {
@@ -273,12 +273,17 @@
           },
           {
             title: '是否使用会员卡',
-            key: 'vipCardId',
+            key: 'paymentType',
             render: (h, params) => {
-              if (params.row.order.vipCardId != null) {
-                return h('div', '是');
-              } else {
+              let paymentType = params.row.order.paymentType;
+              if (!paymentType || paymentType === 0) {
                 return h('div', '否');
+              } else if (paymentType === 1) {
+                return h('div', '储值卡');
+              } else if (paymentType === 2) {
+                return h('div', '计次卡');
+              }else if (paymentType === 3) {
+                return h('div', '期限卡');
               }
             }
           },
@@ -286,7 +291,7 @@
             title: '应付金额',
             key: 'amount',
             render: (h, params) => {
-              return h('div', '￥'+ params.row.order.price);
+              return h('div', '￥' + params.row.order.price);
             }
           }
         ],

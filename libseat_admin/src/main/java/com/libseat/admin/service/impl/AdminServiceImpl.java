@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import tk.mybatis.mapper.entity.Example;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,6 +60,11 @@ public class AdminServiceImpl implements AdminService {
                     jedis.setex(key, 60 * 60 * 24, JSON.toJSONString(manangerUser));
                 }
             }
+            if (manangerUser != null){
+                AdminEntity admin = new AdminEntity();
+                admin.setLastLoginTime(new Timestamp(System.currentTimeMillis()));
+                updateAdmin(admin);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -79,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
         List<AdminEntity> adminEntities = adminMapper.getAdminList(username);
         adminEntities.forEach(adminEntity -> {
             ArrayList<Integer> arrayList = JSON.parseObject(adminEntity.getRole(), ArrayList.class);
-            if (!arrayList.isEmpty()) {
+            if (arrayList!=null&&!arrayList.isEmpty()) {
                 List<RoleEntity> roleList = roleService.getRoleListBatch(arrayList);
                 StringBuilder stringBuilder = new StringBuilder();
                 for (RoleEntity roleEntity : roleList) {
@@ -110,8 +116,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Integer createAdmin(AdminEntity adminEntity) {
         adminEntity.setPassword(DigestUtils.md5Hex(adminEntity.getPassword()));
-        adminEntity.setRole("2");
-        adminEntity.setDeleteFlag("0");
         return adminMapper.insert(adminEntity);
     }
 
@@ -179,5 +183,12 @@ public class AdminServiceImpl implements AdminService {
         example.selectProperties("username");
         List<String> allUsername = adminMapper.selectByExample(example).stream().map(adminEntity -> adminEntity.getUsername()).collect(Collectors.toList());
         return allUsername;
+    }
+
+    @Override
+    public AdminEntity getAdminById(Integer id) {
+        AdminEntity adminEntity = new AdminEntity();
+        adminEntity.setId(id);
+        return adminMapper.selectByPrimaryKey(adminEntity);
     }
 }

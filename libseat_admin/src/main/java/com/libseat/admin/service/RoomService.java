@@ -6,7 +6,7 @@ import com.libseat.utils.page.PageResult;
 
 public interface RoomService {
 
-    PageResult<RoomEntity> getRoomList(String name, Integer stadiumId, String stadiumName, Integer page, Integer pageSize);
+    PageResult<RoomEntity> getRoomList(Integer userId, String name, Integer stadiumId, String stadiumName, Integer page, Integer pageSize);
 
     PageResult<RoomEntity> getRoomListByStadiumId(Integer stadiumId, Integer page, Integer pageSize);
 

@@ -1,19 +1,17 @@
 package com.libseat.server.web.service.impl;
 
-import com.libseat.api.constant.DeleteFlagType;
-import com.libseat.api.constant.OrderProgressType;
-import com.libseat.api.constant.OrderStatusType;
-import com.libseat.api.constant.OrderType;
+import com.libseat.api.constant.*;
+import com.libseat.api.entity.CustomerBagEntity;
 import com.libseat.api.entity.OrderEntity;
 import com.libseat.api.entity.OrderSeatEntity;
 import com.libseat.api.entity.OrderVipEntity;
 import com.libseat.server.web.dto.OrderDto;
 import com.libseat.server.web.dto.OrderRecordInfo;
+import com.libseat.server.web.dto.PayInfo;
 import com.libseat.server.web.dto.SeatOrderInfo;
 import com.libseat.server.web.mapper.OrderMapper;
-import com.libseat.server.web.service.OrderSeatService;
-import com.libseat.server.web.service.OrderService;
-import com.libseat.server.web.service.OrderVipService;
+import com.libseat.server.web.service.*;
+import com.libseat.utils.code.CommonResult;
 import com.libseat.utils.utils.CodeGenerateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +32,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderVipService orderVipService;
+
+    @Autowired
+    private PayService payService;
+
+    @Autowired
+    private CustomerBagService customerBagService;
+
+    @Autowired
+    private SeatService seatService;
 
     @Autowired
     private CodeGenerateUtils codeGenerateUtils;
@@ -59,12 +66,21 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Integer createOrder(OrderDto orderDto) {
+    public CommonResult<Integer> createOrder(OrderDto orderDto) {
         Integer orderId = null;
         OrderType orderType = OrderType.getById(orderDto.getType());
         if (orderType != null) {
             //加锁
             synchronized (lock) {
+                if (orderType == OrderType.SEAT) {
+                    Integer status = seatService.getSeatStatusBySeatId(orderDto.getSeatId(),
+                            new Timestamp(orderDto.getStartTime()),
+                            new Timestamp(orderDto.getEndTime()));
+                    if (!status.equals(1)) {
+                        //该座位已有人选座
+                        return CommonResult.failed("该座位已有人选座");
+                    }
+                }
                 OrderEntity orderEntity = new OrderEntity();
                 orderEntity.setUserId(orderDto.getUserId());
                 orderEntity.setCustomerId(orderDto.getCustomerId());
@@ -114,7 +130,10 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
-        return orderId;
+        if (orderId == null) {
+            return CommonResult.failed();
+        }
+        return CommonResult.success(orderId);
     }
 
     @Override
@@ -125,6 +144,42 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderRecordInfo> getAllOrderList(Integer customerId) {
         return orderMapper.getAllOrderList(customerId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void cancelOrder(OrderEntity orderEntity) {
+        //得到支付方式
+        PayInfo payByOrderId = payService.getPayByOrderId(orderEntity.getId());
+        if (payByOrderId!=null){
+            PaymentType paymentType = PaymentType.getById(payByOrderId.getPaymentType());
+            if (paymentType != null){
+                OrderEntity order = getOrder(orderEntity);
+                CustomerBagEntity customerBag = customerBagService.getCustomerBagByCustomerId(order.getCustomerId());
+                switch (paymentType){
+                    case MONEY:
+                        payService.refund(order.getNo(),order.getPrice().toString());
+                        break;
+                    case VALUE:
+                        customerBag.setTotalValue(customerBag.getTotalValue().add(order.getPrice()));
+                        customerBagService.updateCustomerBag(customerBag);
+                        break;
+                    case WOULD:
+                        customerBag.setTotalTimes(customerBag.getTotalTimes()+1);
+                        customerBagService.updateCustomerBag(customerBag);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        orderEntity.setStatus(OrderStatusType.CANCEL.getId());
+        updateOrder(orderEntity);
+    }
+
+    @Override
+    public OrderEntity getOrderSelective(OrderEntity orderEntity) {
+        return orderMapper.selectOne(orderEntity);
     }
 
 }

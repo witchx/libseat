@@ -32,7 +32,7 @@
         <if test="companyName != null and companyName !=''">
             AND lu.company_name like concat('%',#{companyName},'%')
         </if>
-        ORDER BY lp.id
+        ORDER BY lp.id DESC
     </select>
 
 

@@ -44,7 +44,7 @@
         <if test="lastLoginTimeEnd != null ">
             AND lc.last_login_time <![CDATA[ <= ]]> #{lastLoginTimeEnd}
         </if>
-        ORDER BY id
+        ORDER BY id DESC
     </select>
 
     <insert id="insertCustomerBatch" parameterType="List" >
@@ -115,10 +115,10 @@
         LEFT JOIN lib_customer_bag lcb
         ON lc.id = lcb.customer_id
         WHERE
-            lo.user_id = #{userId}
+            lc.user_id = #{userId}
         AND
-            lo.create_time <![CDATA[ >= ]]> #{yesStartTime}
+            lc.create_time <![CDATA[ >= ]]> #{yesStartTime}
         AND
-            lo.create_time <![CDATA[ < ]]> #{yesEndTime}
+            lc.create_time <![CDATA[ < ]]> #{yesEndTime}
     </select>
 </mapper>

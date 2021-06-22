@@ -33,7 +33,7 @@ export function getOrderProduct(params) {
 export function updateOrder(id,data) {
   return axios.request({
     url:domain + '/update/' + id,
-    method:'put',
+    method:'post',
     data:data
   })
 }

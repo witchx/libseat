@@ -122,7 +122,7 @@ public class OrderController {
         return CommonResult.success(orderRecords);
     }
 
-    @RequestMapping(value = "/update/{id}",method = RequestMethod.PUT)
+    @RequestMapping(value = "/update/{id}",method = RequestMethod.POST)
     @ResponseBody
     public CommonResult<ResultCode> updateOrder (@PathVariable Integer id, @RequestBody OrderEntity orderEntity){
         if (orderEntity != null) {

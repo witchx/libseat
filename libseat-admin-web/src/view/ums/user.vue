@@ -236,7 +236,7 @@
 
 <script>
   import { getUser, updateUser, updateUserPassword, deleteUser, createUser, getUserDetail} from '@/api/user';
-  import { uploadImg } from '@/api/data'
+  import { uploadImg } from '@/api/upload'
   import {validateUsername, validatePass, validatePhone, validateEMail} from '@/libs/validate';
   import { timestampFormat, getIconDefault} from '@/libs/tools';
   import Tables from '_c/tables'
@@ -600,9 +600,15 @@
       },
       handleCroped (blob) {
         const formData = new FormData()
-        formData.append('croppedImg', blob)
-        uploadImg(formData).then(() => {
-          this.$Message.success('Upload success~')
+        formData.append('file', blob)
+        uploadImg(formData).then(res => {
+          if (res.status === 200) {
+            this.$Message.success("上传成功");
+            this.show_edit.icon = res.data
+            this.show_create.icon = res.data
+          } else {
+            this.$Message.error(res.data.msg);
+          }
         })
       },
       handlePage(page) {

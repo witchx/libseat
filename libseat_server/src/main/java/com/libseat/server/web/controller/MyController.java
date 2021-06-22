@@ -4,19 +4,21 @@ package com.libseat.server.web.controller;
 import com.libseat.api.constant.Constant;
 import com.libseat.api.constant.DeleteFlagType;
 import com.libseat.api.entity.CustomerEntity;
+import com.libseat.api.entity.RankInfo;
 import com.libseat.server.web.dto.CustomerInfo;
-import com.libseat.server.web.dto.RankInfo;
 import com.libseat.server.web.service.LoginService;
 import com.libseat.server.web.service.MyService;
 import com.libseat.server.web.service.RankService;
 import com.libseat.utils.code.CommonResult;
 import com.libseat.utils.code.ResultCode;
+import com.libseat.utils.file.FileUploadUtil;
 import com.libseat.utils.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +93,21 @@ public class MyController {
             CustomerInfo customer = myService.getCustomerDetail(customerEntity);
             if (customer != null) {
                 return CommonResult.success(customer);
+            }
+        }
+        return CommonResult.failed();
+    }
+
+    @PostMapping("/upload/image/{id}")
+    @ResponseBody
+    public CommonResult<ResultCode> fileUpload(@PathVariable Integer id,@RequestBody MultipartFile file) {
+        if (file != null) {
+            String imgUrl = FileUploadUtil.uploadImage(file);
+            CustomerEntity customerEntity = new CustomerEntity();
+            customerEntity.setId(id);
+            customerEntity.setIcon(imgUrl);
+            if (myService.updateCustomer(customerEntity) != 0) {
+                return CommonResult.success();
             }
         }
         return CommonResult.failed();

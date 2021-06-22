@@ -12,9 +12,12 @@
             la.delete_flag,
             la.create_time,
             la.last_login_time,
-            la.modify_time
+            la.modify_time,
+            lu.company_name
         FROM
             lib_admin la
+        LEFT JOIN lib_user lu
+        ON la.user_id = lu.id
         WHERE
             1=1
         <if test="username != null and username != ''">

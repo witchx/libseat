@@ -5,7 +5,8 @@ import { List, InputItem, WhiteSpace, WingBlank, Card, Button, Toast } from 'ant
 import { createForm } from 'rc-form';
 import {submitLogin, getInfo, getCompanyInfo, getUserRank} from '../api/index'
 import axios from 'axios'
-import libseat from "../assets/imgs/libseat.png";
+import loginBg from "../assets/imgs/login-bg.jpg";
+import Cookies from 'js-cookie'
 
 export class Login extends Component {
     constructor(props) {
@@ -50,6 +51,7 @@ export class Login extends Component {
                         axios.defaults.headers.common['Authorization'] = token
                         // 修改userReducer中的登录状态
                         this.props.changeLoginState({Login: true, token})
+                        Cookies.set("token", token, { expires: 1 })
                         // 获取用户信息
                         getInfo(token).then(res => {
                             const {code,msg,data} = res.data
@@ -65,12 +67,6 @@ export class Login extends Component {
                                 const {code, data, msg} = res.data
                                 if (code === 200) {
                                     this.props.saveStadiumId({stadiumId: data[0].stadiumId})
-                                }
-                            })
-                            getUserRank(data.id).then(res => {
-                                const {code, msg, data} = res.data
-                                if(code === 200) {
-                                    sessionStorage.setItem('ranks', JSON.stringify(data))
                                 }
                             })
                         })
@@ -98,13 +94,10 @@ export class Login extends Component {
     render() {
         const { getFieldError, getFieldProps } = this.props.form;
         return (
-            <div className="login" style={{background:'linear-gradient(45deg, lightblue, transparent)',height:'100%'}}>
-                <h2 style={{textAlign: 'center', margin: 'auto',paddingTop: '10%'}}> SIGN UP</h2>
-                <img src={libseat } style={{width:'40%',marginLeft: '30%',marginTop:'13%'}}/>
-                <WhiteSpace size="lg" />
-                <WhiteSpace size="lg" />
+            <div className="login" style={{ backgroundImage: 'url('+loginBg+')',height:'100%'}}>
+                <h2 style={{textAlign: 'center', margin: 'auto',paddingTop: '20%',color: '#fff'}}> SIGN UP</h2>
                 <WingBlank size="lg">
-                    <Card>
+                    <Card style={{transform: 'translateY(70%)'}}>
                         <Card.Body>
                             <List>
                                 <InputItem
@@ -173,7 +166,7 @@ export class Login extends Component {
                                     <Button type="primary"
                                             style={{background: 'black'}}
                                             onClick={this.handleLogin}>
-                                        登录
+                                        登陆
                                     </Button>
                                 </List.Item>
                                 <List.Item>

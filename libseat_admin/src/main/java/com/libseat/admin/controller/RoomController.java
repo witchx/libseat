@@ -31,9 +31,10 @@ public class RoomController {
     public CommonResult<PageResult<RoomEntity>> getRoomList (@RequestParam(required = false) String name,
                                                              @RequestParam(required = false) Integer stadiumId,
                                                              @RequestParam(required = false) String stadiumName,
+                                                             @RequestParam(required = false) Integer userId,
                                                              @RequestParam(required = false, defaultValue = "1") Integer page,
                                                              @RequestParam(required = false, defaultValue = "10") Integer pageSize){
-        PageResult<RoomEntity> roomList = roomService.getRoomList(name, stadiumId, stadiumName, page, pageSize);
+        PageResult<RoomEntity> roomList = roomService.getRoomList(userId, name, stadiumId, stadiumName, page, pageSize);
         if (roomList == null || roomList.getTotal() == 0) {
             return CommonResult.failed(ResultCode.EMPTY);
         } else {

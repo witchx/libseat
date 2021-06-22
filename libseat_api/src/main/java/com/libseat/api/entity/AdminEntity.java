@@ -5,7 +5,6 @@ import org.apache.ibatis.type.Alias;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.List;
 
 @Data
 @Table(name = "lib_admin")
@@ -31,7 +30,11 @@ public class AdminEntity {
     @Column
     private Timestamp lastLoginTime;
     @Column
-    private String deleteFlag;
+    private Integer deleteFlag;
+    @Column
+    private Integer userId;
     @Transient
     private String roleName;
+    @Transient
+    private String companyName;
 }

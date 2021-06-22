@@ -5,11 +5,18 @@ import com.libseat.server.web.dto.PayDto;
 import com.libseat.server.web.dto.PayInfo;
 
 public interface PayService {
-    void createPay(PayDto payDto) throws Exception;
+    Boolean createPay(PayDto payDto);
 
     Integer insertPay(PayEntity payEntity);
 
     PayEntity getPayById(Integer id);
 
     PayInfo getPayByOrderId(Integer id);
+
+    Object alipay(PayDto payDto);
+
+    void fallback(String orderNo);
+
+    void refund(String orderNo,String price);
+
 }

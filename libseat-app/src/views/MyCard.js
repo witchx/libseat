@@ -76,7 +76,7 @@ export class MyCard extends Component {
                 dataSource3: this.state.dataSource3.cloneWithRows(this.rData3),
             });
 
-        }, 1000);
+        }, 1200);
     }
 
     getCard = (obj) => {

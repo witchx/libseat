@@ -51,4 +51,9 @@ public class SeatServiceImpl implements SeatService {
         }
         return seats;
     }
+
+    @Override
+    public Integer getSeatStatusBySeatId(Integer seatId,Timestamp startTime,Timestamp endTime) {
+        return seatMapper.getSeatStatusBySeatId(seatId,startTime,endTime);
+    }
 }

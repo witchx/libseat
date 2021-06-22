@@ -1,8 +1,8 @@
 package com.libseat.api.constant;
 
 public enum PaymentType {
-    /** 直接支付*/
-    MONEY(0, "直接支付"),
+    /** 支付宝*/
+    MONEY(0, "支付宝"),
     /** 储值卡*/
     VALUE(1, "储值卡"),
     /** 计次卡*/

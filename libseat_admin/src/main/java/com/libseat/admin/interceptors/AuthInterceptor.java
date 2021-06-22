@@ -72,7 +72,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
                 return false;
             }
             request.setAttribute(Constant.LOGIN_ID, successMap.get(Constant.LOGIN_ID));
-            request.setAttribute(Constant.LOGIN_NAME, successMap.get(Constant.LOGIN_NAME));
+            request.setAttribute(Constant.LOGIN_USERNAME, successMap.get(Constant.LOGIN_USERNAME));
             if (StringUtils.isNotBlank(token)) {
                 //验证通过，覆盖cookie中的token
                 CookieUtil.setCookie(request, response, "oldToken", token, 60 * 60 * 2, true);
@@ -82,7 +82,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             if (success.equals("success")) {
                 //需要将用户携带的用户信息写入
                 request.setAttribute(Constant.LOGIN_ID, successMap.get(Constant.LOGIN_ID));
-                request.setAttribute(Constant.LOGIN_NAME, successMap.get(Constant.LOGIN_NAME));
+                request.setAttribute(Constant.LOGIN_USERNAME, successMap.get(Constant.LOGIN_USERNAME));
                 if (StringUtils.isNotBlank(token)) {
                     //验证通过，覆盖cookie中的token
                     CookieUtil.setCookie(request, response, "oldToken", token, 60 * 60 * 2, true);

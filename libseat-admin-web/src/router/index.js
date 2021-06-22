@@ -5,21 +5,20 @@ import iView from 'iview'
 import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
 import config from '@/config'
 
-const { homeName } = config
-const LOGIN_PAGE_NAME = 'login'
+const { homeName } = config;
+const LOGIN_PAGE_NAME = 'login';
 
-const originalPush = Router.prototype.push
+const originalPush = Router.prototype.push;
 Router.prototype.push = function push(location, onResolve, onReject) {
-  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject);
   return originalPush.call(this, location).catch(err => err)
-}
-
-Vue.use(Router)
+};
+Vue.use(Router);
 
 const createRouter = () =>  new Router({
   routes: store.state.router.constantRouters,
   mode: 'history'
-})
+});
 
 //重置路由的方法:切换用户后，或者退出时清除动态加载的路由
 export function resetRouter() {
@@ -35,11 +34,11 @@ const turnTo = (to, access, next) => {
   } else { // 无权限，重定向到401页面
     next({ replace: true, name: 'error_401' })
   }
-}
+};
 
 router.beforeEach((to, from, next) => {
-  iView.LoadingBar.start()
-  const token = getToken()
+  iView.LoadingBar.start();
+  const token = getToken();
   if (!token && to.name !== LOGIN_PAGE_NAME) {
     // 未登录且要跳转的页面不是登录页
     next({
@@ -54,7 +53,7 @@ router.beforeEach((to, from, next) => {
       name: homeName // 跳转到homeName页
     })
   } else if ( to.name === 'error_404' && from.name === null) {
-    var routeTo404 = sessionStorage.getItem('routerTo')
+    var routeTo404 = sessionStorage.getItem('routerTo');
     buildRouter(false, routeTo404, next);
   } else {
     if (store.state.router.hasGetInfo&&store.state.router.hasGenerateMenu) {
@@ -63,14 +62,14 @@ router.beforeEach((to, from, next) => {
       buildRouter(true, null, next);
     }
   }
-})
+});
 
 router.afterEach(to => {
-  setTitle(to, router.app)
-  iView.LoadingBar.finish()
-  window.scrollTo(0, 0)
+  setTitle(to, router.app);
+  iView.LoadingBar.finish();
+  window.scrollTo(0, 0);
   sessionStorage.setItem('routerTo', to.path)
-})
+});
 
 export function buildRouter(isReset,toPath,next) {
   // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
@@ -82,7 +81,7 @@ export function buildRouter(isReset,toPath,next) {
         resetRouter()
       }
       // 动态添加可访问路由表
-      router.addRoutes(dynamicRoutes)
+      router.addRoutes(dynamicRoutes);
       store.commit('setHasGenerateMenu', true);
       if (toPath ===  null) {
         // hack方法 确保addRoutes已完成
@@ -92,7 +91,7 @@ export function buildRouter(isReset,toPath,next) {
       }
     })
   }).catch(() => {
-    setToken('')
+    setToken('');
     next({
       name: 'login'
     })

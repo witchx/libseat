@@ -13,7 +13,7 @@
             </Col>
           </Row>
           <Row :gutter="16">
-            <Col span="6">
+            <Col span="6" v-if="!sellerId">
               <Select v-model="form.userId" filterable remote :remote-method="debounce(searchUser, 300)" :loading="user_loading" @on-change="chooseUser" placeholder="请输入搜索用户名称">
                 <Option v-for="(option, index) in user_option" :value="option.value" :key="index">{{option.label}}</Option>
               </Select>
@@ -60,6 +60,7 @@
     data() {
       return {
         user_loading: false,
+        sellerId: this.$store.state.user.sellerId,
         form: {
           userId: '',
           stadiumId: '',
@@ -76,10 +77,14 @@
       this.fetchData()
     },
     methods: {
-      fetchData() {
-        if (typeof(this.$route.query.roomId) !== "undefined") {
+      async fetchData() {
+        if (typeof (this.$route.query.roomId) !== "undefined") {
           this.form.roomId = this.$route.query.roomId;
           this.handleSearch();
+        }
+        if (this.sellerId) {
+          this.form.userId = this.sellerId
+          this.chooseUser()
         }
       },
       async searchUser(query) {

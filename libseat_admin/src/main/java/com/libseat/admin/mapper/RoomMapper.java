@@ -11,7 +11,8 @@ import java.util.List;
 @Mapper
 @Component
 public interface RoomMapper extends MyBaseMapper<RoomEntity> {
-    List<RoomEntity> getRoomList(@Param("name") String name,
+    List<RoomEntity> getRoomList(@Param("userId") Integer userId,
+                                 @Param("name") String name,
                                  @Param("stadiumId") Integer stadiumId,
                                  @Param("stadiumName") String stadiumName);
 

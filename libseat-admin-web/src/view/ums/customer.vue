@@ -18,7 +18,7 @@
               <Input v-model="searchParams.username"  placeholder="顾客账号" @on-search="fetchData" />
             </FormItem>
           </Col>
-          <Col span="6">
+          <Col span="6" v-if="!user.sellerId">
             <FormItem label="公司">
               <Input v-model="searchParams.userId"  placeholder="公司ID" @on-search="fetchData" />
             </FormItem>
@@ -181,7 +181,7 @@
 </template>
 <script>
   import Tables from '_c/tables'
-  import { uploadImg } from '@/api/data'
+  import { uploadImg } from '@/api/upload'
   import { getCustomer, updateCustomer,createCustomer, deleteCustomer,deleteCustomerBatch,getCustomerDetail } from '@/api/customer';
   import { getUser} from '@/api/user';
   import {validateUsername, validatePass, validatePhone, validateEMail} from '@/libs/validate';
@@ -440,6 +440,9 @@
     methods: {
       async fetchData() {
         this.loading = true
+        if (this.user.sellerId) {
+          this.searchParams.userId = this.user.sellerId;
+        }
         const res = await getCustomer(this.searchParams)
         if (res.data.code === 200) {
           this.data = res.data.data.rows.map(item => {
@@ -598,9 +601,15 @@
       },
       handleCroped (blob) {
         const formData = new FormData()
-        formData.append('croppedImg', blob)
-        uploadImg(formData).then(() => {
-          this.$Message.success('Upload success~')
+        formData.append('file', blob)
+        uploadImg(formData).then(res => {
+          if (res.status === 200) {
+            this.$Message.success("上传成功");
+            this.show_edit.icon = res.data
+            this.show_create.icon = res.data
+          } else {
+            this.$Message.error(res.data.msg);
+          }
         })
       },
       handleSelect(selection, row) {

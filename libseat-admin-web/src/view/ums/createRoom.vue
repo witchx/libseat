@@ -70,13 +70,20 @@
         lib_option: [],
         seat: [{row: [{value: 1}]}],
         seat_loading: false,
+        sellerId:this.$store.state.user.sellerId
       }
     },
     methods: {
       async searchStadium(query) {
         if (query) {
           this.lib_loading = true
-          const res = await getStadium({name: query})
+          let data = ''
+          if (this.sellerId){
+            data = {name: query,userId: this.$store.state.user.sellerId}
+          } else {
+            data = {name: query}
+          }
+          const res = await getStadium(data)
           if (res.data.code === 200) {
             this.lib_option = res.data.data.rows.map(item => {
               return {

@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom'
 import {connect} from "react-redux";
 import {Tabs, NavBar, WingBlank, ListView, WhiteSpace, ActionSheet, Button, Modal, Icon} from 'antd-mobile'
 import '../style/rank.scss'
+import {getUserRank} from "../api";
 const tabs = [
     { title: '周排行', index: '1' },
     { title: '月排行', index: '2' },
@@ -34,10 +35,15 @@ export class MyRank extends Component {
     }
 
     componentWillMount() {
-        setTimeout(() => {
-            this.setState({
-                ranks: JSON.parse(sessionStorage.getItem('ranks'))
-            })}, 600);
+        getUserRank(this.state.userId).then(res => {
+            const {code, msg, data} = res.data
+            if(code === 200) {
+                setTimeout(() => {
+                    this.setState({
+                        ranks: data
+                    })}, 900);
+            }
+        })
 
         setTimeout(() => {
             //周排行
@@ -69,7 +75,7 @@ export class MyRank extends Component {
                 isLoading: true,
             });
 
-        }, 700);
+        }, 2000);
     }
 
     getOne = (obj,type) => {

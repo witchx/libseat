@@ -5,6 +5,7 @@ import com.libseat.api.entity.OrderEntity;
 import com.libseat.server.web.dto.OrderDto;
 import com.libseat.server.web.dto.OrderRecordInfo;
 import com.libseat.server.web.dto.SeatOrderInfo;
+import com.libseat.utils.code.CommonResult;
 
 import java.util.List;
 
@@ -16,9 +17,13 @@ public interface OrderService {
 
     Integer insertOrder(OrderEntity orderEntity);
 
-    Integer createOrder(OrderDto orderDto);;
+    CommonResult<Integer> createOrder(OrderDto orderDto);;
 
     List<SeatOrderInfo> getAllSeatOrderList(Integer customerId);
 
     List<OrderRecordInfo> getAllOrderList(Integer customerId);
+
+    void cancelOrder(OrderEntity orderEntity);
+
+    OrderEntity getOrderSelective(OrderEntity orderEntity);
 }

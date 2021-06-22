@@ -18,6 +18,7 @@ export default {
     username: '',
     nickname: '',
     userId: '',
+    sellerId:'',
     avatarImgPath: '',
     token: getToken(),
     access: '',
@@ -36,6 +37,9 @@ export default {
     },
     setUserId (state, id) {
       state.userId = id
+    },
+    setSellerId(state,id){
+      state.sellerId = id
     },
     setUsername (state, name) {
       state.username = name
@@ -130,10 +134,12 @@ export default {
             commit('setAvatar', data.avatar)
             commit('setUsername', data.username)
             commit('setNickname', data.nickname)
-            commit('setUserId', data.userId)
+            commit('setUserId', data.id)
+            commit('setSellerId', data.sellerId)
             commit('setAccess', data.access)
             commit('setMenus', data.menus)
             commit('setHasGetInfo', true)
+
             resolve(data)
           }).catch(err => {
             reject(err)

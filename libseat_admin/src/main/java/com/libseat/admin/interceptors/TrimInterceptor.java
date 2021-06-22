@@ -61,12 +61,10 @@ public class TrimInterceptor implements HandlerInterceptor {
 
         // 字段为private时，无法修改字段值，需要反射
         Field[] fields = clazz.getDeclaredFields();
-
         // 没有字段
         if (Objects.isNull(fields) || fields.length == 0) {
             return object;
         }
-
         for (Field field : fields) {
             Class<?> filedType = field.getType();
             // 只处理字符串类型
@@ -80,7 +78,6 @@ public class TrimInterceptor implements HandlerInterceptor {
                 // 在原有的对象上设置去除首尾空格的新值
                 field.set(object, String.valueOf(field.get(object)).trim());
             }
-
         }
         return object;
     }

@@ -22,7 +22,7 @@ public class PayEntity {
     @Column
     private Timestamp createTime;
     @Column
-    private Timestamp payTime;
+    private Integer paymentType;
     @Transient
     private String companyName;
 }

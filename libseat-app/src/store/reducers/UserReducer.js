@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie'
 // 初始token为空
 let initState = {
     loginState: false,
@@ -32,6 +33,7 @@ export const UserReducer = (state = initState, action) => {
             }
             return {...state,id: action.payload.id};
         case 'LOGINOUT':
+            Cookies.remove("token")
             sessionStorage.removeItem('token');
             sessionStorage.removeItem('companyName');
             sessionStorage.removeItem('companyId');

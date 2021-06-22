@@ -20,6 +20,8 @@ export const getUserInfo = value => axios.get('/my/info?id='+value)
 export const getUserRank = value => axios.get('/my/rank?id='+value)
 // 获取用户详细信息
 export const getUserDetail = value => axios.get('/my/detail?id='+value)
+// 上传图片
+export const uploadImage = (id,data) => axios.post('/my/upload/image/'+id,data)
 // 修改用户信息
 export const updateUser = (id,data) => axios.post('/my/update_'+id,data)
 // 核对用户密码
@@ -38,6 +40,8 @@ export const createOrder = (data) => axios.post('/order/create',data)
 export const getOrder = (id) => axios.get('/order/info?id='+id)
 // 获取订单
 export const getOrderDetail = (id,type) => axios.get('/order/detail?id='+id+'&type='+type)
+// 支付宝支付订单
+export const aliPay = (data) => axios.post('/pay/alipay',data)
 // 创建支付订单
 export const createPay = (data) => axios.post('/pay/create',data)
 // 获取订单
